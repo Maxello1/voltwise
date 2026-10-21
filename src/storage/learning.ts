@@ -1,5 +1,6 @@
-import { exercises, exerciseById } from '../content/curriculum'
+import { concepts, exercises, exerciseById, lessons, topics } from '../content/curriculum'
 import { gradeExercise } from '../domain/grading'
+import { planPractice } from '../domain/practice-plan'
 import { scheduleReview } from '../domain/review'
 import type { Exercise, LearningSession, ReviewEvent } from '../domain/models'
 import { db, initializeDatabase, type VoltwiseDatabase } from './db'
@@ -9,11 +10,12 @@ export async function startSession(
   topicId?: string,
   database = db,
   circuitId?: string,
+  conceptId?: string,
 ): Promise<LearningSession | undefined> {
   await initializeDatabase(database)
   return database.transaction(
     'rw',
-    [database.sessions, database.reviewStates, database.attempts],
+    [database.sessions, database.reviewStates, database.attempts, database.completions],
     async () => {
       // One resumable session avoids accidentally discarding an unanswered or unrated step.
       const active = await database.sessions.where('status').equals('active').first()
@@ -24,25 +26,34 @@ export async function startSession(
       const candidates = exercises.filter((e) => !topicId || e.topicId === topicId)
       let selected: Exercise[]
       if (mode === 'review') {
-        selected = candidates.filter(
-          (e) =>
-            e.reviewable &&
-            states.some((state) => state.exerciseId === e.id && new Date(state.card.due) <= now),
-        )
+        selected = candidates
+          .filter(
+            (e) =>
+              e.reviewable &&
+              states.some((state) => state.exerciseId === e.id && new Date(state.card.due) <= now),
+          )
+          .sort((a, b) =>
+            states
+              .find((state) => state.exerciseId === a.id)!
+              .card.due.localeCompare(states.find((state) => state.exerciseId === b.id)!.card.due),
+          )
       } else if (mode === 'schematic')
         selected = candidates.filter(
           (e) => !!e.circuitId && (!circuitId || e.circuitId === circuitId),
         )
       else {
-        selected = [...candidates].sort((a, b) => {
-          const priority = (id: string) => {
-            const state = states.find((s) => s.exerciseId === id)
-            if (state && new Date(state.card.due) <= now) return 0
-            const last = attempts.filter((attempt) => attempt.exerciseId === id).at(-1)
-            return last ? (last.correct ? 3 : 1) : 2
-          }
-          return priority(a.id) - priority(b.id)
-        })
+        selected = planPractice({
+          exercises,
+          concepts,
+          topics,
+          lessons,
+          attempts,
+          reviewStates: states,
+          completions: await database.completions.toArray(),
+          now,
+          topicId,
+          conceptId,
+        }).map((item) => item.exercise)
       }
       if (!selected.length) return undefined
       const session: LearningSession = {

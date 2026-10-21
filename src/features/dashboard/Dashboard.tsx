@@ -20,6 +20,7 @@ import { parallelDemo } from '../../content/circuit'
 import { CircuitViewer } from '../../schematics/CircuitViewer'
 import { startSession } from '../../storage/learning'
 import { EmptyState, ErrorMessage, PageHeading, SectionHeading } from '../../components/ui'
+import { ConceptRecommendations } from '../../components/ConceptRecommendations'
 import { formatNumber } from '../../i18n/de'
 
 export function Dashboard({ data }: { data: LearningData }) {
@@ -38,22 +39,6 @@ export function Dashboard({ data }: { data: LearningData }) {
     ? (data.attempts.filter((a) => a.correct).length / data.attempts.length) * 100
     : null
   const learned = new Set(data.attempts.map((a) => a.exerciseId)).size
-  const weakTopics = topics
-    .map((topic) => {
-      const attempts = data.attempts.filter(
-        (a) => exerciseById.get(a.exerciseId)?.topicId === topic.id,
-      )
-      return {
-        topic,
-        count: attempts.length,
-        score: attempts.length
-          ? attempts.filter((a) => a.correct && !a.hints).length / attempts.length
-          : 1,
-      }
-    })
-    .filter((entry) => entry.count && entry.score < 0.8)
-    .sort((a, b) => a.score - b.score)
-    .slice(0, 2)
   async function begin() {
     setStarting(true)
     setError('')
@@ -105,7 +90,9 @@ export function Dashboard({ data }: { data: LearningData }) {
               <ArrowRight size={17} />
             </button>
             <span className="hero-meta">
-              <Clock3 size={13} />5 Aufgaben · in deinem Tempo
+              <Clock3 size={13} />
+              {active ? `${active.exerciseIds.length} Aufgaben` : 'Bis zu 5 Aufgaben'} · in deinem
+              Tempo
             </span>
           </div>
           <div className="hero-art" aria-hidden="true">
@@ -302,17 +289,7 @@ export function Dashboard({ data }: { data: LearningData }) {
                     </time>
                   </div>
                 ))}
-              {weakTopics.length > 0 && (
-                <div className="weak-topics">
-                  <p>Hier lohnt sich die nächste Übung:</p>
-                  {weakTopics.map(({ topic, count, score }) => (
-                    <Link className="text-link" to={`/lernen?topic=${topic.id}`} key={topic.id}>
-                      {topic.title} · {formatNumber(score * 100)} % bei {count} Versuchen
-                      <ArrowRight size={14} />
-                    </Link>
-                  ))}
-                </div>
-              )}
+              <ConceptRecommendations attempts={data.attempts} />
             </>
           ) : (
             <EmptyState title="Dein erster Schritt wartet auf dich.">

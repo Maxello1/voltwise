@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.0 — 2026-10-21
+
+- Added ten foundation exercises for a total of thirty-six, covering units, prefixes, Ohm's law, power, series/parallel reasoning and ideal measurements.
+- Added concept recommendations with recorded sample counts and a warning for small samples; dashboard and progress now use the same recent evidence.
+- Added shareable targeted practice and an explanation for each proposed task.
+- Made mixed sessions respect read prerequisites, prefer unseen applications of concepts needing practice, and leave future FSRS facts on their own timetable.
+- Accepted Unicode compatibility text, repeated terminal punctuation and consistent declared recall pairs such as Ohm (Ω), while rejecting ambiguous answers.
+- Added content-reference/prerequisite validation and offline targeted-session checks. Existing content versions, learning events and version-1 backups remain compatible.
+
 ## 0.2.0 — 2026-10-21
 
 - Expanded the library to five checked DC circuits with shared links, worked explanations and dedicated practice.

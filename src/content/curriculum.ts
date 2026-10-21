@@ -1,5 +1,6 @@
 import type { Concept, Exercise, Lesson, Subject, Topic } from '../domain/models'
 import { circuitExercises } from './circuit-exercises'
+import { foundationExercises } from './foundation-exercises'
 
 export const subject: Subject = {
   id: 'electrical',
@@ -423,5 +424,6 @@ export const exercises: Exercise[] = [
     reviewable: false,
   },
   ...circuitExercises,
+  ...foundationExercises,
 ]
 export const exerciseById = new Map(exercises.map((exercise) => [exercise.id, exercise]))

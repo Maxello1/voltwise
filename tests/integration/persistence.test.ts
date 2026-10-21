@@ -3,6 +3,8 @@ import { VoltwiseDatabase, initializeDatabase } from '../../src/storage/db'
 import { advanceSession, startSession, submitAnswer } from '../../src/storage/learning'
 import { exportBackup, importBackup } from '../../src/storage/backup'
 import type { LearningSession } from '../../src/domain/models'
+import { exerciseById } from '../../src/content/curriculum'
+import { scheduleReview } from '../../src/domain/review'
 
 let database: VoltwiseDatabase
 async function session(exerciseId = 'unit-current') {
@@ -26,6 +28,22 @@ afterEach(async () => {
 })
 
 describe('transactional learning persistence', () => {
+  it('starts only due review facts in the same earliest-due order as the preview', async () => {
+    const card = scheduleReview(undefined, 3, new Date()).after
+    for (const [exerciseId, due] of [
+      ['unit-current', '2020-01-02T12:00:00.000Z'],
+      ['voltmeter', '2020-01-01T12:00:00.000Z'],
+      ['ammeter', '2099-01-01T12:00:00.000Z'],
+      ['ohm-current', '2020-01-01T12:00:00.000Z'],
+    ] as const)
+      await database.reviewStates.put({
+        exerciseId,
+        lastEventId: crypto.randomUUID(),
+        card: { ...card, due },
+      })
+    const selected = await startSession('review', undefined, database)
+    expect(selected?.exerciseIds).toEqual(['voltmeter', 'unit-current'])
+  })
   it('starts only the requested circuit exercises while keeping existing sessions resumable', async () => {
     const current = await startSession('schematic', undefined, database, 'meters-24v')
     expect(current?.exerciseIds).toEqual([
@@ -37,6 +55,40 @@ describe('transactional learning persistence', () => {
       current?.id,
     )
     expect(await database.sessions.count()).toBe(1)
+  })
+  it('persists a targeted concept session and resumes it before a different selection', async () => {
+    const current = await startSession('practice', undefined, database, undefined, 'ohm-law')
+    expect(current?.exerciseIds).toHaveLength(5)
+    expect(current?.exerciseIds[0]).toBe('ohm-current')
+    expect(
+      current?.exerciseIds.every((id) => exerciseById.get(id)?.conceptIds.includes('ohm-law')),
+    ).toBe(true)
+    const pending = await submitAnswer(current!.id, '0,5 A', false, 1500, database)
+    database.close()
+    await database.open()
+    expect((await startSession('practice', 'basics', database))?.pendingAttemptId).toBe(
+      pending?.eventId,
+    )
+    expect(await database.reviews.count()).toBe(0)
+    expect(await database.sessions.count()).toBe(1)
+  })
+  it('starts an explained mixed selection from persisted lesson prerequisites', async () => {
+    await database.completions.put({
+      lessonId: 'quantities',
+      completedAt: new Date().toISOString(),
+    })
+    // Finished foundation facts remain scheduled; they should not block the newly eligible topic.
+    for (const exerciseId of ['unit-current', 'voltage-symbol', 'resistance-unit']) {
+      const current = await session(exerciseId)
+      const answer =
+        exerciseId === 'unit-current' ? 'a' : exerciseId === 'voltage-symbol' ? 'U' : 'Ohm'
+      await submitAnswer(current.id, answer, false, 100, database)
+      await advanceSession(current.id, 4, database)
+    }
+    const selected = await startSession('practice', undefined, database)
+    expect(selected?.exerciseIds).toHaveLength(5)
+    expect(selected?.exerciseIds).not.toContain('unit-current')
+    expect(await database.reviews.count()).toBe(3)
   })
   it('saves an answer before rating, restores the pending step, then persists FSRS history', async () => {
     const current = await session()

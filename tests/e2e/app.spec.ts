@@ -1,6 +1,104 @@
 import { expect, test, type Page } from '@playwright/test'
 const main = (page: Page) => page.locator('main')
 
+test('concept recommendations explain evidence and preserve targeted practice across reloads', async ({
+  page,
+  context,
+}, testInfo) => {
+  await page.goto('./#/ueben?concept=ohm-law')
+  await expect(
+    page.getByRole('heading', { name: 'Ohmsches Gesetz', level: 2, exact: true }),
+  ).toBeVisible()
+  await expect(
+    page.getByRole('region', { name: 'Deine nächste Auswahl' }).locator('li'),
+  ).toHaveCount(5)
+  await expect(page.getByText('Offline bereit', { exact: true })).toBeVisible({ timeout: 20000 })
+  await page.reload()
+  await expect(page.getByText('Offline bereit', { exact: true })).toBeVisible()
+  await page.getByRole('button', { name: 'Konzept gezielt üben' }).click()
+  await page.getByLabel('Deine Antwort in A').fill('0,5 A')
+  await page.getByRole('button', { name: 'Antwort prüfen' }).click()
+  await expect(page.getByText('Ein guter Moment zum Verstehen.')).toBeVisible()
+  await context.setOffline(true)
+  await page.goto('./#/fortschritt')
+  const recommendations = page.getByRole('region', { name: 'Empfehlungen zum Vertiefen' })
+  await expect(recommendations.getByText(/0 von 1 Versuch ohne Hinweis richtig/)).toBeVisible()
+  await expect(recommendations.getByText(/Erste Anhaltspunkte/)).toBeVisible()
+  await recommendations.getByRole('link').click()
+  await page.reload()
+  await expect(
+    page.getByRole('heading', { name: 'Den Strom berechnen', exact: true }),
+  ).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Nächste Aufgabe' })).toBeVisible()
+  await page.getByRole('button', { name: 'Nächste Aufgabe' }).click()
+  await page.getByLabel('Deine Antwort in Ω').fill('600')
+  await page.getByRole('button', { name: 'Antwort prüfen' }).click()
+  await page.getByRole('button', { name: 'Nächste Aufgabe' }).click()
+  await page.getByLabel('Deine Antwort in A').fill('0,2 A')
+  await page.getByRole('button', { name: 'Antwort prüfen' }).click()
+  await page.getByRole('button', { name: 'Nächste Aufgabe' }).click()
+  await page.getByLabel('Deine Antwort in V').fill('10')
+  await page.getByRole('button', { name: 'Antwort prüfen' }).click()
+  await page.getByRole('button', { name: 'Nächste Aufgabe' }).click()
+  await page.getByLabel('Deine Antwort in A').fill('0,5 A')
+  await page.getByRole('button', { name: 'Antwort prüfen' }).click()
+  await page.getByRole('button', { name: 'Sitzung abschließen' }).click()
+  await expect(page.getByText('3 von 5 Aufgaben richtig beantwortet.')).toBeVisible()
+  await page.goto('./#/fortschritt')
+  await expect(page.getByRole('heading', { name: 'Dein Zeitplan wächst mit dir.' })).toBeVisible()
+  await recommendations.getByRole('link', { name: /Ohmsches Gesetz/ }).click()
+  const selection = page.getByRole('region', { name: 'Deine nächste Auswahl' })
+  await expect(selection.locator('li').first()).toContainText(
+    '3 von 5 Versuchen ohne Hinweis richtig',
+  )
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+    ),
+  ).toBe(true)
+  await page.screenshot({
+    path: `docs/screenshots/practice-recommendations-${testInfo.project.name}.png`,
+    fullPage: true,
+    animations: 'disabled',
+  })
+  await page.goto('./#/einstellungen')
+  await page.getByRole('button', { name: 'Dunkel', exact: true }).click()
+  await page.goto('./#/ueben?concept=ohm-law')
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
+  await expect(selection.locator('li').first()).toContainText('3 von 5 Versuchen')
+  await page.screenshot({
+    path: `docs/screenshots/practice-recommendations-dark-${testInfo.project.name}.png`,
+    fullPage: true,
+    animations: 'disabled',
+  })
+})
+
+test('curated short answers accept consistent unit names and symbols without guessing', async ({
+  page,
+}) => {
+  await page.goto('./#/ueben?concept=units')
+  await page.getByRole('button', { name: 'Konzept gezielt üben' }).click()
+  await page.getByText('Ampere (A)', { exact: true }).click()
+  await page.getByRole('button', { name: 'Antwort prüfen' }).click()
+  await page.getByRole('button', { name: 'Gut Sicher erinnert' }).click()
+  await page.getByLabel('Deine Antwort', { exact: true }).fill('Ｕ...')
+  await page.getByRole('button', { name: 'Antwort prüfen' }).click()
+  await expect(page.getByText('Richtig. Die Verbindung stimmt.')).toBeVisible()
+  await page.getByRole('button', { name: 'Gut Sicher erinnert' }).click()
+  await page.getByLabel('Deine Antwort in A').fill('240 mA')
+  await page.getByRole('button', { name: 'Antwort prüfen' }).click()
+  await page.getByRole('button', { name: 'Nächste Aufgabe' }).click()
+  await page.getByLabel('Deine Antwort', { exact: true }).fill('Ohm (Ω)')
+  await page.getByRole('button', { name: 'Antwort prüfen' }).click()
+  await expect(page.getByText('Richtig. Die Verbindung stimmt.')).toBeVisible()
+  await page.getByRole('button', { name: 'Gut Sicher erinnert' }).click()
+  await page.getByLabel('Deine Antwort', { exact: true }).fill('Volt (V)')
+  await page.getByRole('button', { name: 'Antwort prüfen' }).click()
+  await expect(page.getByText('Richtig. Die Verbindung stimmt.')).toBeVisible()
+  await page.getByRole('button', { name: 'Gut Sicher erinnert' }).click()
+  await expect(page.getByText('5 von 5 Aufgaben richtig beantwortet.')).toBeVisible()
+})
+
 test('all six sections fit the viewport and the theme persists', async ({ page }, testInfo) => {
   await page.goto('./')
   await expect(main(page).getByRole('heading', { level: 1 })).toContainText('Kleine Schritte')

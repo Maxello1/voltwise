@@ -33,9 +33,10 @@ For browser tests, install Chromium once with `pnpm exec playwright install chro
 ## Included now
 
 - Six responsive sections: Übersicht, Lernen, Üben, Schaltpläne, Fortschritt and Einstellungen; desktop sidebar and phone bottom navigation.
-- Four lessons and **26 checked starter exercises**, including choices, typed recall, unit-aware calculations and component selection.
+- Four lessons and **36 checked starter exercises**, including choices, typed recall, unit-aware calculations and component selection.
 - Atomic IndexedDB persistence through Dexie, resumable sessions, immutable attempts/review events and separate explicit FSRS memory ratings.
 - Stable `ts-fsrs@5.4.2` behind an adapter, a due queue, actual activity and an explained practice metric.
+- Concept recommendations with real sample counts, shareable targeted practice and an explained five-task preview. The mixed selection respects read prerequisites and keeps future scheduled facts on their own timetable.
 - **Five analytically verified DC circuits**: parallel, series, unloaded voltage divider, switched idealized lamp and ideal meter placement. Includes original SVG symbols, keyboard/component/terminal selection, net highlighting, zoom, pan and fit.
 - Validated version-1 JSON export/import with additive, idempotent events; readable Markdown lesson export.
 - Light/dark/system themes, local daily goal, installation guidance and an offline app shell that precaches lesson/code assets, including lazy-loaded screens.
@@ -45,6 +46,12 @@ There is **no cloud synchronization, automatic GitHub backup, industrial simulat
 ![Voltwise circuit library](docs/screenshots/circuit-library-desktop.png)
 
 The selected circuit has a shareable URL and its own two or three practice tasks. Existing unfinished sessions resume first. The lamp example assumes a fixed 60 Ω resistance and a closed ideal switch; the meter example assumes an ideal series ammeter and a parallel voltmeter drawing no current. These checked static teaching models are not dynamic simulations.
+
+## Targeted practice
+
+![Explained targeted practice](docs/screenshots/practice-recommendations-desktop.png)
+
+Recommendations use the last twenty attempts per concept and count only unassisted correct answers as independently correct. Small samples are labeled as preliminary. They select practice, while your explicit memory rating alone updates FSRS. Recall accepts declared aliases and consistent pairs such as `Ohm (Ω)`; it does not infer meaning from arbitrary sentences.
 
 ## Electrical reference example
 

@@ -3213,18 +3213,75 @@ main#main:focus-visible {
 .dashboard-activity {
   padding: 3px 24px;
 }
-.weak-topics {
+.concept-recommendations {
   border-top: 1px solid var(--line);
-  padding: 17px 0;
+  padding: 20px 0 8px;
+}
+.concept-recommendations > h3,
+.practice-plan > h3 {
+  font-size: 16px;
+  margin-bottom: 9px;
+}
+.concept-recommendation {
   display: flex;
-  flex-direction: column;
-  gap: 5px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 64px;
+  border-radius: 10px;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--line);
 }
-.weak-topics > p {
-  font-size: 11px;
+.concept-recommendation > span {
+  min-width: 0;
+}
+.concept-recommendation svg {
+  flex-shrink: 0;
+}
+.concept-recommendation strong,
+.concept-recommendation small {
+  display: block;
+  overflow-wrap: anywhere;
+}
+.concept-recommendation strong {
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+.concept-recommendation small {
+  font-size: 12px;
   color: var(--muted);
-  margin-bottom: 3px;
+  line-height: 1.6;
 }
-.weak-topics .text-link {
-  font-size: 11px;
+.practice-plan {
+  padding: clamp(20px, 3vw, 32px);
+  margin: 24px 0;
+  min-width: 0;
+}
+.practice-plan ol {
+  list-style: decimal;
+  padding-left: 22px;
+  margin-top: 18px;
+}
+.practice-plan li {
+  padding: 8px 0 8px 6px;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.practice-plan li > span {
+  display: block;
+  margin-top: 5px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.practice-start > .text-link {
+  display: flex;
+  margin-top: 16px;
+  min-height: 44px;
+}
+.selection-note {
+  padding: 16px;
+  background: var(--sage);
+  border-radius: 12px;
+  margin-bottom: 20px;
+  font-size: 13px;
 }

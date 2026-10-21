@@ -39,6 +39,22 @@ describe('locale-aware quantity grading', () => {
     expect(gradeExercise(exercise, ' u ').correct).toBe(true)
     expect(gradeExercise(exercise, 'V').correct).toBe(false)
   })
+  it.each(['Ohm (Ω)', '  OHM ( Ω )!!  ', 'Ω (Ohm)', 'Ohm...'])(
+    'accepts consistent declared word/symbol aliases: %s',
+    (answer) => {
+      expect(gradeExercise(exerciseById.get('resistance-unit')!, answer).correct).toBe(true)
+    },
+  )
+  it.each(['Ohm (V)', 'nicht Ohm', 'Ohm oder Volt', 'Volt (Ω)', 'Ohmm'])(
+    'does not guess the meaning of an ambiguous or incorrect recall: %s',
+    (answer) => {
+      expect(gradeExercise(exerciseById.get('resistance-unit')!, answer).correct).toBe(false)
+    },
+  )
+  it('accepts Unicode compatibility text but rejects punctuation-only answers without an attempt', () => {
+    expect(gradeExercise(exerciseById.get('voltage-symbol')!, 'Ｕ').correct).toBe(true)
+    expect(gradeExercise(exerciseById.get('voltage-symbol')!, '...').invalid).toBeTruthy()
+  })
   it('provides unique, explained exercises and all declared answers grade correctly', () => {
     expect(exercises.length).toBeGreaterThanOrEqual(12)
     expect(new Set(exercises.map((e) => e.id)).size).toBe(exercises.length)

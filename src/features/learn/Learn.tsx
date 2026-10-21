@@ -6,6 +6,7 @@ import { exercises, lessons, topics } from '../../content/curriculum'
 import { db } from '../../storage/db'
 import { startSession } from '../../storage/learning'
 import { ErrorMessage, PageHeading } from '../../components/ui'
+import { prerequisitesRead } from '../../domain/practice-plan'
 
 export function Learn({ data }: { data: LearningData }) {
   const [params, setParams] = useSearchParams()
@@ -39,11 +40,7 @@ export function Learn({ data }: { data: LearningData }) {
       <div className="learn-layout">
         <div className="topic-menu">
           {topics.map((t, index) => {
-            const recommended = t.prerequisites.every((p) =>
-              lessons
-                .filter((l) => l.topicId === p)
-                .every((l) => data.completions.some((c) => c.lessonId === l.id)),
-            )
+            const recommended = prerequisitesRead(t, lessons, data.completions)
             return (
               <button
                 key={t.id}

@@ -10,3 +10,4 @@
 8. Ship honest empty states and actual local activity. No invented streaks, retention or synchronization claims.
 9. Keep licensing reserved pending an explicit project-license choice. Third-party package licenses remain applicable.
 10. Create repositories using the existing Git sign-in and GitHub REST API; push through Git. No GitHub CLI or second browser login is required.
+11. Keep practice selection transparent and separate from FSRS. Use the last twenty attempts per concept, report small samples honestly, honor read prerequisites in the mix and allow direct topic/concept choice. Exclude future scheduled facts from practice; improve recall formatting without rewriting existing events or changing content IDs/versions.

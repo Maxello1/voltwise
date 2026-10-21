@@ -20,12 +20,23 @@ const units: Record<string, { dimension: Unit; factor: number }> = {
   Hz: { dimension: 'Hz', factor: 1 },
   kHz: { dimension: 'Hz', factor: 1000 },
 }
-const normalize = (value: string) =>
+export const normalizeRecall = (value: string) =>
   value
+    .normalize('NFKC')
     .trim()
     .toLocaleLowerCase('de')
-    .replace(/[.!?]$/u, '')
+    .replace(/[.!?]+$/u, '')
+    .trim()
     .replace(/\s+/gu, ' ')
+
+function matchesRecall(aliases: string[], answer: string): boolean {
+  const accepted = new Set(aliases.map(normalizeRecall))
+  const normalized = normalizeRecall(answer)
+  if (accepted.has(normalized)) return true
+  // Accept a consistent word/symbol pair such as Ohm (Ω), only if both are declared aliases.
+  const pair = normalized.match(/^([^()]+)\s*\(([^()]+)\)$/u)
+  return !!pair && accepted.has(pair[1]!.trim()) && accepted.has(pair[2]!.trim())
+}
 
 export function parseQuantity(
   input: string,
@@ -63,13 +74,13 @@ export function gradeExercise(exercise: Exercise, answer: string): Grade {
       normalizedAnswer: `${parsed.value} ${exercise.unit}`,
     }
   }
-  if (!answer.trim())
+  if (!normalizeRecall(answer))
     return { correct: false, normalizedAnswer: '', invalid: 'Gib zuerst eine Antwort ein.' }
   const correct =
     exercise.type === 'recall'
-      ? exercise.aliases.some((alias) => normalize(alias) === normalize(answer))
+      ? matchesRecall(exercise.aliases, answer)
       : answer === exercise.answer
-  return { correct, normalizedAnswer: normalize(answer) }
+  return { correct, normalizedAnswer: normalizeRecall(answer) }
 }
 
 export function answerLabel(exercise: Exercise): string {

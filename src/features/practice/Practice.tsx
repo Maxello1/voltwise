@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useSearchParams } from 'react-router'
+import { Link, useSearchParams } from 'react-router'
 import {
   ArrowRight,
   CheckCircle2,
@@ -12,9 +12,10 @@ import {
 } from 'lucide-react'
 import type { LearningData } from '../../app/useLearningData'
 import type { Exercise, LearningSession } from '../../domain/models'
-import { exercises, exerciseById, topics } from '../../content/curriculum'
+import { concepts, exercises, exerciseById, lessons, topics } from '../../content/curriculum'
 import { circuitById } from '../../content/circuit-library'
 import { answerLabel } from '../../domain/grading'
+import { planPractice } from '../../domain/practice-plan'
 import { CircuitViewer } from '../../schematics/CircuitViewer'
 import { advanceSession, startSession, submitAnswer } from '../../storage/learning'
 import { EmptyState, ErrorMessage, PageHeading } from '../../components/ui'
@@ -34,14 +35,35 @@ export function Practice({ data }: { data: LearningData }) {
   const due = data.reviewStates.filter((s) => new Date(s.card.due) <= new Date()).length
   const finished = data.sessions.find((s) => s.id === finishedId && s.status === 'complete')
   const mode = params.get('mode') === 'review' ? 'review' : 'practice'
+  const targetConcept =
+    mode === 'practice' ? concepts.find((entry) => entry.id === params.get('concept')) : undefined
+  const plan = planPractice({
+    exercises,
+    concepts,
+    topics,
+    lessons,
+    attempts: data.attempts,
+    reviewStates: data.reviewStates,
+    completions: data.completions,
+    now: new Date(),
+    conceptId: targetConcept?.id,
+  }).filter((item) => mode !== 'review' || item.kind === 'due')
   async function begin(topic?: string) {
     setBusy(true)
     setError('')
     setFinishedId(undefined)
     try {
-      const session = await startSession(mode, topic)
+      const session = await startSession(
+        mode,
+        topic,
+        undefined,
+        undefined,
+        topic ? undefined : targetConcept?.id,
+      )
       if (!session)
-        setError('Gerade ist keine Wiederholung fällig. Starte eine gemischte Lernsitzung.')
+        setError(
+          'Für diese Auswahl ist gerade keine Aufgabe verfügbar. Geplante Wissensfragen warten bis zu ihrem Wiederholungstermin. Wähle ein anderes Thema oder den Wissensmix.',
+        )
     } catch {
       setError('Die Sitzung konnte nicht gespeichert werden.')
     } finally {
@@ -60,12 +82,23 @@ export function Practice({ data }: { data: LearningData }) {
         }
       />
       {active ? (
-        <ExerciseStep
-          key={`${active.id}-${active.position}`}
-          session={active}
-          data={data}
-          onFinish={() => setFinishedId(active.id)}
-        />
+        <>
+          {targetConcept &&
+            active.exerciseIds.some(
+              (id) => !exerciseById.get(id)?.conceptIds.includes(targetConcept.id),
+            ) && (
+              <p className="selection-note" role="status">
+                Deine offene Sitzung wird zuerst fortgesetzt. Danach kannst du „
+                {targetConcept.title}“ gezielt üben.
+              </p>
+            )}
+          <ExerciseStep
+            key={`${active.id}-${active.position}`}
+            session={active}
+            data={data}
+            onFinish={() => setFinishedId(active.id)}
+          />
+        </>
       ) : finished ? (
         <div className="session-finished card">
           <span className="completion-emblem">
@@ -90,20 +123,37 @@ export function Practice({ data }: { data: LearningData }) {
               <span className="stat-icon sage">
                 <Sparkles size={25} />
               </span>
-              <h2>{mode === 'review' ? 'Deine Wiederholungen' : 'Dein täglicher Wissensmix'}</h2>
+              <h2>
+                {mode === 'review'
+                  ? 'Deine Wiederholungen'
+                  : targetConcept
+                    ? targetConcept.title
+                    : 'Dein täglicher Wissensmix'}
+              </h2>
               <p>
                 {mode === 'review'
                   ? `${due} Aufgaben sind nach deinem persönlichen FSRS-Zeitplan fällig.`
-                  : '5 passende Aufgaben. Fällige Wiederholungen zuerst, dann üben wir Schwächen und neue Inhalte.'}
+                  : targetConcept
+                    ? `${plan.length} passende Aufgaben zum gewählten Konzept. Deine geplanten Wissensfragen behalten ihren Wiederholungstermin.`
+                    : 'Bis zu 5 Aufgaben: fällige Wissensfragen, Konzepte zum Vertiefen und neue Anwendungen.'}
               </p>
               <button
                 className="button button-primary"
                 onClick={() => void begin()}
-                disabled={busy || (mode === 'review' && due === 0)}
+                disabled={busy || plan.length === 0}
               >
                 {mode === 'review' ? <RotateCcw size={18} /> : <ArrowRight size={18} />}
-                {mode === 'review' ? 'Wiederholung starten' : 'Gemischt üben'}
+                {mode === 'review'
+                  ? 'Wiederholung starten'
+                  : targetConcept
+                    ? 'Konzept gezielt üben'
+                    : 'Gemischt üben'}
               </button>
+              {targetConcept && (
+                <Link className="text-link" to="/ueben">
+                  Zum Wissensmix <ArrowRight size={16} />
+                </Link>
+              )}
             </section>
             <section className="card practice-explainer">
               <CircleHelp size={24} />
@@ -118,6 +168,23 @@ export function Practice({ data }: { data: LearningData }) {
               </p>
             </section>
           </div>
+          {plan.length > 0 && (
+            <section className="card practice-plan" aria-label="Deine nächste Auswahl">
+              <h3>Warum diese Aufgaben?</h3>
+              <p className="muted tiny">
+                Neue Themen kommen im Mix hinzu, sobald du ihre Grundlagenlektion als gelesen
+                markiert hast. Über die Themenauswahl kannst du jederzeit direkt einsteigen.
+              </p>
+              <ol>
+                {plan.map(({ exercise, explanation }) => (
+                  <li key={exercise.id}>
+                    <strong>{exercise.title}</strong>
+                    <span>{explanation}</span>
+                  </li>
+                ))}
+              </ol>
+            </section>
+          )}
           {mode !== 'review' && (
             <>
               <h2 className="section-title">Ein Thema vertiefen</h2>

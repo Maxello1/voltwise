@@ -3,6 +3,7 @@ import type { LearningData } from '../../app/useLearningData'
 import { concepts, exerciseById, lessons, topics } from '../../content/curriculum'
 import { conceptMastery } from '../../domain/models'
 import { EmptyState, PageHeading, SectionHeading } from '../../components/ui'
+import { ConceptRecommendations } from '../../components/ConceptRecommendations'
 import { formatDate, formatNumber } from '../../i18n/de'
 
 export function Progress({ data }: { data: LearningData }) {
@@ -87,6 +88,7 @@ export function Progress({ data }: { data: LearningData }) {
               selbstständig richtig. Aufgaben mit mehreren Konzepten gehen in jedes ein. Das ist
               eine einfache Übungsquote, keine geprüfte Kompetenzdiagnose.
             </p>
+            <ConceptRecommendations attempts={data.attempts} limit={8} />
           </div>
         </section>
         <section>
