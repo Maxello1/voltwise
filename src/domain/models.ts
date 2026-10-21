@@ -39,12 +39,13 @@ interface ExerciseBase {
   explanation: string
   hint: string
   reviewable: boolean
+  circuitId?: string
 }
 export type Exercise = ExerciseBase &
   (
     | { type: 'choice'; options: { id: string; text: string }[]; answer: string }
     | { type: 'recall'; aliases: string[]; answerLabel: string }
-    | { type: 'numeric'; answer: number; unit: Unit; tolerance: number; circuitId?: string }
+    | { type: 'numeric'; answer: number; unit: Unit; tolerance: number }
     | { type: 'schematic'; circuitId: string; answer: string; answerLabel: string }
   )
 export type Unit = 'A' | 'V' | 'Ω' | 'W' | 'Hz'

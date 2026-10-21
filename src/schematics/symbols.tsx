@@ -1,7 +1,11 @@
-import type { SymbolKind } from './model'
+import type { CircuitComponent, SymbolKind } from './model'
+import { MeterSymbol } from './MeterSymbol'
 
 // Original vector geometry, not extracted from a commercial symbol database.
-export const symbolRegistry: Record<SymbolKind, () => React.ReactNode> = {
+export const symbolRegistry: Record<
+  SymbolKind,
+  (props: { component: CircuitComponent }) => React.ReactNode
+> = {
   source: () => (
     <>
       <path d="M0 -40V-27M0 27V40" />
@@ -15,9 +19,10 @@ export const symbolRegistry: Record<SymbolKind, () => React.ReactNode> = {
       <rect x="-13" y="-24" width="26" height="48" rx="1" />
     </>
   ),
-  switch: () => (
+  switch: ({ component }) => (
     <>
-      <path d="M0 -40V-20M0 20V40M0 18 24 -17" />
+      <path d="M0 -40V-20M0 20V40" />
+      <path d={component.properties.state === 'closed' ? 'M0 18V-18' : 'M0 18 24 -17'} />
       <circle cy="-20" r="3" />
       <circle cy="20" r="3" />
     </>
@@ -34,4 +39,6 @@ export const symbolRegistry: Record<SymbolKind, () => React.ReactNode> = {
       <path d="M0 -40V0M-22 0H22M-14 8H14M-6 16H6" />
     </>
   ),
+  ammeter: ({ component }) => <MeterSymbol component={component} letter="A" />,
+  voltmeter: ({ component }) => <MeterSymbol component={component} letter="V" />,
 }

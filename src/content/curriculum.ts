@@ -1,4 +1,5 @@
 import type { Concept, Exercise, Lesson, Subject, Topic } from '../domain/models'
+import { circuitExercises } from './circuit-exercises'
 
 export const subject: Subject = {
   id: 'electrical',
@@ -421,5 +422,6 @@ export const exercises: Exercise[] = [
     explanation: 'Pges = 24 V · 0,36 A = 8,64 W. Das entspricht 5,76 W in R1 plus 2,88 W in R2.',
     reviewable: false,
   },
+  ...circuitExercises,
 ]
 export const exerciseById = new Map(exercises.map((exercise) => [exercise.id, exercise]))

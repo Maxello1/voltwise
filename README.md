@@ -33,14 +33,18 @@ For browser tests, install Chromium once with `pnpm exec playwright install chro
 ## Included now
 
 - Six responsive sections: Übersicht, Lernen, Üben, Schaltpläne, Fortschritt and Einstellungen; desktop sidebar and phone bottom navigation.
-- Four lessons and **16 checked starter exercises**, including choices, typed recall, unit-aware calculations and component selection.
+- Four lessons and **26 checked starter exercises**, including choices, typed recall, unit-aware calculations and component selection.
 - Atomic IndexedDB persistence through Dexie, resumable sessions, immutable attempts/review events and separate explicit FSRS memory ratings.
 - Stable `ts-fsrs@5.4.2` behind an adapter, a due queue, actual activity and an explained practice metric.
-- A typed circuit model, original SVG symbol registry, keyboard selection, terminal selection, zoom/fit and one analytically verified 24 V parallel-resistor circuit.
+- **Five analytically verified DC circuits**: parallel, series, unloaded voltage divider, switched idealized lamp and ideal meter placement. Includes original SVG symbols, keyboard/component/terminal selection, net highlighting, zoom, pan and fit.
 - Validated version-1 JSON export/import with additive, idempotent events; readable Markdown lesson export.
 - Light/dark/system themes, local daily goal, installation guidance and an offline app shell that precaches lesson/code assets, including lazy-loaded screens.
 
 There is **no cloud synchronization, automatic GitHub backup, industrial simulator or complete apprenticeship curriculum** yet. The private data repository contains documentation only. Browser storage is not a long-term backup; export regularly. Install/read the app online once and wait for **Offline bereit** before relying on airplane-mode access. The development server does not register the production worker.
+
+![Voltwise circuit library](docs/screenshots/circuit-library-desktop.png)
+
+The selected circuit has a shareable URL and its own two or three practice tasks. Existing unfinished sessions resume first. The lamp example assumes a fixed 60 Ω resistance and a closed ideal switch; the meter example assumes an ideal series ammeter and a parallel voltmeter drawing no current. These checked static teaching models are not dynamic simulations.
 
 ## Electrical reference example
 

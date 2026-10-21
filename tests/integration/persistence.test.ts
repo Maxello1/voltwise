@@ -26,6 +26,18 @@ afterEach(async () => {
 })
 
 describe('transactional learning persistence', () => {
+  it('starts only the requested circuit exercises while keeping existing sessions resumable', async () => {
+    const current = await startSession('schematic', undefined, database, 'meters-24v')
+    expect(current?.exerciseIds).toEqual([
+      'meter-identify-ammeter',
+      'meter-identify-voltmeter',
+      'meter-current',
+    ])
+    expect((await startSession('schematic', undefined, database, 'series-24v'))?.id).toBe(
+      current?.id,
+    )
+    expect(await database.sessions.count()).toBe(1)
+  })
   it('saves an answer before rating, restores the pending step, then persists FSRS history', async () => {
     const current = await session()
     const attempt = await submitAnswer(current.id, 'a', false, 1234, database)

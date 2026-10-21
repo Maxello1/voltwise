@@ -1,5 +1,6 @@
 export type Point = readonly [number, number]
-export type SymbolKind = 'source' | 'resistor' | 'switch' | 'lamp' | 'ground'
+export type SymbolKind =
+  'source' | 'resistor' | 'switch' | 'lamp' | 'ground' | 'ammeter' | 'voltmeter'
 export interface CircuitComponent {
   id: string
   kind: SymbolKind
@@ -7,6 +8,7 @@ export interface CircuitComponent {
   label: string
   position: Point
   rotation: 0 | 90 | 180 | 270
+  labelOffset?: Point
   properties: Record<string, number | string>
   terminals: { id: string; role: string; offset: Point }[]
 }
@@ -20,7 +22,7 @@ export interface CircuitDefinition {
   nominalVoltage: number
   simulationMode: 'verified-static'
   components: CircuitComponent[]
-  nets: { id: string; terminals: string[] }[]
+  nets: { id: string; label?: string; terminals: string[] }[]
   junctions: { id: string; netId: string; point: Point }[]
   wires: { id: string; netId: string; from: string; to: string; points: Point[] }[]
   annotations: { id: string; point: Point; text: string; kind: 'label' | 'voltage' }[]

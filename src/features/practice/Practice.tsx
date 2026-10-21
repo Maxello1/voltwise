@@ -13,7 +13,7 @@ import {
 import type { LearningData } from '../../app/useLearningData'
 import type { Exercise, LearningSession } from '../../domain/models'
 import { exercises, exerciseById, topics } from '../../content/curriculum'
-import { parallelDemo } from '../../content/circuit'
+import { circuitById } from '../../content/circuit-library'
 import { answerLabel } from '../../domain/grading'
 import { CircuitViewer } from '../../schematics/CircuitViewer'
 import { advanceSession, startSession, submitAnswer } from '../../storage/learning'
@@ -174,6 +174,19 @@ function ExerciseStep({
       </EmptyState>
     )
   const topic = topics.find((t) => t.id === exercise.topicId)
+  const selectedComponent =
+    exercise.type === 'schematic'
+      ? circuitById.get(exercise.circuitId)?.components.find((c) => c.id === attempt?.answer)
+      : undefined
+  const submittedAnswer = !attempt
+    ? ''
+    : exercise.type === 'choice'
+      ? (exercise.options.find((option) => option.id === attempt.answer)?.text ?? attempt.answer)
+      : exercise.type === 'schematic'
+        ? selectedComponent
+          ? `${selectedComponent.designator} · ${selectedComponent.label}`
+          : `Anschluss ${attempt.answer}`
+        : attempt.normalizedAnswer
   async function submit(durationMs: number) {
     setBusy(true)
     setError('')
@@ -279,7 +292,7 @@ function ExerciseStep({
               </h3>
             </div>
             <p className="feedback-answer">
-              Deine Antwort: <strong>{attempt.normalizedAnswer}</strong>
+              Deine Antwort: <strong>{submittedAnswer}</strong>
             </p>
             {!attempt.correct && (
               <p className="feedback-answer">
@@ -288,7 +301,13 @@ function ExerciseStep({
             )}
             <p>{exercise.explanation}</p>
             {exercise.type === 'schematic' && (
-              <CircuitViewer circuit={parallelDemo} selected={exercise.answer} compact />
+              <CircuitViewer
+                circuit={circuitById.get(exercise.circuitId)!}
+                selected={attempt.answer}
+                feedback={attempt.correct ? 'correct' : 'incorrect'}
+                correctSelection={attempt.correct ? undefined : exercise.answer}
+                compact
+              />
             )}
             {exercise.reviewable ? (
               <div className="rating-panel">
@@ -344,34 +363,38 @@ function AnswerInput({
   onChange: (answer: string) => void
   disabled: boolean
 }) {
+  const circuit = circuitById.get(exercise.circuitId ?? '')
   if (exercise.type === 'choice')
     return (
-      <fieldset className="choice-list">
-        <legend className="sr-only">Wähle eine Antwort</legend>
-        {exercise.options.map((option, index) => (
-          <label
-            className={`choice-option ${value === option.id ? 'selected' : ''}`}
-            key={option.id}
-          >
-            <input
-              type="radio"
-              name="answer"
-              value={option.id}
-              checked={value === option.id}
-              onChange={() => onChange(option.id)}
-              disabled={disabled}
-            />
-            <span className="choice-letter">{String.fromCharCode(65 + index)}</span>
-            <span>{option.text}</span>
-            <span className="choice-indicator" />
-          </label>
-        ))}
-      </fieldset>
+      <>
+        {circuit && <CircuitViewer circuit={circuit} compact />}
+        <fieldset className="choice-list">
+          <legend className="sr-only">Wähle eine Antwort</legend>
+          {exercise.options.map((option, index) => (
+            <label
+              className={`choice-option ${value === option.id ? 'selected' : ''}`}
+              key={option.id}
+            >
+              <input
+                type="radio"
+                name="answer"
+                value={option.id}
+                checked={value === option.id}
+                onChange={() => onChange(option.id)}
+                disabled={disabled}
+              />
+              <span className="choice-letter">{String.fromCharCode(65 + index)}</span>
+              <span>{option.text}</span>
+              <span className="choice-indicator" />
+            </label>
+          ))}
+        </fieldset>
+      </>
     )
   if (exercise.type === 'schematic')
     return (
       <>
-        <CircuitViewer circuit={parallelDemo} selected={value} onSelect={onChange} />
+        {circuit && <CircuitViewer circuit={circuit} selected={value} onSelect={onChange} />}
         <p className="input-help">
           Bauteil antippen oder per Tab und Eingabetaste auswählen.
           {value && ` Auswahl: ${value.toUpperCase()}`}
@@ -380,9 +403,7 @@ function AnswerInput({
     )
   return (
     <>
-      {exercise.type === 'numeric' && exercise.circuitId && (
-        <CircuitViewer circuit={parallelDemo} compact />
-      )}
+      {exercise.type === 'numeric' && circuit && <CircuitViewer circuit={circuit} compact />}
       <label className="answer-label" htmlFor="answer">
         Deine Antwort{exercise.type === 'numeric' && ` in ${exercise.unit}`}
       </label>

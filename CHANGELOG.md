@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.0 — 2026-10-21
+
+- Expanded the library to five checked DC circuits with shared links, worked explanations and dedicated practice.
+- Added series, unloaded voltage-divider, closed-switch/lamp and ideal meter-placement diagrams with original meter symbols.
+- Added ten exercises for a total of twenty-six, preserving all existing exercise IDs and learning records.
+- Added topology-based net highlighting, zoom/pan/fit controls and distinct wrong/correct schematic feedback.
+- Added series/divider math, connection/rotation checks and visual baselines for every circuit on desktop and mobile.
+- Corrected mobile diagram-card overflow and strengthened viewport tests.
+
 ## 0.1.0 — 2026-10-21
 
 - Added the offline learning workspace, four lessons and sixteen German exercises.

@@ -8,6 +8,7 @@ export async function startSession(
   mode: LearningSession['mode'] = 'practice',
   topicId?: string,
   database = db,
+  circuitId?: string,
 ): Promise<LearningSession | undefined> {
   await initializeDatabase(database)
   return database.transaction(
@@ -30,7 +31,7 @@ export async function startSession(
         )
       } else if (mode === 'schematic')
         selected = candidates.filter(
-          (e) => e.type === 'schematic' || (e.type === 'numeric' && e.circuitId),
+          (e) => !!e.circuitId && (!circuitId || e.circuitId === circuitId),
         )
       else {
         selected = [...candidates].sort((a, b) => {
@@ -47,7 +48,7 @@ export async function startSession(
       const session: LearningSession = {
         id: crypto.randomUUID(),
         mode,
-        exerciseIds: selected.slice(0, mode === 'schematic' ? 2 : 5).map((e) => e.id),
+        exerciseIds: selected.slice(0, mode === 'schematic' && !circuitId ? 2 : 5).map((e) => e.id),
         position: 0,
         status: 'active',
         startedAt: now.toISOString(),

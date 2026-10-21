@@ -1,5 +1,5 @@
 import { useId, useState } from 'react'
-import { Maximize2, Minus, Plus } from 'lucide-react'
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Maximize2, Minus, Plus } from 'lucide-react'
 import { symbolRegistry } from './symbols'
 import { terminalPoint, type CircuitDefinition } from './model'
 
@@ -9,18 +9,38 @@ interface Props {
   onSelect?: (id: string) => void
   feedback?: 'correct' | 'incorrect'
   compact?: boolean
+  correctSelection?: string
 }
-export function CircuitViewer({ circuit, selected, onSelect, feedback, compact = false }: Props) {
+export function CircuitViewer({
+  circuit,
+  selected,
+  onSelect,
+  feedback,
+  compact = false,
+  correctSelection,
+}: Props) {
   const [zoom, setZoom] = useState(1)
+  const [pan, setPan] = useState({ x: 0, y: 0 })
   const prefix = useId().replace(/:/gu, '')
   const { width, height } = circuit.bounds
   const viewWidth = width / zoom,
     viewHeight = height / zoom
+  const limitX = (width - viewWidth) / 2,
+    limitY = (height - viewHeight) / 2
+  const clamp = (value: number, limit: number) => Math.max(-limit, Math.min(limit, value))
+  const move = (x: number, y: number) =>
+    setPan((previous) => ({
+      x: clamp(clamp(previous.x, limitX) + (x * viewWidth) / 5, limitX),
+      y: clamp(clamp(previous.y, limitY) + (y * viewHeight) / 5, limitY),
+    }))
+  const selectedNet = circuit.nets.find(
+    (net) => net.id === selected || net.terminals.includes(selected ?? ''),
+  )?.id
   return (
     <div className={`circuit-viewer ${compact ? 'compact' : ''}`}>
       <svg
         className="circuit-svg"
-        viewBox={`${(width - viewWidth) / 2} ${(height - viewHeight) / 2} ${viewWidth} ${viewHeight}`}
+        viewBox={`${limitX + clamp(pan.x, limitX)} ${limitY + clamp(pan.y, limitY)} ${viewWidth} ${viewHeight}`}
         role="group"
         aria-label={`Stromlaufplan: ${circuit.description}`}
       >
@@ -43,7 +63,7 @@ export function CircuitViewer({ circuit, selected, onSelect, feedback, compact =
             <polyline
               key={wire.id}
               points={wire.points.map((p) => p.join(',')).join(' ')}
-              className={selected === wire.netId ? 'wire-selected' : ''}
+              className={selectedNet === wire.netId ? 'wire-selected' : ''}
             />
           ))}
         </g>
@@ -54,12 +74,13 @@ export function CircuitViewer({ circuit, selected, onSelect, feedback, compact =
             cy={j.point[1]}
             r="4.5"
             fill="currentColor"
-            className="circuit-junction"
+            className={`circuit-junction ${selectedNet === j.netId ? 'net-selected' : ''}`}
           />
         ))}
         {circuit.components.map((component) => {
           const Symbol = symbolRegistry[component.kind]
           const isSelected = selected === component.id
+          const labelOffset = component.labelOffset ?? [40, -8]
           return (
             <g key={component.id}>
               <g
@@ -68,7 +89,7 @@ export function CircuitViewer({ circuit, selected, onSelect, feedback, compact =
                 tabIndex={onSelect ? 0 : undefined}
                 aria-label={`${component.designator} · ${component.label}`}
                 aria-pressed={onSelect ? isSelected : undefined}
-                className={`circuit-component ${isSelected ? `selected ${feedback ?? ''}` : ''}`}
+                className={`circuit-component ${isSelected ? `selected ${feedback ?? ''}` : correctSelection === component.id ? 'answer-target' : ''}`}
                 onClick={() => onSelect?.(component.id)}
                 onKeyDown={(event) => {
                   if (onSelect && (event.key === 'Enter' || event.key === ' ')) {
@@ -85,20 +106,20 @@ export function CircuitViewer({ circuit, selected, onSelect, feedback, compact =
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 >
-                  <Symbol />
+                  <Symbol component={component} />
                 </g>
               </g>
               <text
                 className="circuit-label"
-                x={component.position[0] + 40}
-                y={component.position[1] - 8}
+                x={component.position[0] + labelOffset[0]!}
+                y={component.position[1] + labelOffset[1]!}
               >
                 {component.designator}
               </text>
               <text
                 className="circuit-value"
-                x={component.position[0] + 40}
-                y={component.position[1] + 16}
+                x={component.position[0] + labelOffset[0]!}
+                y={component.position[1] + labelOffset[1]! + 24}
               >
                 {component.label}
               </text>
@@ -112,7 +133,7 @@ export function CircuitViewer({ circuit, selected, onSelect, feedback, compact =
                       tabIndex={onSelect ? 0 : undefined}
                       aria-label={`Anschluss ${terminal.id}`}
                       aria-pressed={onSelect ? selected === terminal.id : undefined}
-                      className={`circuit-terminal ${selected === terminal.id ? 'selected' : ''}`}
+                      className={`circuit-terminal ${selected === terminal.id ? `selected ${feedback ?? ''}` : ''}`}
                       onClick={() => onSelect?.(terminal.id)}
                       onKeyDown={(event) => {
                         if (onSelect && ['Enter', ' '].includes(event.key)) {
@@ -136,7 +157,7 @@ export function CircuitViewer({ circuit, selected, onSelect, feedback, compact =
         ))}
       </svg>
       {!compact && (
-        <div className="circuit-toolbar">
+        <div className="circuit-toolbar" role="group" aria-label="Schaltplanansicht">
           <span>{Math.round(zoom * 100)} %</span>
           <button
             className="icon-button"
@@ -157,10 +178,47 @@ export function CircuitViewer({ circuit, selected, onSelect, feedback, compact =
           <button
             className="icon-button"
             aria-label="Schaltplan einpassen"
-            onClick={() => setZoom(1)}
+            onClick={() => {
+              setZoom(1)
+              setPan({ x: 0, y: 0 })
+            }}
           >
             <Maximize2 size={16} />
           </button>
+          <div className="pan-controls">
+            <button
+              className="icon-button"
+              aria-label="Ausschnitt nach links"
+              disabled={zoom === 1}
+              onClick={() => move(-1, 0)}
+            >
+              <ArrowLeft size={16} />
+            </button>
+            <button
+              className="icon-button"
+              aria-label="Ausschnitt nach rechts"
+              disabled={zoom === 1}
+              onClick={() => move(1, 0)}
+            >
+              <ArrowRight size={16} />
+            </button>
+            <button
+              className="icon-button"
+              aria-label="Ausschnitt nach oben"
+              disabled={zoom === 1}
+              onClick={() => move(0, -1)}
+            >
+              <ArrowUp size={16} />
+            </button>
+            <button
+              className="icon-button"
+              aria-label="Ausschnitt nach unten"
+              disabled={zoom === 1}
+              onClick={() => move(0, 1)}
+            >
+              <ArrowDown size={16} />
+            </button>
+          </div>
         </div>
       )}
     </div>

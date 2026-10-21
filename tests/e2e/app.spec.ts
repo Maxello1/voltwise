@@ -18,7 +18,9 @@ test('all six sections fit the viewport and the theme persists', async ({ page }
     await page.goto(`./#/${route}`)
     await expect(main(page).getByRole('heading', { level: 1 })).toContainText(heading!)
     expect(
-      await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+      ),
     ).toBe(true)
   }
   await page.getByRole('button', { name: 'Dunkel', exact: true }).click()
@@ -105,15 +107,109 @@ test('the installed shell, lazy-loaded pages and learning work offline after cac
   await expect(page.getByText('Richtig. Die Verbindung stimmt.')).toBeVisible()
 })
 
-test('verified SVG schematic visual baseline', async ({ page }) => {
-  test.skip(
-    process.platform !== 'win32',
-    'Windows baseline; approve a native baseline before visual comparison on another OS.',
-  )
+const circuitCases = [
+  { id: 'parallel-24v', name: 'Parallelschaltung', component: 'R2 · 200 Ω' },
+  { id: 'series-24v', name: 'Reihenschaltung', component: 'R2 · 200 Ω' },
+  { id: 'divider-12v', name: 'Spannungsteiler', component: 'R2 · 2 kΩ' },
+  { id: 'lamp-12v', name: 'Schalter & Lampe', component: 'S1 · geschlossen' },
+  { id: 'meters-24v', name: 'Richtig messen', component: 'A1 · ideal' },
+]
+
+test('circuit selection, net highlighting and viewport controls work on all diagrams', async ({
+  page,
+}, testInfo) => {
   await page.goto('./#/schaltplaene')
-  await expect(page.getByRole('button', { name: 'R2 · 200 Ω', exact: true })).toBeVisible()
-  await expect(page.locator('.lab-circuit .circuit-viewer')).toHaveScreenshot('parallel-24v.png', {
-    animations: 'disabled',
-    maxDiffPixelRatio: 0.01,
+  for (const circuit of circuitCases) {
+    await page.getByRole('button', { name: circuit.name, exact: true }).click()
+    await expect(page).toHaveURL(new RegExp(`circuit=${circuit.id}`))
+    await expect(page.getByRole('button', { name: circuit.component, exact: true })).toBeVisible()
+    await page.getByLabel('Netz hervorheben').selectOption({ index: 1 })
+    expect(await page.locator('.lab-circuit .wire-selected').count()).toBeGreaterThan(0)
+    await page.getByRole('button', { name: 'Vergrößern', exact: true }).click()
+    const diagram = page.locator('.lab-circuit svg.circuit-svg')
+    const centered = await diagram.getAttribute('viewBox')
+    await page.getByRole('button', { name: 'Ausschnitt nach rechts' }).click()
+    expect(await diagram.getAttribute('viewBox')).not.toBe(centered)
+    await page.getByRole('button', { name: 'Schaltplan einpassen' }).click()
+    await expect(page.getByText('100 %', { exact: true })).toBeVisible()
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+      ),
+    ).toBe(true)
+  }
+  await page.reload()
+  await expect(page.getByRole('button', { name: 'Richtig messen', exact: true })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  )
+  await page.screenshot({
+    path: `docs/screenshots/circuit-library-${testInfo.project.name}.png`,
+    fullPage: true,
   })
 })
+
+test('a metering session uses its own diagram and preserves a pending answer', async ({ page }) => {
+  await page.goto('./#/schaltplaene?circuit=meters-24v')
+  await page.getByRole('button', { name: '3 Aufgaben starten' }).click()
+  await expect(page.getByRole('heading', { name: 'Den Laststrom messen' })).toBeVisible()
+  await page.getByRole('button', { name: 'A1 · ideal', exact: true }).click()
+  await page.getByRole('button', { name: 'Antwort prüfen' }).click()
+  await expect(page.getByText('Richtig. Die Verbindung stimmt.')).toBeVisible()
+  await page.reload()
+  await expect(page.getByText('Richtig. Die Verbindung stimmt.')).toBeVisible()
+  await page.getByRole('button', { name: 'Nächste Aufgabe' }).click()
+  await page.getByRole('button', { name: 'V1 · ideal', exact: true }).click()
+  await page.getByRole('button', { name: 'Antwort prüfen' }).click()
+  await page.getByRole('button', { name: 'Nächste Aufgabe' }).click()
+  await page.getByLabel('Deine Antwort in A').fill('240 mA')
+  await page.getByRole('button', { name: 'Antwort prüfen' }).click()
+  await expect(page.getByText('Richtig. Die Verbindung stimmt.')).toBeVisible()
+  await page.getByRole('button', { name: 'Sitzung abschließen' }).click()
+  await expect(page.getByText('3 von 3 Aufgaben richtig beantwortet.')).toBeVisible()
+})
+
+test('wrong diagram selections highlight the chosen and correct components separately', async ({
+  page,
+}) => {
+  await page.goto('./#/schaltplaene?circuit=divider-12v')
+  await page.getByRole('button', { name: '2 Aufgaben starten' }).click()
+  await page.getByRole('button', { name: 'R1 · 1 kΩ', exact: true }).click()
+  await page.getByRole('button', { name: 'Antwort prüfen' }).click()
+  await expect(page.locator('.circuit-component.selected.incorrect')).toHaveAttribute(
+    'aria-label',
+    'R1 · 1 kΩ',
+  )
+  await expect(page.locator('.circuit-component.answer-target')).toHaveAttribute(
+    'aria-label',
+    'R2 · 2 kΩ',
+  )
+  await expect(page.getByText('Deine Antwort: R1 · 1 kΩ')).toBeVisible()
+})
+
+test('new circuits and exercises are available without a network', async ({ page, context }) => {
+  await page.goto('./')
+  await expect(page.getByText('Offline bereit', { exact: true })).toBeVisible({ timeout: 20000 })
+  await page.reload()
+  await context.setOffline(true)
+  await page.goto('./#/schaltplaene?circuit=lamp-12v')
+  await expect(page.getByRole('button', { name: 'S1 · geschlossen', exact: true })).toBeVisible()
+  await page.getByRole('button', { name: '3 Aufgaben starten' }).click()
+  await page.getByRole('button', { name: 'S1 · geschlossen', exact: true }).click()
+  await page.getByRole('button', { name: 'Antwort prüfen' }).click()
+  await expect(page.getByText('Richtig. Die Verbindung stimmt.')).toBeVisible()
+})
+
+for (const circuit of circuitCases)
+  test(`verified SVG visual baseline: ${circuit.id}`, async ({ page }) => {
+    test.skip(
+      process.platform !== 'win32',
+      'Windows baseline; approve a native baseline before visual comparison on another OS.',
+    )
+    await page.goto(`./#/schaltplaene?circuit=${circuit.id}`)
+    await expect(page.getByRole('button', { name: circuit.component, exact: true })).toBeVisible()
+    await expect(page.locator('.lab-circuit .circuit-viewer')).toHaveScreenshot(
+      `${circuit.id}.png`,
+      { animations: 'disabled', maxDiffPixelRatio: 0.01 },
+    )
+  })

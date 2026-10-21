@@ -1,40 +1,25 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router'
+import { useNavigate, useSearchParams } from 'react-router'
 import { ArrowRight, CheckCircle2, CircuitBoard, Info, MousePointer2, Zap } from 'lucide-react'
 import type { LearningData } from '../../app/useLearningData'
-import { parallelDemo } from '../../content/circuit'
-import { parallelCircuit } from '../../domain/electrical'
+import { circuitLibrary, type CircuitStudy } from '../../content/circuit-library'
+import { exercises, exerciseById } from '../../content/curriculum'
 import { CircuitViewer } from '../../schematics/CircuitViewer'
+import type { CircuitComponent } from '../../schematics/model'
 import { startSession } from '../../storage/learning'
 import { ErrorMessage, PageHeading } from '../../components/ui'
 import { formatNumber } from '../../i18n/de'
 
 export function CircuitLab({ data }: { data: LearningData }) {
-  const [selected, setSelected] = useState('')
-  const [showSolution, setShowSolution] = useState(false)
-  const [error, setError] = useState('')
-  const navigate = useNavigate()
-  const solution = parallelCircuit(24, [100, 200])
-  const component = parallelDemo.components.find((c) => c.id === selected)
-  const terminal = parallelDemo.components
-    .flatMap((c) => c.terminals)
-    .find((t) => t.id === selected)
-  const net = parallelDemo.nets.find((n) => n.terminals.includes(selected))
-  const solved = data.attempts.some((a) => a.exerciseId === 'identify-r2' && a.correct)
-  async function practice() {
-    try {
-      await startSession('schematic')
-      navigate('/ueben')
-    } catch {
-      setError('Sitzung konnte nicht gestartet werden.')
-    }
-  }
+  const [params, setParams] = useSearchParams()
+  const study =
+    circuitLibrary.find((entry) => entry.circuit.id === params.get('circuit')) ?? circuitLibrary[0]!
   return (
     <div className="page-enter">
       <PageHeading
         eyebrow="DER SCHALTPLANRAUM"
         title="Sieh die Verbindung."
-        description="Wähle Bauteile aus. Entdecke Strompfade. Verstehe die Schaltung."
+        description="Fünf geprüfte Lehrschaltungen. Wähle Bauteile aus und verstehe ihre Strompfade."
         action={
           <span className="soft-badge sage">
             <CheckCircle2 size={14} />
@@ -42,19 +27,100 @@ export function CircuitLab({ data }: { data: LearningData }) {
           </span>
         }
       />
+      <section className="circuit-library" aria-label="Schaltplanbibliothek">
+        <div className="library-heading">
+          <h2>Eine Idee. Fünf Perspektiven.</h2>
+          <span>GLEICHSTROM · STUFE 1–2</span>
+        </div>
+        <div className="circuit-library-grid">
+          {circuitLibrary.map((entry, index) => (
+            <button
+              key={entry.circuit.id}
+              className={`card circuit-option ${study.circuit.id === entry.circuit.id ? 'active' : ''}`}
+              aria-label={entry.shortTitle}
+              aria-pressed={study.circuit.id === entry.circuit.id}
+              onClick={() => setParams({ circuit: entry.circuit.id })}
+            >
+              <span className="circuit-option-number">0{index + 1}</span>
+              <h3>{entry.shortTitle}</h3>
+              <p>
+                Stufe {entry.tier} ·{' '}
+                {exercises.filter((e) => e.circuitId === entry.circuit.id).length} Aufgaben
+              </p>
+              <CircuitBoard size={17} />
+            </button>
+          ))}
+        </div>
+      </section>
+      <CircuitDetail key={study.circuit.id} study={study} data={data} />
+    </div>
+  )
+}
+
+function componentDescription(component: CircuitComponent) {
+  switch (component.kind) {
+    case 'source':
+      return 'Ideale Gleichspannungsquelle'
+    case 'resistor':
+      return 'Ohmscher Widerstand'
+    case 'lamp':
+      return 'Lehrmodell: Lampe mit festem ohmschen Widerstand'
+    case 'switch':
+      return component.properties.state === 'closed'
+        ? 'Idealer Schalter · geschlossen'
+        : 'Idealer Schalter · offen'
+    case 'ammeter':
+      return 'Ideales Amperemeter · in Reihe · 0 Ω Innenwiderstand'
+    case 'voltmeter':
+      return 'Ideales Voltmeter · parallel · kein Messstrom'
+    case 'ground':
+      return 'Bezugspotenzial'
+  }
+}
+
+function CircuitDetail({ study, data }: { study: CircuitStudy; data: LearningData }) {
+  const [selected, setSelected] = useState('')
+  const [showSolution, setShowSolution] = useState(false)
+  const [error, setError] = useState('')
+  const navigate = useNavigate()
+  const { circuit } = study
+  const component = circuit.components.find((c) => c.id === selected)
+  const terminal = circuit.components.flatMap((c) => c.terminals).find((t) => t.id === selected)
+  const net = circuit.nets.find((n) => n.id === selected || n.terminals.includes(selected))
+  const circuitExercises = exercises.filter((e) => e.circuitId === circuit.id)
+  const solvedCount = circuitExercises.filter((e) =>
+    data.attempts.some((a) => a.exerciseId === e.id && a.correct),
+  ).length
+  const active = data.sessions.find((session) => session.status === 'active')
+  const otherSession =
+    active && active.exerciseIds.some((id) => exerciseById.get(id)?.circuitId !== circuit.id)
+  async function practice() {
+    try {
+      const session = await startSession('schematic', undefined, undefined, circuit.id)
+      if (session) navigate('/ueben')
+      else setError('Für diese Schaltung sind noch keine Aufgaben verfügbar.')
+    } catch {
+      setError('Sitzung konnte nicht gestartet werden.')
+    }
+  }
+  return (
+    <>
       <div className="lab-layout">
         <section className="card lab-circuit">
           <div className="lab-header">
             <div>
-              <span className="eyebrow">LEHRSCHALTUNG 01 · GLEICHSTROM</span>
-              <h2>{parallelDemo.title}</h2>
+              <span className="eyebrow">
+                LEHRSCHALTUNG {String(circuitLibrary.indexOf(study) + 1).padStart(2, '0')} ·
+                GLEICHSTROM
+              </span>
+              <h2>{circuit.title}</h2>
             </div>
             <span className="small-icon sage">
               <CircuitBoard size={23} />
             </span>
           </div>
-          <p className="muted">{parallelDemo.description}</p>
-          <CircuitViewer circuit={parallelDemo} selected={selected} onSelect={setSelected} />
+          <p className="muted">{circuit.description}</p>
+          <CircuitViewer circuit={circuit} selected={selected} onSelect={setSelected} />
           <div className="circuit-legend">
             <span>
               <span className="legend-dot" />
@@ -73,13 +139,28 @@ export function CircuitLab({ data }: { data: LearningData }) {
               onChange={(event) => setSelected(event.target.value)}
             >
               <option value="">Anschluss auswählen …</option>
-              {parallelDemo.components.flatMap((c) =>
+              {circuit.components.flatMap((c) =>
                 c.terminals.map((t) => (
                   <option key={t.id} value={t.id}>
                     {c.designator} · {t.id}
                   </option>
                 )),
               )}
+            </select>
+          </div>
+          <div className="terminal-picker">
+            <label htmlFor="net-select">Netz hervorheben</label>
+            <select
+              id="net-select"
+              value={net?.id ?? ''}
+              onChange={(event) => setSelected(event.target.value)}
+            >
+              <option value="">Alle Netze anzeigen</option>
+              {circuit.nets.map((n) => (
+                <option key={n.id} value={n.id}>
+                  {n.label ?? (n.id === 'positive' ? 'Quellenplus' : 'Quellenminus')}
+                </option>
+              ))}
             </select>
           </div>
         </section>
@@ -89,14 +170,20 @@ export function CircuitLab({ data }: { data: LearningData }) {
           </span>
           <p className="eyebrow">GENAUER HINSEHEN</p>
           <h2>
-            {component ? component.designator : terminal ? terminal.id : 'Alles ist verbunden.'}
+            {component
+              ? component.designator
+              : terminal
+                ? terminal.id
+                : net
+                  ? 'Ein gemeinsames Potenzial.'
+                  : 'Lies die Verbindung.'}
           </h2>
           <p>
             {component
-              ? `${component.kind === 'source' ? 'Gleichspannungsquelle' : 'Ohmscher Widerstand'} · ${component.label}`
-              : terminal
-                ? `Anschluss im Netz „${net?.id === 'positive' ? 'positives Potenzial' : 'Bezugspotenzial'}“.`
-                : 'Tippe auf ein Bauteil oder einen Anschluss, um seine Rolle im Stromkreis zu entdecken.'}
+              ? `${componentDescription(component)} · ${component.label}`
+              : net
+                ? `Netz „${net.label ?? (net.id === 'positive' ? 'Quellenplus' : 'Quellenminus')}“ mit ${net.terminals.length} Anschlüssen. Die goldene Markierung folgt ausschließlich diesem Netz.`
+                : 'Tippe auf ein Bauteil oder einen Anschluss. Du kannst auch ein ganzes Netz hervorheben.'}
           </p>
           {component && (
             <div className="component-detail">
@@ -104,7 +191,7 @@ export function CircuitLab({ data }: { data: LearningData }) {
                 Bezeichnung<strong>{component.designator}</strong>
               </span>
               <span>
-                Wert<strong>{component.label}</strong>
+                Wert / Zustand<strong>{component.label}</strong>
               </span>
               <span>
                 Anschlüsse<strong>{component.terminals.length}</strong>
@@ -113,9 +200,7 @@ export function CircuitLab({ data }: { data: LearningData }) {
           )}
           <div className="explanation-note">
             <Zap size={17} />
-            <p>
-              Beide Widerstände liegen zwischen denselben zwei Knoten. An jedem liegen deshalb 24 V.
-            </p>
+            <p>{study.note}</p>
           </div>
           <button
             className="button button-outline"
@@ -127,25 +212,24 @@ export function CircuitLab({ data }: { data: LearningData }) {
       </div>
       {showSolution && (
         <section className="card circuit-solution">
-          <h2>Von der Spannung zum Gesamtstrom</h2>
+          <h2>Schritt für Schritt nachvollziehen</h2>
           <div className="solution-grid">
-            <div>
-              <span>01 · ZWEIG R1</span>
-              <strong>24 V / 100 Ω = 0,24 A</strong>
-            </div>
-            <div>
-              <span>02 · ZWEIG R2</span>
-              <strong>24 V / 200 Ω = 0,12 A</strong>
-            </div>
-            <div>
-              <span>03 · KNOTENREGEL</span>
-              <strong>Iges = {formatNumber(solution.totalCurrent, 2)} A</strong>
-            </div>
+            {study.steps.map((step, index) => (
+              <div key={step.title}>
+                <span>
+                  0{index + 1} · {step.title.toLocaleUpperCase('de')}
+                </span>
+                <strong>{step.formula}</strong>
+              </div>
+            ))}
           </div>
           <p>
-            Rges = {formatNumber(solution.equivalentResistance, 4)} Ω · Pges ={' '}
-            {formatNumber(solution.totalPower, 2)} W. Der Gesamtstrom ist die Summe beider
-            Zweigströme.
+            Rges = {formatNumber(circuit.validation.expected.equivalentResistance, 4)} Ω · Iges ={' '}
+            {formatNumber(circuit.validation.expected.totalCurrent, 4)} A · Pges ={' '}
+            {formatNumber(circuit.validation.expected.totalPower, 4)} W.
+          </p>
+          <p className="solution-assumption">
+            {circuit.validation.method}. {study.note}
           </p>
         </section>
       )}
@@ -155,23 +239,29 @@ export function CircuitLab({ data }: { data: LearningData }) {
         </span>
         <div>
           <span className="eyebrow">VOM ANSEHEN ZUM ANWENDEN</span>
-          <h2>Findest du den richtigen Widerstand?</h2>
+          <h2>{study.challenge}</h2>
           <p>
-            {solved
-              ? 'Du hast R2 schon einmal richtig erkannt. Vertiefe dein Verständnis.'
-              : 'Lies den Schaltplan und berechne anschließend den Gesamtstrom.'}
+            {solvedCount
+              ? `${solvedCount} von ${circuitExercises.length} Aufgaben bereits richtig gelöst.`
+              : `${circuitExercises.length} Aufgaben zu genau dieser Schaltung.`}
           </p>
+          {otherSession && (
+            <p className="session-resume-notice">
+              Deine offene Sitzung wird zuerst fortgesetzt. Danach kannst du hier eine neue starten.
+            </p>
+          )}
         </div>
         <button className="button button-primary" onClick={() => void practice()}>
-          2 Aufgaben starten
+          {active ? 'Offene Sitzung fortsetzen' : `${circuitExercises.length} Aufgaben starten`}
           <ArrowRight size={17} />
         </button>
       </section>
       <ErrorMessage>{error}</ErrorMessage>
       <p className="educational-note">
-        Lehrschaltung mit idealisierten Bauteilen. Keine Simulation und keine Anleitung für Arbeiten
-        an elektrischen Anlagen. Weitere Schaltungen und Relaislogik folgen später.
+        Lehrschaltungen mit idealisierten Bauteilen. Geprüfte feste Zustände, keine dynamische
+        Simulation und keine Anleitung für Arbeiten an elektrischen Anlagen. Relaislogik folgt
+        später.
       </p>
-    </div>
+    </>
   )
 }

@@ -8,7 +8,7 @@ Only reviewable knowledge facts use `ts-fsrs@5.4.2`. The adapter requests 0.9 re
 
 Each ReviewEvent stores the linked attempt ID, rating, device UUID, UTC timestamp, scheduler version/retention, the before/after cards and complete serialized library review log. Dates are ISO UTC strings at the storage boundary. Cached ReviewState is derived from the newest event and reconstructed during backup import. Future scheduler upgrades require a version-aware replay/migration strategy.
 
-Numeric and schematic application tasks log attempts but do not manufacture memory intervals. The default session selects up to five tasks: due facts first, previously incorrect work next, unseen tasks next, then previously correct work. Within each group the curated content order is stable. The separate review mode includes only scheduled due facts. The schematic session contains the two circuit-specific tasks. Existing active sessions resume before a new session is created.
+Numeric and schematic application tasks log attempts but do not manufacture memory intervals. The default session selects up to five tasks: due facts first, previously incorrect work next, unseen tasks next, then previously correct work. Within each group the curated content order is stable. The separate review mode includes only scheduled due facts. Starting from the circuit library selects that circuit's two or three tasks, including component selection, calculations and a closed/open-contact thought experiment. Existing active sessions resume first, with an explanation if the selected circuit differs from the open session.
 
 ## Domain evaluation
 
