@@ -90,6 +90,7 @@ test('the installed shell, lazy-loaded pages and learning work offline after cac
   await page.goto('./')
   await expect(page.getByText('Offline bereit', { exact: true })).toBeVisible({ timeout: 20000 })
   await page.reload()
+  await expect(page.getByText('Offline bereit', { exact: true })).toBeVisible()
   await context.setOffline(true)
   await page.goto('./#/lernen')
   await expect(page.getByRole('heading', { name: 'Drei Größen, ein Stromkreis' })).toBeVisible()

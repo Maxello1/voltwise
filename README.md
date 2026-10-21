@@ -2,6 +2,8 @@
 
 **Verstehen. Anwenden. Weiterkommen.** A German-first learning PWA for an Elektroniker für Betriebstechnik apprenticeship. It combines short lessons, active recall, numeric exercises and structured, interactive SVG schematics. Core learning works locally without an account, Obsidian or GitHub access.
 
+[Open Voltwise](https://maxello1.github.io/voltwise/) · Install from your browser after the first online load.
+
 ![Voltwise desktop workspace](docs/screenshots/dashboard-desktop.png)
 
 ## Run locally

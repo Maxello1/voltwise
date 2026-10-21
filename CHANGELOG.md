@@ -7,3 +7,4 @@
 - Added the typed SVG circuit engine and verified 24 V parallel-circuit challenge.
 - Added validated JSON backups, Markdown lesson export, themes and installation guidance.
 - Added automated checks and GitHub Pages deployment.
+- Preserved the confirmed offline-ready indicator when reopening the installed shell.

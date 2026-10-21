@@ -12,11 +12,19 @@ const subscribeOnline = (callback: () => void) => {
 export function PwaStatus() {
   const online = useSyncExternalStore(subscribeOnline, () => navigator.onLine)
   const [registrationError, setRegistrationError] = useState(false)
+  const [cacheAlreadyActive, setCacheAlreadyActive] = useState(
+    () => !!navigator.serviceWorker?.controller,
+  )
   const {
     offlineReady: [offlineReady],
     needRefresh: [needRefresh],
     updateServiceWorker,
-  } = useRegisterSW({ onRegisterError: () => setRegistrationError(true) })
+  } = useRegisterSW({
+    onRegisterError: () => setRegistrationError(true),
+    onRegisteredSW: (_url, registration) => {
+      if (registration?.active?.state === 'activated') setCacheAlreadyActive(true)
+    },
+  })
   return (
     <>
       <span className={`status-chip ${!online ? 'is-offline' : ''}`}>
@@ -26,10 +34,10 @@ export function PwaStatus() {
             <WifiOff size={13} />
             Offline
           </>
-        ) : offlineReady ? (
-          'Offline bereit'
         ) : import.meta.env.DEV ? (
           'Lokal · Entwicklung'
+        ) : offlineReady || cacheAlreadyActive ? (
+          'Offline bereit'
         ) : registrationError ? (
           'Offline-Cache prüfen'
         ) : (
