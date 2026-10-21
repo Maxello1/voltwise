@@ -1,0 +1,10 @@
+node_modules
+dist
+.pnpm-store
+.cache
+.publish
+playwright-report
+test-results
+Voltwise_Codex_Kickoff_Prompt.md
+Voltwise_Roadmap.md
+pnpm-lock.yaml

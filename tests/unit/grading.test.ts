@@ -1,0 +1,56 @@
+import { describe, expect, it } from 'vitest'
+import { gradeExercise, parseQuantity } from '../../src/domain/grading'
+import { exercises, exerciseById } from '../../src/content/curriculum'
+
+describe('locale-aware quantity grading', () => {
+  it.each(['0,36', '0.36 A', '360 mA', '3,6e-1 A', '360000 µA'])(
+    'normalizes %s to amperes',
+    (input) => {
+      expect(parseQuantity(input, 'A')).toEqual({ value: 0.36 })
+    },
+  )
+  it.each([
+    '',
+    'abc',
+    '1.000,5 A',
+    '1,000.5 A',
+    'Infinity',
+    '1/2 A',
+    '0,36 V',
+    '2 MA',
+    '1e999 A',
+    '0,36m',
+  ])('rejects invalid or incompatible %s', (input) => {
+    expect(parseQuantity(input, 'A').error).toBeTruthy()
+  })
+  it('converts kiloohms and respects SI case', () => {
+    expect(parseQuantity('0,6 kΩ', 'Ω')).toEqual({ value: 600 })
+    expect(parseQuantity('1 MΩ', 'Ω')).toEqual({ value: 1000000 })
+    expect(parseQuantity('1 mΩ', 'Ω').error).toBeTruthy()
+  })
+  it('applies tolerance in base units', () => {
+    const exercise = exerciseById.get('parallel-equivalent')!
+    expect(gradeExercise(exercise, '66,67 Ω').correct).toBe(true)
+    expect(gradeExercise(exercise, '66,6 Ω').correct).toBe(false)
+    expect(gradeExercise(exercise, '100 W').invalid).toBeTruthy()
+  })
+  it('checks recalled content without revealing the answer first', () => {
+    const exercise = exerciseById.get('voltage-symbol')!
+    expect(gradeExercise(exercise, ' u ').correct).toBe(true)
+    expect(gradeExercise(exercise, 'V').correct).toBe(false)
+  })
+  it('provides unique, explained exercises and all declared answers grade correctly', () => {
+    expect(exercises.length).toBeGreaterThanOrEqual(12)
+    expect(new Set(exercises.map((e) => e.id)).size).toBe(exercises.length)
+    for (const exercise of exercises) {
+      const answer =
+        exercise.type === 'numeric'
+          ? `${exercise.answer} ${exercise.unit}`
+          : exercise.type === 'recall'
+            ? exercise.aliases[0]!
+            : exercise.answer
+      expect(gradeExercise(exercise, answer).correct, exercise.id).toBe(true)
+      expect(exercise.explanation.length).toBeGreaterThan(40)
+    }
+  })
+})
