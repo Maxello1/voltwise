@@ -1,4 +1,6 @@
-import { concepts, exercises, exerciseById, lessons, topics } from '../content/curriculum'
+import { concepts, exercises, lessons, topics } from '../content/curriculum'
+import { resolveExercise } from '../content/exercise-catalogue'
+import { createDcRound } from '../domain/dc-practice'
 import { gradeExercise } from '../domain/grading'
 import { planPractice } from '../domain/practice-plan'
 import { scheduleReview } from '../domain/review'
@@ -11,6 +13,7 @@ export async function startSession(
   database = db,
   circuitId?: string,
   conceptId?: string,
+  calculationCode?: string,
 ): Promise<LearningSession | undefined> {
   await initializeDatabase(database)
   return database.transaction(
@@ -25,7 +28,10 @@ export async function startSession(
       const attempts = await database.attempts.orderBy('createdAt').toArray()
       const candidates = exercises.filter((e) => !topicId || e.topicId === topicId)
       let selected: Exercise[]
-      if (mode === 'review') {
+      if (calculationCode !== undefined) {
+        if (mode !== 'practice') throw new Error('Eine Rechenrunde verwendet den Übungsmodus.')
+        selected = createDcRound(calculationCode)
+      } else if (mode === 'review') {
         selected = candidates
           .filter(
             (e) =>
@@ -89,7 +95,7 @@ export async function submitAnswer(
           'Die Sitzung wurde in einem anderen Fenster fortgesetzt. Bitte die aktuelle Aufgabe prüfen.',
         )
       if (session.pendingAttemptId) return database.attempts.get(session.pendingAttemptId)
-      const exercise = exerciseById.get(session.exerciseIds[session.position] ?? '')
+      const exercise = resolveExercise(session.exerciseIds[session.position] ?? '')
       if (!exercise) throw new Error('Aufgabe nicht gefunden.')
       const grade = gradeExercise(exercise, answer)
       if (grade.invalid) throw new Error(grade.invalid)
@@ -140,7 +146,7 @@ export async function advanceSession(
         )
       const attempt = await database.attempts.get(session.pendingAttemptId)
       if (!attempt) throw new Error('Versuch nicht gefunden.')
-      const exercise = exerciseById.get(attempt.exerciseId)
+      const exercise = resolveExercise(attempt.exerciseId)
       if (exercise?.reviewable) {
         if (!rating) throw new Error('Bitte bewerte, wie gut du dich erinnert hast.')
         const previous = await database.reviewStates.get(exercise.id)

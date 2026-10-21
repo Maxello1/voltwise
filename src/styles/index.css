@@ -3285,3 +3285,85 @@ main#main:focus-visible {
   margin-bottom: 20px;
   font-size: 13px;
 }
+.calculation-teaser {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 24px;
+  margin: 24px 0;
+}
+.calculation-teaser > div {
+  flex: 1;
+  min-width: 0;
+}
+.calculation-teaser p {
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 6px;
+}
+.round-controls {
+  margin: 22px 0;
+}
+.history-round-link {
+  color: var(--green);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.active-round-note {
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--line);
+}
+.active-round-note > p {
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 8px;
+}
+.round-controls label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 9px;
+}
+.round-code-row,
+.round-control-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.round-code-input {
+  width: 135px;
+  min-width: 0;
+  margin: 0;
+  letter-spacing: 0.12em;
+  font-variant-numeric: tabular-nums;
+}
+.round-control-actions {
+  gap: 20px;
+  margin-top: 10px;
+}
+.round-control-actions .text-link {
+  min-height: 44px;
+}
+.session-finished > .button {
+  margin: 8px;
+}
+@media (max-width: 720px) {
+  .calculation-teaser {
+    flex-wrap: wrap;
+    padding: 22px;
+    gap: 16px;
+  }
+  .calculation-teaser > .button {
+    width: 100%;
+  }
+  .round-code-row .button {
+    padding: 12px;
+    font-size: 12px;
+  }
+  .round-control-actions {
+    column-gap: 16px;
+    row-gap: 0;
+  }
+}

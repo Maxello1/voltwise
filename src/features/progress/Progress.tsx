@@ -1,9 +1,11 @@
 import { Activity, BookOpen, CheckCircle2, Target, Trophy } from 'lucide-react'
 import type { LearningData } from '../../app/useLearningData'
-import { concepts, exerciseById, lessons, topics } from '../../content/curriculum'
+import { concepts, lessons, topics } from '../../content/curriculum'
+import { resolveExercise } from '../../content/exercise-catalogue'
 import { conceptMastery } from '../../domain/models'
 import { EmptyState, PageHeading, SectionHeading } from '../../components/ui'
 import { ConceptRecommendations } from '../../components/ConceptRecommendations'
+import { ExerciseHistoryTitle } from '../../components/ExerciseHistoryTitle'
 import { formatDate, formatNumber } from '../../i18n/de'
 
 export function Progress({ data }: { data: LearningData }) {
@@ -101,7 +103,7 @@ export function Progress({ data }: { data: LearningData }) {
                     <CheckCircle2 size={17} />
                   </span>
                   <div>
-                    <h3>{exerciseById.get(state.exerciseId)?.title}</h3>
+                    <h3>{resolveExercise(state.exerciseId)?.title}</h3>
                     <p>
                       {new Date(state.card.due) <= new Date()
                         ? 'Jetzt fällig'
@@ -135,7 +137,9 @@ export function Progress({ data }: { data: LearningData }) {
                 <div className="activity-row" key={attempt.eventId}>
                   <span className={`activity-dot ${attempt.correct ? 'correct' : ''}`} />
                   <div>
-                    <h3>{exerciseById.get(attempt.exerciseId)?.title}</h3>
+                    <h3>
+                      <ExerciseHistoryTitle exerciseId={attempt.exerciseId} />
+                    </h3>
                     <p>
                       {attempt.correct ? 'Richtig beantwortet' : 'Lösung nachvollzogen'}
                       {attempt.hints ? ' · mit Hinweis' : ''}

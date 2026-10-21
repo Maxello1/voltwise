@@ -27,6 +27,12 @@ One active session is chosen transactionally, including across tabs. Repeated an
 
 Curriculum is bundled, versioned immutable application content rather than copied into user tables. Concept mastery is derived from attempts on read. Outbox is an empty typed table reserved for a future backend; there is no pretend upload or network success state.
 
+## Generated DC content
+
+Generated DC content is reconstructed by a versioned resolver from `dc1-<template>-<code>` IDs. Preview, grading, session resume, history and backup validation share the same resolver. The five template algorithms are immutable release content; a new generator version must retain old resolution. Circuit presentation clones verified series/parallel models and substitutes matching parameters without coupling the domain equations to React or SVG. See [generated practice](GENERATED_PRACTICE.md).
+
+The trainer uses the existing session/attempt fields and leaves database and backup schema 1 unchanged. A synthetic preceding-release backup fixture checks compatibility with a pending fact rating; it does not substitute for a future real schema migration fixture.
+
 ## Migrations
 
 Database version 1 declares the initial tables and indexes. Metadata records database/content schema versions and a locally generated device UUID. Future releases must add Dexie numbered upgrades; never change a historical migration or clear storage. Add a fixture of the previous schema, migrate it, verify event IDs/history and run an export/restore drill. IndexedDB may be unavailable in restricted browser contexts; startup reports this without deleting anything.

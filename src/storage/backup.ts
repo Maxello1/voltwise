@@ -6,7 +6,8 @@ import {
   sessionSchema,
   settingsSchema,
 } from '../domain/models'
-import { exerciseById, lessons } from '../content/curriculum'
+import { lessons } from '../content/curriculum'
+import { resolveExercise } from '../content/exercise-catalogue'
 import { db, type VoltwiseDatabase } from './db'
 
 export const backupSchema = z
@@ -57,7 +58,7 @@ export function parseBackup(input: unknown): Backup {
   )
     throw new Error('Doppelte Ereignisse in der Sicherung.')
   for (const attempt of backup.attempts) {
-    const exercise = exerciseById.get(attempt.exerciseId)
+    const exercise = resolveExercise(attempt.exerciseId)
     if (
       !exercise ||
       exercise.version !== attempt.exerciseVersion ||
@@ -71,13 +72,13 @@ export function parseBackup(input: unknown): Backup {
     if (
       !attempt ||
       attempt.exerciseId !== review.exerciseId ||
-      !exerciseById.get(review.exerciseId)?.reviewable
+      !resolveExercise(review.exerciseId)?.reviewable
     )
       throw new Error('Ungültige Wiederholungsreferenz.')
   }
   for (const session of backup.sessions) {
     if (
-      session.exerciseIds.some((id) => !exerciseById.has(id)) ||
+      session.exerciseIds.some((id) => !resolveExercise(id)) ||
       (session.pendingAttemptId && attempts.get(session.pendingAttemptId)?.sessionId !== session.id)
     )
       throw new Error('Ungültige Sitzungsreferenz.')

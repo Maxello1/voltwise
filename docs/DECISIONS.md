@@ -11,3 +11,4 @@
 9. Keep licensing reserved pending an explicit project-license choice. Third-party package licenses remain applicable.
 10. Create repositories using the existing Git sign-in and GitHub REST API; push through Git. No GitHub CLI or second browser login is required.
 11. Keep practice selection transparent and separate from FSRS. Use the last twenty attempts per concept, report small samples honestly, honor read prerequisites in the mix and allow direct topic/concept choice. Exclude future scheduled facts from practice; improve recall formatting without rewriting existing events or changing content IDs/versions.
+12. Reconstruct generated DC tasks from immutable `dc1` template/code IDs instead of introducing new user tables or changing backup schema 1. Keep the released algorithm available indefinitely for saved history. New equations or parameter-selection changes require a new generator version. Generated attempts affect practice evidence, never the memory schedule.

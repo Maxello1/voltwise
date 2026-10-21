@@ -4,6 +4,7 @@ import {
   ArrowRight,
   CheckCircle2,
   CircleHelp,
+  Calculator,
   Lightbulb,
   RotateCcw,
   Sparkles,
@@ -12,13 +13,17 @@ import {
 } from 'lucide-react'
 import type { LearningData } from '../../app/useLearningData'
 import type { Exercise, LearningSession } from '../../domain/models'
-import { concepts, exercises, exerciseById, lessons, topics } from '../../content/curriculum'
-import { circuitById } from '../../content/circuit-library'
+import { concepts, exercises, lessons, topics } from '../../content/curriculum'
+import { resolveExercise } from '../../content/exercise-catalogue'
+import { resolvePracticeCircuit } from '../../content/practice-circuits'
+import { createDcRound, resolveDcProblem, validRoundCode } from '../../domain/dc-practice'
 import { answerLabel } from '../../domain/grading'
 import { planPractice } from '../../domain/practice-plan'
 import { CircuitViewer } from '../../schematics/CircuitViewer'
 import { advanceSession, startSession, submitAnswer } from '../../storage/learning'
 import { EmptyState, ErrorMessage, PageHeading } from '../../components/ui'
+import { RoundControls } from './RoundControls'
+import { newRoundCode } from './round-code'
 
 const ratings = [
   { value: 1, label: 'Noch einmal', detail: 'Nicht erinnert' },
@@ -27,27 +32,47 @@ const ratings = [
   { value: 4, label: 'Leicht', detail: 'Sofort gewusst' },
 ]
 export function Practice({ data }: { data: LearningData }) {
-  const [params] = useSearchParams()
+  const [params, setParams] = useSearchParams()
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const [finishedId, setFinishedId] = useState<string>()
   const active = data.sessions.find((s) => s.status === 'active')
   const due = data.reviewStates.filter((s) => new Date(s.card.due) <= new Date()).length
   const finished = data.sessions.find((s) => s.id === finishedId && s.status === 'complete')
+  const completedRoundCode = finished
+    ? resolveDcProblem(finished.exerciseIds[0] ?? '')?.code
+    : undefined
   const mode = params.get('mode') === 'review' ? 'review' : 'practice'
+  const trainer = mode === 'practice' && params.get('trainer') === 'dc'
+  const roundCode = params.get('code') ?? ''
   const targetConcept =
-    mode === 'practice' ? concepts.find((entry) => entry.id === params.get('concept')) : undefined
-  const plan = planPractice({
-    exercises,
-    concepts,
-    topics,
-    lessons,
-    attempts: data.attempts,
-    reviewStates: data.reviewStates,
-    completions: data.completions,
-    now: new Date(),
-    conceptId: targetConcept?.id,
-  }).filter((item) => mode !== 'review' || item.kind === 'due')
+    mode === 'practice' && !trainer
+      ? concepts.find((entry) => entry.id === params.get('concept'))
+      : undefined
+  const plan = trainer
+    ? validRoundCode(roundCode)
+      ? createDcRound(roundCode).map((exercise) => ({
+          exercise,
+          explanation:
+            'Eine Zahlenvariante deiner Rechenrunde. Derselbe Übungscode ergibt wieder dieselben Werte.',
+        }))
+      : []
+    : planPractice({
+        exercises,
+        concepts,
+        topics,
+        lessons,
+        attempts: data.attempts,
+        reviewStates: data.reviewStates,
+        completions: data.completions,
+        now: new Date(),
+        conceptId: targetConcept?.id,
+      }).filter((item) => mode !== 'review' || item.kind === 'due')
+  function selectRound(code: string) {
+    setError('')
+    setFinishedId(undefined)
+    setParams({ trainer: 'dc', code })
+  }
   async function begin(topic?: string) {
     setBusy(true)
     setError('')
@@ -59,6 +84,7 @@ export function Practice({ data }: { data: LearningData }) {
         undefined,
         undefined,
         topic ? undefined : targetConcept?.id,
+        trainer && !topic ? roundCode : undefined,
       )
       if (!session)
         setError(
@@ -85,11 +111,18 @@ export function Practice({ data }: { data: LearningData }) {
         <>
           {targetConcept &&
             active.exerciseIds.some(
-              (id) => !exerciseById.get(id)?.conceptIds.includes(targetConcept.id),
+              (id) => !resolveExercise(id)?.conceptIds.includes(targetConcept.id),
             ) && (
               <p className="selection-note" role="status">
                 Deine offene Sitzung wird zuerst fortgesetzt. Danach kannst du „
                 {targetConcept.title}“ gezielt üben.
+              </p>
+            )}
+          {trainer &&
+            active.exerciseIds.some((id) => !plan.some((item) => item.exercise.id === id)) && (
+              <p className="selection-note" role="status">
+                Deine offene Sitzung wird zuerst fortgesetzt. Deine gewählte Rechenrunde wartet
+                danach auf dich.
               </p>
             )}
           <ExerciseStep
@@ -111,10 +144,25 @@ export function Practice({ data }: { data: LearningData }) {
             {finished.exerciseIds.length} Aufgaben richtig beantwortet.
           </p>
           <p className="muted">Deine Antworten und Bewertungen sind lokal gespeichert.</p>
-          <button className="button button-primary" onClick={() => void begin()}>
-            Weiterlernen
+          <button
+            className="button button-primary"
+            onClick={() =>
+              completedRoundCode
+                ? selectRound(trainer && validRoundCode(roundCode) ? roundCode : completedRoundCode)
+                : void begin()
+            }
+          >
+            {completedRoundCode ? 'Rechenrunde öffnen' : 'Weiterlernen'}
             <ArrowRight size={17} />
           </button>
+          {completedRoundCode && (
+            <button
+              className="button button-outline"
+              onClick={() => selectRound(newRoundCode(completedRoundCode))}
+            >
+              Neue Zahlen wählen
+            </button>
+          )}
         </div>
       ) : (
         <>
@@ -126,17 +174,36 @@ export function Practice({ data }: { data: LearningData }) {
               <h2>
                 {mode === 'review'
                   ? 'Deine Wiederholungen'
-                  : targetConcept
-                    ? targetConcept.title
-                    : 'Dein täglicher Wissensmix'}
+                  : trainer
+                    ? 'Deine Rechenrunde'
+                    : targetConcept
+                      ? targetConcept.title
+                      : 'Dein täglicher Wissensmix'}
               </h2>
               <p>
                 {mode === 'review'
                   ? `${due} Aufgaben sind nach deinem persönlichen FSRS-Zeitplan fällig.`
-                  : targetConcept
-                    ? `${plan.length} passende Aufgaben zum gewählten Konzept. Deine geplanten Wissensfragen behalten ihren Wiederholungstermin.`
-                    : 'Bis zu 5 Aufgaben: fällige Wissensfragen, Konzepte zum Vertiefen und neue Anwendungen.'}
+                  : trainer
+                    ? 'Fünf Aufgaben mit wechselnden Werten: Ohmsches Gesetz, Leistung, Reihe und Parallel. Ideale Gleichstromkreise mit konstanten Widerständen.'
+                    : targetConcept
+                      ? `${plan.length} passende Aufgaben zum gewählten Konzept. Deine geplanten Wissensfragen behalten ihren Wiederholungstermin.`
+                      : 'Bis zu 5 Aufgaben: fällige Wissensfragen, Konzepte zum Vertiefen und neue Anwendungen.'}
               </p>
+              {trainer && (
+                <>
+                  <p className="muted tiny">
+                    Runde erst am Ende. Toleranz: 0,1 %. Mit demselben Übungscode erhältst du
+                    dieselben Aufgaben.
+                  </p>
+                  <RoundControls key={roundCode} code={roundCode} onSelect={selectRound} />
+                  {!validRoundCode(roundCode) && (
+                    <ErrorMessage>
+                      Der Übungscode muss genau sechs Ziffern enthalten. Wähle neue Zahlen oder gib
+                      einen gültigen Code ein.
+                    </ErrorMessage>
+                  )}
+                </>
+              )}
               <button
                 className="button button-primary"
                 onClick={() => void begin()}
@@ -145,11 +212,13 @@ export function Practice({ data }: { data: LearningData }) {
                 {mode === 'review' ? <RotateCcw size={18} /> : <ArrowRight size={18} />}
                 {mode === 'review'
                   ? 'Wiederholung starten'
-                  : targetConcept
-                    ? 'Konzept gezielt üben'
-                    : 'Gemischt üben'}
+                  : trainer
+                    ? 'Rechenrunde starten'
+                    : targetConcept
+                      ? 'Konzept gezielt üben'
+                      : 'Gemischt üben'}
               </button>
-              {targetConcept && (
+              {(targetConcept || trainer) && (
                 <Link className="text-link" to="/ueben">
                   Zum Wissensmix <ArrowRight size={16} />
                 </Link>
@@ -168,12 +237,34 @@ export function Practice({ data }: { data: LearningData }) {
               </p>
             </section>
           </div>
+          {mode !== 'review' && !trainer && (
+            <section className="card calculation-teaser" aria-label="Rechentrainer">
+              <span className="stat-icon blue">
+                <Calculator size={24} />
+              </span>
+              <div>
+                <h3>Neue Zahlen. Mehr Verständnis.</h3>
+                <p>
+                  Übe fünf Rechenaufgaben mit wechselnden Werten. Jede Runde lässt sich per Link
+                  teilen und erneut lösen.
+                </p>
+              </div>
+              <button
+                className="button button-outline"
+                onClick={() => selectRound(newRoundCode())}
+                disabled={busy}
+              >
+                Rechentrainer öffnen <ArrowRight size={17} />
+              </button>
+            </section>
+          )}
           {plan.length > 0 && (
             <section className="card practice-plan" aria-label="Deine nächste Auswahl">
-              <h3>Warum diese Aufgaben?</h3>
+              <h3>{trainer ? 'Deine fünf Rechenaufgaben' : 'Warum diese Aufgaben?'}</h3>
               <p className="muted tiny">
-                Neue Themen kommen im Mix hinzu, sobald du ihre Grundlagenlektion als gelesen
-                markiert hast. Über die Themenauswahl kannst du jederzeit direkt einsteigen.
+                {trainer
+                  ? 'Deine Lösungen, Hinweise und Bearbeitungszeiten zählen zum Fortschritt. Diese Rechenaufgaben verändern keinen FSRS-Termin.'
+                  : 'Neue Themen kommen im Mix hinzu, sobald du ihre Grundlagenlektion als gelesen markiert hast. Über die Themenauswahl kannst du jederzeit direkt einsteigen.'}
               </p>
               <ol>
                 {plan.map(({ exercise, explanation }) => (
@@ -185,7 +276,7 @@ export function Practice({ data }: { data: LearningData }) {
               </ol>
             </section>
           )}
-          {mode !== 'review' && (
+          {mode !== 'review' && !trainer && (
             <>
               <h2 className="section-title">Ein Thema vertiefen</h2>
               <div className="topic-practice-grid">
@@ -227,7 +318,7 @@ function ExerciseStep({
   data: LearningData
   onFinish: () => void
 }) {
-  const exercise = exerciseById.get(session.exerciseIds[session.position] ?? '')
+  const exercise = resolveExercise(session.exerciseIds[session.position] ?? '')
   const [answer, setAnswer] = useState('')
   const [hint, setHint] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -241,9 +332,10 @@ function ExerciseStep({
       </EmptyState>
     )
   const topic = topics.find((t) => t.id === exercise.topicId)
+  const generated = resolveDcProblem(exercise.id)
   const selectedComponent =
     exercise.type === 'schematic'
-      ? circuitById.get(exercise.circuitId)?.components.find((c) => c.id === attempt?.answer)
+      ? resolvePracticeCircuit(exercise.circuitId)?.components.find((c) => c.id === attempt?.answer)
       : undefined
   const submittedAnswer = !attempt
     ? ''
@@ -369,7 +461,7 @@ function ExerciseStep({
             <p>{exercise.explanation}</p>
             {exercise.type === 'schematic' && (
               <CircuitViewer
-                circuit={circuitById.get(exercise.circuitId)!}
+                circuit={resolvePracticeCircuit(exercise.circuitId)!}
                 selected={attempt.answer}
                 feedback={attempt.correct ? 'correct' : 'incorrect'}
                 correctSelection={attempt.correct ? undefined : exercise.answer}
@@ -402,6 +494,14 @@ function ExerciseStep({
         <ErrorMessage>{error}</ErrorMessage>
       </section>
       <aside className="exercise-aside">
+        {generated && (
+          <div className="active-round-note">
+            <Link className="text-link" to={`/ueben?trainer=dc&code=${generated.code}`}>
+              Rechenrunde {generated.code}
+            </Link>
+            <p>Runde erst am Ende. Toleranz: 0,1 %.</p>
+          </div>
+        )}
         <span className="small-icon">
           <Lightbulb size={21} />
         </span>
@@ -430,7 +530,7 @@ function AnswerInput({
   onChange: (answer: string) => void
   disabled: boolean
 }) {
-  const circuit = circuitById.get(exercise.circuitId ?? '')
+  const circuit = resolvePracticeCircuit(exercise.circuitId ?? '')
   if (exercise.type === 'choice')
     return (
       <>

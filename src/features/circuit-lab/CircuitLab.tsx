@@ -3,7 +3,8 @@ import { useNavigate, useSearchParams } from 'react-router'
 import { ArrowRight, CheckCircle2, CircuitBoard, Info, MousePointer2, Zap } from 'lucide-react'
 import type { LearningData } from '../../app/useLearningData'
 import { circuitLibrary, type CircuitStudy } from '../../content/circuit-library'
-import { exercises, exerciseById } from '../../content/curriculum'
+import { exercises } from '../../content/curriculum'
+import { resolveExercise } from '../../content/exercise-catalogue'
 import { CircuitViewer } from '../../schematics/CircuitViewer'
 import type { CircuitComponent } from '../../schematics/model'
 import { startSession } from '../../storage/learning'
@@ -93,7 +94,7 @@ function CircuitDetail({ study, data }: { study: CircuitStudy; data: LearningDat
   ).length
   const active = data.sessions.find((session) => session.status === 'active')
   const otherSession =
-    active && active.exerciseIds.some((id) => exerciseById.get(id)?.circuitId !== circuit.id)
+    active && active.exerciseIds.some((id) => resolveExercise(id)?.circuitId !== circuit.id)
   async function practice() {
     try {
       const session = await startSession('schematic', undefined, undefined, circuit.id)

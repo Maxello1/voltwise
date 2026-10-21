@@ -33,6 +33,8 @@ The practice metric and recommendations both use the last twenty attempts per co
 
 ## Persistence
 
+Generated DC rounds are explicit application practice with five fixed templates and a reproducible six-digit code. The user can choose a round independently of the recommended mix. Each task has an immutable versioned ID, complete worked solution and 0.1% relative tolerance in base units. Its attempt contributes to the same last-twenty concept evidence as curated tasks, while the dashboard counts curated-item discovery separately from calculation attempts. Reopening the same code repeats the same questions; it does not overwrite earlier attempts. No generated task is reviewable or updates FSRS. See [generated practice](GENERATED_PRACTICE.md).
+
 AttemptEvent includes a unique event/device/session ID, exercise/content version, UTC time, normalized and original answer, concepts, correctness, hint use and response duration. Attempts and reviews are immutable. Session progression, lesson completion, settings and cached review state are mutable local records. An attempt saves with the pending-step pointer in one transaction; reviewing and advancing happen in another transaction. A crash between them retains the answer for rating after reopening.
 
 Hints are recorded. Retries are new practice occurrences rather than overwriting prior attempts. Self-ratings can differ from correctness; honest ratings are encouraged, but there is no forced “incorrect = Again” shortcut. Free-text answers stay local and are included in user-requested JSON backups.

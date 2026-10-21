@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.0 — 2026-10-21
+
+- Added five reproducible DC calculation templates with six-digit round codes, shareable links and matching series/parallel diagrams.
+- Added offline round completion, pending-answer restoration, fresh-browser JSON restoration and links back from calculation history.
+- Preserved active sessions, all curated IDs/versions, the database schema and the version-1 backup format. Added a synthetic 0.3-format pending-review fixture.
+- Kept generated attempts in concept practice statistics while separating them from the 36 curated-item discovery count and from FSRS cards.
+- Made displayed numeric solutions safe to re-enter, with enough significant digits and no ambiguous thousands separators.
+- Added independent equation/range/rounding checks over 512 seeds, pinned v1 reference rounds, diagram integrity checks and desktop/mobile browser coverage.
+
 ## 0.3.0 — 2026-10-21
 
 - Added ten foundation exercises for a total of thirty-six, covering units, prefixes, Ohm's law, power, series/parallel reasoning and ideal measurements.

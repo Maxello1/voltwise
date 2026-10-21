@@ -1,6 +1,6 @@
 # Delivery status and issue-ready backlog
 
-The current version includes the repository/toolchain, six-screen offline shell, stable FSRS adapter, 36 exercises, four lessons, five verified DC circuits, backups and deployment automation. The circuit library and foundation-module implementation are complete. Real-device acceptance and wider qualified curriculum review remain before full alpha acceptance is claimed.
+The current version includes the repository/toolchain, six-screen offline shell, stable FSRS adapter, 36 curated exercises, five reproducible DC calculation templates, four lessons, five verified DC library circuits, backups and deployment automation. The circuit library, foundation-module implementation and bounded calculation trainer are complete. Real-device acceptance and wider qualified curriculum review remain before full alpha acceptance is claimed.
 
 ## Delivery and next work
 
@@ -18,12 +18,14 @@ Delivered 36 curated versioned tasks, consistent recall aliases, checked content
 
 ## Later milestones
 
+Delivered calculation work: reproducible six-digit round codes; five checked DC equations; parameter-matched series/parallel diagrams; preserved offline sessions, attempts and version-1 backups; and a synthetic previous-release backup restoration fixture. See [generated practice](GENERATED_PRACTICE.md). Wider network solving, generated fault diagnosis and additional template families remain future work.
+
 | Roadmap group         | Issue outline and acceptance                                                                             |
 | --------------------- | -------------------------------------------------------------------------------------------------------- |
 | 0–1: delivery/offline | Cross-platform test matrix, performance and prior-version data migration fixtures                        |
 | 2: learning           | Authoring validation delivered; broaden independently qualified pedagogical review                       |
 | 3: schematics         | Five circuits delivered; extend reviewed visual baselines to Linux and add more curated drawing patterns |
-| 4: applied exercises  | Reproducible seeded parameters; only supported linear DC math, checked against reference cases           |
+| 4: applied exercises  | Five seeded DC templates delivered; extend supported network cases and reviewed troubleshooting tasks    |
 | 5: controls           | Relay/contactor symbols and tested finite-state self-hold/interlock behavior before simulation claims    |
 | 6: sync               | Authenticated Worker/D1; idempotency, clock-skew and multi-device convergence tests                      |
 | 7: archives           | Versioned private snapshots and safe Markdown/vault export; exact restoration drill                      |

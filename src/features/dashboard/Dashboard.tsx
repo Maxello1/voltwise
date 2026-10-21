@@ -15,12 +15,14 @@ import {
   Zap,
 } from 'lucide-react'
 import type { LearningData } from '../../app/useLearningData'
-import { exercises, exerciseById, lessons, topics } from '../../content/curriculum'
+import { exercises, lessons, topics } from '../../content/curriculum'
+import { resolveExercise } from '../../content/exercise-catalogue'
 import { parallelDemo } from '../../content/circuit'
 import { CircuitViewer } from '../../schematics/CircuitViewer'
 import { startSession } from '../../storage/learning'
 import { EmptyState, ErrorMessage, PageHeading, SectionHeading } from '../../components/ui'
 import { ConceptRecommendations } from '../../components/ConceptRecommendations'
+import { ExerciseHistoryTitle } from '../../components/ExerciseHistoryTitle'
 import { formatNumber } from '../../i18n/de'
 
 export function Dashboard({ data }: { data: LearningData }) {
@@ -38,7 +40,12 @@ export function Dashboard({ data }: { data: LearningData }) {
   const accuracy = data.attempts.length
     ? (data.attempts.filter((a) => a.correct).length / data.attempts.length) * 100
     : null
-  const learned = new Set(data.attempts.map((a) => a.exerciseId)).size
+  const learned = new Set(
+    data.attempts
+      .filter((a) => exercises.some((e) => e.id === a.exerciseId))
+      .map((a) => a.exerciseId),
+  ).size
+  const calculationAttempts = data.attempts.filter((a) => a.exerciseId.startsWith('dc1-')).length
   async function begin() {
     setStarting(true)
     setError('')
@@ -186,6 +193,7 @@ export function Dashboard({ data }: { data: LearningData }) {
               {completedSessions}
               <small>
                 {learned} von {exercises.length} Aufgaben entdeckt
+                {calculationAttempts > 0 && ` · ${calculationAttempts} Rechenversuche`}
               </small>
             </strong>
           </div>
@@ -229,7 +237,7 @@ export function Dashboard({ data }: { data: LearningData }) {
               const lesson = lessons.find((l) => l.topicId === topic.id)
               const complete = data.completions.some((c) => c.lessonId === lesson?.id)
               const count = data.attempts.filter(
-                (a) => exercises.find((e) => e.id === a.exerciseId)?.topicId === topic.id,
+                (a) => resolveExercise(a.exerciseId)?.topicId === topic.id,
               ).length
               return (
                 <Link to={`/lernen?topic=${topic.id}`} className="path-item" key={topic.id}>
@@ -275,7 +283,9 @@ export function Dashboard({ data }: { data: LearningData }) {
                   <div className="activity-row" key={attempt.eventId}>
                     <span className={`activity-dot ${attempt.correct ? 'correct' : ''}`} />
                     <div>
-                      <h3>{exerciseById.get(attempt.exerciseId)?.title}</h3>
+                      <h3>
+                        <ExerciseHistoryTitle exerciseId={attempt.exerciseId} />
+                      </h3>
                       <p>
                         {attempt.correct ? 'Richtig beantwortet' : 'Eine neue Lernchance'}
                         {attempt.hints ? ' · mit Hinweis' : ''}

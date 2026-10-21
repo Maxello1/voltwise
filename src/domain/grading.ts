@@ -85,7 +85,7 @@ export function gradeExercise(exercise: Exercise, answer: string): Grade {
 
 export function answerLabel(exercise: Exercise): string {
   if (exercise.type === 'numeric')
-    return `${exercise.answer.toLocaleString('de-DE', { maximumFractionDigits: 4 })} ${exercise.unit}`
+    return `${exercise.answer.toLocaleString('de-DE', { useGrouping: false, maximumSignificantDigits: 8 })} ${exercise.unit}`
   if (exercise.type === 'choice')
     return exercise.options.find((option) => option.id === exercise.answer)?.text ?? ''
   return exercise.answerLabel

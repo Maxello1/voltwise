@@ -1,0 +1,47 @@
+{
+  "format": "voltwise-backup",
+  "version": 1,
+  "exportedAt": "2026-10-21T20:00:00.000Z",
+  "attempts": [
+    {
+      "eventId": "11111111-1111-4111-8111-111111111111",
+      "deviceId": "22222222-2222-4222-8222-222222222222",
+      "sessionId": "33333333-3333-4333-8333-333333333333",
+      "exerciseId": "unit-current",
+      "exerciseVersion": 1,
+      "createdAt": "2026-10-21T19:59:00.000Z",
+      "conceptIds": ["units"],
+      "correct": true,
+      "answer": "a",
+      "normalizedAnswer": "a",
+      "hints": 0,
+      "durationMs": 1800
+    }
+  ],
+  "reviews": [],
+  "sessions": [
+    {
+      "id": "33333333-3333-4333-8333-333333333333",
+      "mode": "practice",
+      "exerciseIds": [
+        "unit-current",
+        "voltage-symbol",
+        "milliampere",
+        "resistance-unit",
+        "lamp-identify-switch"
+      ],
+      "position": 0,
+      "status": "active",
+      "startedAt": "2026-10-21T19:58:00.000Z",
+      "pendingAttemptId": "11111111-1111-4111-8111-111111111111"
+    }
+  ],
+  "completions": [{ "lessonId": "quantities", "completedAt": "2026-10-21T19:57:00.000Z" }],
+  "settings": {
+    "id": "preferences",
+    "locale": "de",
+    "theme": "dark",
+    "timezone": "Europe/Berlin",
+    "dailyGoal": 5
+  }
+}

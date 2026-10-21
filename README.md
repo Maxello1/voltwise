@@ -34,6 +34,7 @@ For browser tests, install Chromium once with `pnpm exec playwright install chro
 
 - Six responsive sections: Übersicht, Lernen, Üben, Schaltpläne, Fortschritt and Einstellungen; desktop sidebar and phone bottom navigation.
 - Four lessons and **36 checked starter exercises**, including choices, typed recall, unit-aware calculations and component selection.
+- A DC calculation trainer with five reproducible numeric templates, matching series/parallel diagrams, shareable round codes and offline backup/restore support.
 - Atomic IndexedDB persistence through Dexie, resumable sessions, immutable attempts/review events and separate explicit FSRS memory ratings.
 - Stable `ts-fsrs@5.4.2` behind an adapter, a due queue, actual activity and an explained practice metric.
 - Concept recommendations with real sample counts, shareable targeted practice and an explained five-task preview. The mixed selection respects read prerequisites and keeps future scheduled facts on their own timetable.
@@ -52,6 +53,16 @@ The selected circuit has a shareable URL and its own two or three practice tasks
 ![Explained targeted practice](docs/screenshots/practice-recommendations-desktop.png)
 
 Recommendations use the last twenty attempts per concept and count only unassisted correct answers as independently correct. Small samples are labeled as preliminary. They select practice, while your explicit memory rating alone updates FSRS. Recall accepts declared aliases and consistent pairs such as `Ohm (Ω)`; it does not infer meaning from arbitrary sentences.
+
+## Calculation rounds
+
+Open **Üben → Rechentrainer öffnen** to practice Ohm's law, power, series and parallel circuits with changing numbers. A six-digit code identifies the same five tasks on every device. Sharing the round link includes the code, not your answers or progress. Past calculation attempts link back to their round.
+
+[Try round 000000](https://maxello1.github.io/voltwise/#/ueben?trainer=dc&code=000000)
+
+![Reproducible calculation practice](docs/screenshots/calculation-round-desktop.png)
+
+Each generated question uses checked, bounded ideal DC assumptions and a stated 0.1% numeric tolerance. Answers are recorded as application practice, without adding FSRS memory cards. See [generated practice](docs/GENERATED_PRACTICE.md) for the supported equations and immutable version contract.
 
 ## Electrical reference example
 
