@@ -1,10 +1,12 @@
 import type { CircuitComponent, SymbolKind } from './model'
 import { MeterSymbol } from './MeterSymbol'
+import { ControlContact } from './ControlContact'
+import type { ControlVisualState } from '../domain/control'
 
 // Original vector geometry, not extracted from a commercial symbol database.
 export const symbolRegistry: Record<
   SymbolKind,
-  (props: { component: CircuitComponent }) => React.ReactNode
+  (props: { component: CircuitComponent; state?: ControlVisualState }) => React.ReactNode
 > = {
   source: () => (
     <>
@@ -41,4 +43,17 @@ export const symbolRegistry: Record<
   ),
   ammeter: ({ component }) => <MeterSymbol component={component} letter="A" />,
   voltmeter: ({ component }) => <MeterSymbol component={component} letter="V" />,
+  'contact-no': ControlContact,
+  'contact-nc': ControlContact,
+  'pushbutton-no': ControlContact,
+  'pushbutton-nc': ControlContact,
+  'overload-contact': ControlContact,
+  'restart-permit': ControlContact,
+  coil: () => (
+    <>
+      <path d="M0 -40V-24M0 24V40" />
+      <rect x="-23" y="-24" width="46" height="48" />
+      <path d="M-14 15 14 -15" />
+    </>
+  ),
 }

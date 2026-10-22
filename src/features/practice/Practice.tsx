@@ -531,10 +531,17 @@ function AnswerInput({
   disabled: boolean
 }) {
   const circuit = resolvePracticeCircuit(exercise.circuitId ?? '')
+  const controlNote =
+    circuit?.simulationMode === 'finite-state' ? (
+      <p className="input-help">
+        Plan in Ausgangslage. Beurteile die im Aufgabentext beschriebene Betätigung.
+      </p>
+    ) : null
   if (exercise.type === 'choice')
     return (
       <>
         {circuit && <CircuitViewer circuit={circuit} compact />}
+        {controlNote}
         <fieldset className="choice-list">
           <legend className="sr-only">Wähle eine Antwort</legend>
           {exercise.options.map((option, index) => (
@@ -562,6 +569,7 @@ function AnswerInput({
     return (
       <>
         {circuit && <CircuitViewer circuit={circuit} selected={value} onSelect={onChange} />}
+        {controlNote}
         <p className="input-help">
           Bauteil antippen oder per Tab und Eingabetaste auswählen.
           {value && ` Auswahl: ${value.toUpperCase()}`}

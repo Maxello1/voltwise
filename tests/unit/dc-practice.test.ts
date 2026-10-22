@@ -108,6 +108,7 @@ describe('versioned DC practice rounds', () => {
       for (const template of ['series-current', 'parallel-current'] as const) {
         const { exercise, voltage, resistance, secondResistance } = createDcProblem(template, code)
         const circuit = resolvePracticeCircuit(exercise.circuitId!)!
+        if (circuit.simulationMode !== 'verified-static') throw new Error('Expected static DC')
         expect(validateCircuit(circuit)).toEqual([])
         expect(circuit.nominalVoltage).toBe(voltage)
         expect(circuit.components.find((component) => component.kind === 'source')?.label).toBe(

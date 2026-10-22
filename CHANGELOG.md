@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.5.0 — 2026-10-22
+
+- Added three progressive interactive 24 V control circuits: momentary lamp, contactor self-holding and latched overload with manual reset and three troubleshooting scenarios.
+- Added original NO/NC and pushbutton symbols, relay/contactor coils, device-linked auxiliary contacts, overload contacts and an explicitly identified additional B1 restart-permission block.
+- Added deterministic React-independent state transitions with Stop/trip priority, reset-edge validation and release-before-restart behavior after interruption. Kept ordinary self-holding distinct from B1's additional function.
+- Added actual contact geometry and coil/lamp states, German explanations, component selectors, terminal-role labels and 300% control-diagram zoom with keyboard/touch controls.
+- Added one German lesson and ten versioned tasks, for five lessons and 46 curated tasks. Nine new applied tasks append attempts without FSRS; only the contact fact offers a separate memory rating.
+- Preserved database/backup schema 1, all previous content and generated DC versions. Added previous-schema reopening and new/old backup restoration coverage.
+- Added exhaustive state/input tests with an independent contact-path oracle, rendering tests and offline desktop/mobile browser flows. Made two existing browser cases wait for asynchronous session navigation before choosing identically named diagram components.
+
 ## 0.4.0 — 2026-10-21
 
 - Added five reproducible DC calculation templates with six-digit round codes, shareable links and matching series/parallel diagrams.

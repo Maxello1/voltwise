@@ -1,6 +1,21 @@
+import type { ControlModel } from '../domain/control'
+
 export type Point = readonly [number, number]
 export type SymbolKind =
-  'source' | 'resistor' | 'switch' | 'lamp' | 'ground' | 'ammeter' | 'voltmeter'
+  | 'source'
+  | 'resistor'
+  | 'switch'
+  | 'lamp'
+  | 'ground'
+  | 'ammeter'
+  | 'voltmeter'
+  | 'contact-no'
+  | 'contact-nc'
+  | 'pushbutton-no'
+  | 'pushbutton-nc'
+  | 'coil'
+  | 'overload-contact'
+  | 'restart-permit'
 export interface CircuitComponent {
   id: string
   kind: SymbolKind
@@ -10,9 +25,10 @@ export interface CircuitComponent {
   rotation: 0 | 90 | 180 | 270
   labelOffset?: Point
   properties: Record<string, number | string>
+  deviceId?: string
   terminals: { id: string; role: string; offset: Point }[]
 }
-export interface CircuitDefinition {
+interface CircuitBase {
   id: string
   version: number
   title: string
@@ -20,17 +36,26 @@ export interface CircuitDefinition {
   grid: number
   bounds: { width: number; height: number }
   nominalVoltage: number
-  simulationMode: 'verified-static'
   components: CircuitComponent[]
   nets: { id: string; label?: string; terminals: string[] }[]
   junctions: { id: string; netId: string; point: Point }[]
   wires: { id: string; netId: string; from: string; to: string; points: Point[] }[]
   annotations: { id: string; point: Point; text: string; kind: 'label' | 'voltage' }[]
+}
+export type StaticCircuitDefinition = CircuitBase & {
+  simulationMode: 'verified-static'
   validation: {
     method: string
     expected: { totalCurrent: number; equivalentResistance: number; totalPower: number }
   }
 }
+export type ControlCircuitDefinition = CircuitBase & {
+  simulationMode: 'finite-state'
+  control: ControlModel
+  devices: { id: string; kind: 'relay' | 'contactor' | 'overload' | 'restart-monitor' }[]
+  validation: { method: string }
+}
+export type CircuitDefinition = StaticCircuitDefinition | ControlCircuitDefinition
 export function terminalPoint(component: CircuitComponent, offset: Point): Point {
   const [x, y] = offset
   const rotated: Point =

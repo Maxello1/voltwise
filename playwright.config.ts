@@ -8,7 +8,12 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   reporter: [['list'], ['html', { open: 'never' }]],
   workers: 2,
-  use: { baseURL: `http://127.0.0.1:4173${base}`, trace: 'retain-on-failure' },
+  use: {
+    baseURL: `http://127.0.0.1:4173${base}`,
+    trace: 'retain-on-failure',
+    // Optional full Chromium channel when a platform's separate headless shell is unusable.
+    channel: process.env.PLAYWRIGHT_CHANNEL,
+  },
   projects: [
     {
       name: 'desktop',

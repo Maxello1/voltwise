@@ -1,6 +1,6 @@
 # Delivery status and issue-ready backlog
 
-The current version includes the repository/toolchain, six-screen offline shell, stable FSRS adapter, 36 curated exercises, five reproducible DC calculation templates, four lessons, five verified DC library circuits, backups and deployment automation. The circuit library, foundation-module implementation and bounded calculation trainer are complete. Real-device acceptance and wider qualified curriculum review remain before full alpha acceptance is claimed.
+The current version includes the repository/toolchain, six-screen offline shell, stable FSRS adapter, 46 curated exercises, five reproducible DC calculation templates, five lessons, five verified DC library circuits, three interactive control circuits, backups and deployment automation. The foundation module, bounded calculation trainer and bounded v0.5 control model are implemented. Real-device acceptance and wider qualified curriculum review remain before full alpha acceptance is claimed.
 
 ## Delivery and next work
 
@@ -18,18 +18,20 @@ Delivered 36 curated versioned tasks, consistent recall aliases, checked content
 
 ## Later milestones
 
+Delivered v0.5: three progressive 24 V controls, original contact/coil symbols, explicit device/terminal validation, deterministic self-holding/overload/reset logic, additional visible B1 restart permission, ten tasks and one lesson. See [control scope and limitations](CONTROL_CIRCUITS.md). Reversing interlocks, timers, arbitrary network solving and safety validation remain outside this release.
+
 Delivered calculation work: reproducible six-digit round codes; five checked DC equations; parameter-matched series/parallel diagrams; preserved offline sessions, attempts and version-1 backups; and a synthetic previous-release backup restoration fixture. See [generated practice](GENERATED_PRACTICE.md). Wider network solving, generated fault diagnosis and additional template families remain future work.
 
-| Roadmap group         | Issue outline and acceptance                                                                             |
-| --------------------- | -------------------------------------------------------------------------------------------------------- |
-| 0–1: delivery/offline | Cross-platform test matrix, performance and prior-version data migration fixtures                        |
-| 2: learning           | Authoring validation delivered; broaden independently qualified pedagogical review                       |
-| 3: schematics         | Five circuits delivered; extend reviewed visual baselines to Linux and add more curated drawing patterns |
-| 4: applied exercises  | Five seeded DC templates delivered; extend supported network cases and reviewed troubleshooting tasks    |
-| 5: controls           | Relay/contactor symbols and tested finite-state self-hold/interlock behavior before simulation claims    |
-| 6: sync               | Authenticated Worker/D1; idempotency, clock-skew and multi-device convergence tests                      |
-| 7: archives           | Versioned private snapshots and safe Markdown/vault export; exact restoration drill                      |
-| 8: curriculum         | Qualified review for AC, motors, protection and imported school material                                 |
-| 9: readiness          | Security/privacy review, corruption recovery, opt-in-only instrumentation and documented browser support |
+| Roadmap group         | Issue outline and acceptance                                                                                   |
+| --------------------- | -------------------------------------------------------------------------------------------------------------- |
+| 0–1: delivery/offline | Cross-platform test matrix, performance and prior-version data migration fixtures                              |
+| 2: learning           | Authoring validation delivered; broaden independently qualified pedagogical review                             |
+| 3: schematics         | Five circuits delivered; extend reviewed visual baselines to Linux and add more curated drawing patterns       |
+| 4: applied exercises  | Five seeded DC templates delivered; extend supported network cases and reviewed troubleshooting tasks          |
+| 5: controls           | Self-hold/overload delivered; independently review pedagogy, then add separately verified reversing interlocks |
+| 6: sync               | Authenticated Worker/D1; idempotency, clock-skew and multi-device convergence tests                            |
+| 7: archives           | Versioned private snapshots and safe Markdown/vault export; exact restoration drill                            |
+| 8: curriculum         | Qualified review for AC, motors, protection and imported school material                                       |
+| 9: readiness          | Security/privacy review, corruption recovery, opt-in-only instrumentation and documented browser support       |
 
 No background synchronization or archive automation should be enabled just because the private repository exists.

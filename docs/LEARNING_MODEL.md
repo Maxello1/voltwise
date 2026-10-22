@@ -31,6 +31,12 @@ Short recall uses explicit aliases with Unicode NFKC normalization, German case 
 
 The practice metric and recommendations both use the last twenty attempts per concept. An answer counts as independently correct only if correct and no hint was used. The display is a transparent proportion with its sample count. No attempts means unknown, not zero proficiency. Topic summaries pool the assessed concept counts, so a multi-concept task contributes to each tagged concept. This metric is not a validated assessment and does not represent FSRS retention.
 
+## Control learning
+
+v0.5 adds the `controls` topic after recommended series/parallel foundations, three concept tags, the `control-basics-v1` lesson and ten version-1 exercises. The NC rest-state fact is reviewable; the nine applied symbol/prediction/diagnosis exercises are not. Correctness never supplies an FSRS rating. Circuit sessions select their exact two, three or four tasks. Prediction diagrams show the initial state and prompts state the input sequence explicitly.
+
+The interactive laboratory is exploratory: input changes do not manufacture attempts or memory cards. Submitting a checked exercise records the same immutable AttemptEvent as before and feeds concept recommendations. Existing sessions resume before new control selections. The view's experiment resets when reopened, independently of persistent learning progress. Database and JSON schema 1 remain unchanged.
+
 ## Persistence
 
 Generated DC rounds are explicit application practice with five fixed templates and a reproducible six-digit code. The user can choose a round independently of the recommended mix. Each task has an immutable versioned ID, complete worked solution and 0.1% relative tolerance in base units. Its attempt contributes to the same last-twenty concept evidence as curated tasks, while the dashboard counts curated-item discovery separately from calculation attempts. Reopening the same code repeats the same questions; it does not overwrite earlier attempts. No generated task is reviewable or updates FSRS. See [generated practice](GENERATED_PRACTICE.md).

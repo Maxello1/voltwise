@@ -1,4 +1,5 @@
 import { terminalPoint, type CircuitDefinition, type Point } from './model'
+import { validateControlCircuit } from './control-validation'
 const same = (a: Point | undefined, b: Point | undefined) =>
   !!a && !!b && a[0] === b[0] && a[1] === b[1]
 export function validateCircuit(circuit: CircuitDefinition): string[] {
@@ -100,5 +101,6 @@ export function validateCircuit(circuit: CircuitDefinition): string[] {
       }
     }
   }
+  if (circuit.simulationMode === 'finite-state') errors.push(...validateControlCircuit(circuit))
   return errors
 }

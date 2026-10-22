@@ -272,6 +272,8 @@ test('wrong diagram selections highlight the chosen and correct components separ
 }) => {
   await page.goto('./#/schaltplaene?circuit=divider-12v')
   await page.getByRole('button', { name: '2 Aufgaben starten' }).click()
+  // The library has the same component names; wait for asynchronous session navigation.
+  await expect(page).toHaveURL(/#\/ueben$/)
   await page.getByRole('button', { name: 'R1 · 1 kΩ', exact: true }).click()
   await page.getByRole('button', { name: 'Antwort prüfen' }).click()
   await expect(page.locator('.circuit-component.selected.incorrect')).toHaveAttribute(
@@ -293,6 +295,7 @@ test('new circuits and exercises are available without a network', async ({ page
   await page.goto('./#/schaltplaene?circuit=lamp-12v')
   await expect(page.getByRole('button', { name: 'S1 · geschlossen', exact: true })).toBeVisible()
   await page.getByRole('button', { name: '3 Aufgaben starten' }).click()
+  await expect(page).toHaveURL(/#\/ueben$/)
   await page.getByRole('button', { name: 'S1 · geschlossen', exact: true }).click()
   await page.getByRole('button', { name: 'Antwort prüfen' }).click()
   await expect(page.getByText('Richtig. Die Verbindung stimmt.')).toBeVisible()
