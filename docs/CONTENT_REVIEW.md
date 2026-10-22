@@ -1,6 +1,6 @@
 # Foundation content review — 21 October 2026
 
-The current catalogue contains four German lessons and 36 version-1 exercises. This records the implementation review and automated evidence; it is not approval by an independent electrical instructor.
+The current catalogue contains five German lessons and 46 version-1 exercises. This records the implementation review and automated evidence; it is not approval by an independent electrical instructor. The original foundation review below remains applicable; v0.5 adds one lesson, one NC knowledge fact and nine control applications. Their answer keys, state sequences and terminal references are checked in `tests/unit/control.test.ts`; see [control review scope](CONTROL_CIRCUITS.md).
 
 ## Scope and prerequisites
 

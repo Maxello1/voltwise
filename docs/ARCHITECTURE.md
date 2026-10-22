@@ -33,6 +33,12 @@ Generated DC content is reconstructed by a versioned resolver from `dc1-<templat
 
 The trainer uses the existing session/attempt fields and leaves database and backup schema 1 unchanged. A synthetic preceding-release backup fixture checks compatibility with a pending fact rating; it does not substitute for a future real schema migration fixture.
 
+## Control circuits
+
+The schematic DSL is discriminated by `simulationMode`: existing `verified-static` drawings retain their numeric validation, while `finite-state` drawings declare `control-v1` bindings and device references. `domain/control.ts` owns pure deterministic transitions and coil/contact projections. `schematics/control-validation.ts` verifies exact terminal partitions and ownership for the three bounded models before any network-simulation claim is made. Renderer state stays separate from immutable packaged definitions.
+
+`ControlPanel` handles user inputs and projects state into the shared SVG viewer. It does not compute electrical equations. B1 is explicitly additional release-before-restart logic, including the held-Start case that an ordinary self-holding circuit cannot prevent. Simulation state is local to the selected view; exercise events use the existing transactional learning path. No table, migration or backup-version change is needed. See [model details](CONTROL_CIRCUITS.md).
+
 ## Migrations
 
 Database version 1 declares the initial tables and indexes. Metadata records database/content schema versions and a locally generated device UUID. Future releases must add Dexie numbered upgrades; never change a historical migration or clear storage. Add a fixture of the previous schema, migrate it, verify event IDs/history and run an export/restore drill. IndexedDB may be unavailable in restricted browser contexts; startup reports this without deleting anything.

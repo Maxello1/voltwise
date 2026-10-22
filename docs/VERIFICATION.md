@@ -1,6 +1,30 @@
 # Verification
 
-Workspace: Windows, `D:\Lern App`. Node 24.14.1, pnpm 11.25.0, Git 2.51.0. GitHub setup used existing Git authentication without installing the GitHub CLI.
+## v0.5 verification — 22 October 2026
+
+Base: reviewed `main` commit `a518273d17`, fetched before work; branch `feat/control-circuits-v05`. Existing source content was extended additively. The five DC definitions, original exercise IDs/versions, generated v1 algorithms, database schema and backup format remain intact.
+
+Automation environment: darwin arm64, Node 24.19.0, pnpm 11.25.0, Playwright 1.64.1 with Chromium 156.0.8078.4. This is automated browser coverage; no physical iPhone, interactive Mac acceptance, Safari or installed-PWA update testing is claimed.
+
+| Check            | Result                                                                                    |
+| ---------------- | ----------------------------------------------------------------------------------------- |
+| `pnpm lint`      | Passed, zero warnings                                                                     |
+| `pnpm typecheck` | Passed                                                                                    |
+| `pnpm test`      | 158 passed across 13 files                                                                |
+| `pnpm build`     | Passed; production PWA precaches 32 entries                                               |
+| `pnpm test:e2e`  | 36 functional cases passed; 10 existing Windows-only image comparisons skipped on this OS |
+
+Local browser invocation uses `PLAYWRIGHT_BROWSERS_PATH=.cache/playwright PLAYWRIGHT_CHANNEL=chromium pnpm test:e2e`. The default separate macOS headless shell crashes with ICU-data errors in this environment; the installed full Chromium channel works. The optional `PLAYWRIGHT_CHANNEL` configuration does not change the default CI channel. The ignored local browser cache and test profiles are not committed.
+
+New unit tests enumerate every reachable state with all 32 input combinations and compare powered load paths using an independent contact-graph traversal. They also check Stop/trip priority, reset edges/conditions, supply restoration, held Start, NO/NC complementarity, relay/contactor references, exact topology, invalid roles/endpoints/voltage and all ten new answer keys. Component tests inspect live SVG states and keyboard/zoom/pan/reset behavior.
+
+Persistence tests reopen an independently declared schema-1 legacy database, preserve a pending fact and generated DC session, restore new control attempts additively/idempotently, and verify that applied attempts never create FSRS cards. New browser flows cover control lessons, simulation, offline applied learning, saved answers, recommendations and fresh-context JSON restoration. All three control diagrams are checked on desktop and phone, in both themes, with 320 px overflow checks. Captures for running controls and tripped overload in light/dark desktop/mobile views were inspected; these are review artifacts rather than portable pixel baselines. Two existing tests now await completed session navigation before choosing component names shared with the library.
+
+The independent electrical/pedagogical review and real-device update checks remain open. See [control assumptions and limitations](CONTROL_CIRCUITS.md).
+
+## Earlier release environment
+
+Windows, `D:\Lern App`. Node 24.14.1, pnpm 11.25.0, Git 2.51.0. GitHub setup used existing Git authentication without installing the GitHub CLI.
 
 ## Required commands
 

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useSearchParams, useNavigate } from 'react-router'
+import { Link, useSearchParams, useNavigate } from 'react-router'
 import { ArrowRight, BookOpen, CheckCircle2, Clock3, LockKeyhole } from 'lucide-react'
 import type { LearningData } from '../../app/useLearningData'
 import { exercises, lessons, topics } from '../../content/curriculum'
@@ -86,6 +86,11 @@ export function Learn({ data }: { data: LearningData }) {
             </section>
           ))}
           <div className="lesson-actions">
+            {topic.id === 'controls' && (
+              <Link className="button button-outline" to="/schaltplaene?circuit=control-lamp-v1">
+                Steuerstromkreise ausprobieren <ArrowRight size={17} />
+              </Link>
+            )}
             <button
               className={`button ${done ? 'button-soft' : 'button-primary'}`}
               onClick={() => void complete()}

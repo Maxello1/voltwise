@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router'
+import { Link, useNavigate, useSearchParams } from 'react-router'
 import { ArrowRight, CheckCircle2, CircuitBoard, Info, MousePointer2, Zap } from 'lucide-react'
 import type { LearningData } from '../../app/useLearningData'
 import { circuitLibrary, type CircuitStudy } from '../../content/circuit-library'
@@ -10,6 +10,8 @@ import type { CircuitComponent } from '../../schematics/model'
 import { startSession } from '../../storage/learning'
 import { ErrorMessage, PageHeading } from '../../components/ui'
 import { formatNumber } from '../../i18n/de'
+import { controlVisuals, initialControlState } from '../../domain/control'
+import { ControlPanel } from './ControlPanel'
 
 export function CircuitLab({ data }: { data: LearningData }) {
   const [params, setParams] = useSearchParams()
@@ -20,18 +22,18 @@ export function CircuitLab({ data }: { data: LearningData }) {
       <PageHeading
         eyebrow="DER SCHALTPLANRAUM"
         title="Sieh die Verbindung."
-        description="Fünf geprüfte Lehrschaltungen. Wähle Bauteile aus und verstehe ihre Strompfade."
+        description="Fünf geprüfte DC-Schaltungen und drei interaktive Steuerstromkreise. Entdecke jeden Strompfad."
         action={
           <span className="soft-badge sage">
             <CheckCircle2 size={14} />
-            Analytisch geprüft
+            Geprüfte Lehrmodelle
           </span>
         }
       />
       <section className="circuit-library" aria-label="Schaltplanbibliothek">
         <div className="library-heading">
-          <h2>Eine Idee. Fünf Perspektiven.</h2>
-          <span>GLEICHSTROM · STUFE 1–2</span>
+          <h2>Vom Widerstand zur Selbsthaltung.</h2>
+          <span>GLEICHSTROM & STEUERUNG · STUFE 1–3</span>
         </div>
         <div className="circuit-library-grid">
           {circuitLibrary.map((entry, index) => (
@@ -76,6 +78,20 @@ function componentDescription(component: CircuitComponent) {
       return 'Ideales Voltmeter · parallel · kein Messstrom'
     case 'ground':
       return 'Bezugspotenzial'
+    case 'pushbutton-no':
+      return 'Momentaner Schließertaster · unbetätigt offen'
+    case 'pushbutton-nc':
+      return 'Momentaner Öffnertaster · unbetätigt geschlossen'
+    case 'contact-no':
+      return 'Mechanisch zugeordneter Hilfsschließer'
+    case 'contact-nc':
+      return 'Mechanisch zugeordneter Hilfsöffner'
+    case 'coil':
+      return 'Ideale 24-V-DC-Schützspule'
+    case 'overload-contact':
+      return 'Überlast-Öffner · gespeicherte Auslösung bis Reset'
+    case 'restart-permit':
+      return 'Zusätzliche abstrahierte Wiederanlauffreigabe B1'
   }
 }
 
@@ -83,8 +99,11 @@ function CircuitDetail({ study, data }: { study: CircuitStudy; data: LearningDat
   const [selected, setSelected] = useState('')
   const [showSolution, setShowSolution] = useState(false)
   const [error, setError] = useState('')
+  const [controlState, setControlState] = useState(initialControlState)
   const navigate = useNavigate()
   const { circuit } = study
+  const dynamic = circuit.simulationMode === 'finite-state'
+  const states = dynamic ? controlVisuals(circuit.control, controlState) : undefined
   const component = circuit.components.find((c) => c.id === selected)
   const terminal = circuit.components.flatMap((c) => c.terminals).find((t) => t.id === selected)
   const net = circuit.nets.find((n) => n.id === selected || n.terminals.includes(selected))
@@ -112,7 +131,7 @@ function CircuitDetail({ study, data }: { study: CircuitStudy; data: LearningDat
             <div>
               <span className="eyebrow">
                 LEHRSCHALTUNG {String(circuitLibrary.indexOf(study) + 1).padStart(2, '0')} ·
-                GLEICHSTROM
+                {dynamic ? 'STEUERSTROMKREIS' : 'GLEICHSTROM'}
               </span>
               <h2>{circuit.title}</h2>
             </div>
@@ -121,7 +140,32 @@ function CircuitDetail({ study, data }: { study: CircuitStudy; data: LearningDat
             </span>
           </div>
           <p className="muted">{circuit.description}</p>
-          <CircuitViewer circuit={circuit} selected={selected} onSelect={setSelected} />
+          {dynamic && (
+            <ControlPanel circuit={circuit} state={controlState} onChange={setControlState} />
+          )}
+          <CircuitViewer
+            circuit={circuit}
+            selected={selected}
+            onSelect={setSelected}
+            states={states}
+          />
+          {dynamic && (
+            <div className="terminal-picker">
+              <label htmlFor="component-select">Bauteil auswählen</label>
+              <select
+                id="component-select"
+                value={component ? selected : ''}
+                onChange={(e) => setSelected(e.target.value)}
+              >
+                <option value="">Bauteil auswählen …</option>
+                {circuit.components.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.designator} · {c.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
           <div className="circuit-legend">
             <span>
               <span className="legend-dot" />
@@ -197,6 +241,29 @@ function CircuitDetail({ study, data }: { study: CircuitStudy; data: LearningDat
               <span>
                 Anschlüsse<strong>{component.terminals.length}</strong>
               </span>
+              {states && (
+                <span>
+                  Simulierter Zustand
+                  <strong>
+                    {states[component.id] === 'on'
+                      ? 'Ein'
+                      : states[component.id] === 'off'
+                        ? 'Aus'
+                        : states[component.id] === 'closed'
+                          ? 'Geschlossen'
+                          : 'Offen'}
+                  </strong>
+                </span>
+              )}
+              {component.deviceId && (
+                <span>
+                  Gerätezuordnung
+                  <strong>
+                    {component.deviceId.toUpperCase()}
+                    {component.deviceId === 'k1' ? ' · Spule ↔ Hilfskontakt' : ''}
+                  </strong>
+                </span>
+              )}
             </div>
           )}
           <div className="explanation-note">
@@ -207,8 +274,19 @@ function CircuitDetail({ study, data }: { study: CircuitStudy; data: LearningDat
             className="button button-outline"
             onClick={() => setShowSolution((value) => !value)}
           >
-            {showSolution ? 'Berechnung ausblenden' : 'Berechnung nachvollziehen'}
+            {dynamic
+              ? showSolution
+                ? 'Ablauf ausblenden'
+                : 'Ablauf nachvollziehen'
+              : showSolution
+                ? 'Berechnung ausblenden'
+                : 'Berechnung nachvollziehen'}
           </button>
+          {dynamic && (
+            <Link className="text-link" to="/lernen?topic=controls">
+              Lektion zur Steuerung <ArrowRight size={16} />
+            </Link>
+          )}
         </aside>
       </div>
       {showSolution && (
@@ -224,11 +302,13 @@ function CircuitDetail({ study, data }: { study: CircuitStudy; data: LearningDat
               </div>
             ))}
           </div>
-          <p>
-            Rges = {formatNumber(circuit.validation.expected.equivalentResistance, 4)} Ω · Iges ={' '}
-            {formatNumber(circuit.validation.expected.totalCurrent, 4)} A · Pges ={' '}
-            {formatNumber(circuit.validation.expected.totalPower, 4)} W.
-          </p>
+          {circuit.simulationMode === 'verified-static' && (
+            <p>
+              Rges = {formatNumber(circuit.validation.expected.equivalentResistance, 4)} Ω · Iges ={' '}
+              {formatNumber(circuit.validation.expected.totalCurrent, 4)} A · Pges ={' '}
+              {formatNumber(circuit.validation.expected.totalPower, 4)} W.
+            </p>
+          )}
           <p className="solution-assumption">
             {circuit.validation.method}. {study.note}
           </p>
@@ -259,9 +339,11 @@ function CircuitDetail({ study, data }: { study: CircuitStudy; data: LearningDat
       </section>
       <ErrorMessage>{error}</ErrorMessage>
       <p className="educational-note">
-        Lehrschaltungen mit idealisierten Bauteilen. Geprüfte feste Zustände, keine dynamische
-        Simulation und keine Anleitung für Arbeiten an elektrischen Anlagen. Relaislogik folgt
-        später.
+        Lehrschaltungen mit idealisierten Bauteilen.{' '}
+        {dynamic
+          ? 'Begrenztes, verzögerungsfreies Zustandsmodell ohne Motor-Leistungskreis oder Sicherheitsnachweis.'
+          : 'Analytisch geprüfte feste DC-Zustände.'}{' '}
+        Keine Anleitung für Arbeiten an elektrischen Anlagen.
       </p>
     </>
   )

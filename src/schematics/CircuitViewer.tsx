@@ -2,6 +2,7 @@ import { useId, useState } from 'react'
 import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Maximize2, Minus, Plus } from 'lucide-react'
 import { symbolRegistry } from './symbols'
 import { terminalPoint, type CircuitDefinition } from './model'
+import { controlVisuals, initialControlState, type ControlVisualState } from '../domain/control'
 
 interface Props {
   circuit: CircuitDefinition
@@ -10,6 +11,7 @@ interface Props {
   feedback?: 'correct' | 'incorrect'
   compact?: boolean
   correctSelection?: string
+  states?: Record<string, ControlVisualState>
 }
 export function CircuitViewer({
   circuit,
@@ -18,9 +20,16 @@ export function CircuitViewer({
   feedback,
   compact = false,
   correctSelection,
+  states,
 }: Props) {
   const [zoom, setZoom] = useState(1)
+  const maxZoom = circuit.simulationMode === 'finite-state' ? 3 : 1.75
   const [pan, setPan] = useState({ x: 0, y: 0 })
+  const visualStates =
+    states ??
+    (circuit.simulationMode === 'finite-state'
+      ? controlVisuals(circuit.control, initialControlState())
+      : undefined)
   const prefix = useId().replace(/:/gu, '')
   const { width, height } = circuit.bounds
   const viewWidth = width / zoom,
@@ -37,7 +46,9 @@ export function CircuitViewer({
     (net) => net.id === selected || net.terminals.includes(selected ?? ''),
   )?.id
   return (
-    <div className={`circuit-viewer ${compact ? 'compact' : ''}`}>
+    <div
+      className={`circuit-viewer ${compact ? 'compact' : ''} ${circuit.simulationMode === 'finite-state' ? 'control-circuit' : ''}`}
+    >
       <svg
         className="circuit-svg"
         viewBox={`${limitX + clamp(pan.x, limitX)} ${limitY + clamp(pan.y, limitY)} ${viewWidth} ${viewHeight}`}
@@ -81,15 +92,28 @@ export function CircuitViewer({
           const Symbol = symbolRegistry[component.kind]
           const isSelected = selected === component.id
           const labelOffset = component.labelOffset ?? [40, -8]
+          const state = visualStates?.[component.id]
+          const stateLabel =
+            state === 'on'
+              ? 'ein'
+              : state === 'off'
+                ? 'aus'
+                : state === 'closed'
+                  ? 'geschlossen'
+                  : state === 'open'
+                    ? 'offen'
+                    : ''
           return (
             <g key={component.id}>
               <g
                 transform={`translate(${component.position.join(' ')}) rotate(${component.rotation})`}
                 role={onSelect ? 'button' : 'img'}
                 tabIndex={onSelect ? 0 : undefined}
-                aria-label={`${component.designator} · ${component.label}`}
+                aria-label={`${component.designator} · ${component.label}${stateLabel ? ` · ${stateLabel}` : ''}`}
+                data-component-id={component.id}
+                data-state={state}
                 aria-pressed={onSelect ? isSelected : undefined}
-                className={`circuit-component ${isSelected ? `selected ${feedback ?? ''}` : correctSelection === component.id ? 'answer-target' : ''}`}
+                className={`circuit-component ${state === 'on' ? 'energized' : ''} ${isSelected ? `selected ${feedback ?? ''}` : correctSelection === component.id ? 'answer-target' : ''}`}
                 onClick={() => onSelect?.(component.id)}
                 onKeyDown={(event) => {
                   if (onSelect && (event.key === 'Enter' || event.key === ' ')) {
@@ -106,7 +130,7 @@ export function CircuitViewer({
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 >
-                  <Symbol component={component} />
+                  <Symbol component={component} state={state} />
                 </g>
               </g>
               <text
@@ -123,6 +147,24 @@ export function CircuitViewer({
               >
                 {component.label}
               </text>
+              {circuit.simulationMode === 'finite-state' &&
+                component.terminals.map((terminal) => {
+                  const [x, y] = terminalPoint(component, terminal.offset)
+                  return (
+                    <text
+                      key={`label-${terminal.id}`}
+                      className="control-terminal-label"
+                      x={x + 12}
+                      y={y + 4}
+                    >
+                      {terminal.role === 'positive'
+                        ? '+'
+                        : terminal.role === 'negative'
+                          ? '−'
+                          : terminal.role}
+                    </text>
+                  )
+                })}
               {!compact &&
                 component.terminals.map((terminal) => {
                   const point = terminalPoint(component, terminal.offset)
@@ -170,8 +212,8 @@ export function CircuitViewer({
           <button
             className="icon-button"
             aria-label="Vergrößern"
-            disabled={zoom >= 1.75}
-            onClick={() => setZoom((z) => Math.min(1.75, z + 0.25))}
+            disabled={zoom >= maxZoom}
+            onClick={() => setZoom((z) => Math.min(maxZoom, z + 0.25))}
           >
             <Plus size={17} />
           </button>
