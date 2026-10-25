@@ -2,6 +2,7 @@
 
 ## 0.6.0 — 2026-10-25
 
+- Corrected diagnostic evidence matching to accept fixed hardwired terminal alternatives, including G1− for K1 A2. Signed polarity, operating-state, ordering and inspection requirements remain enforced; switched equipotentials do not substitute for fixed nets.
 - Added a fixed 24 V reversing contactor control with explicit opposing NC interlocks, self-holding, Stop/trip priority, reset edges and additional B1 release/command arbitration. Simultaneous Starts inhibit both coils; changing direction requires Stop/release/new Start.
 - Added six versioned electrical fault/permission scenarios, twelve graded investigations across three levels and three supporting applications, for 61 curated exercises and six lessons.
 - Added signed terminal-based virtual voltage measurements with explicit 0 V reference, ideal disabled-source assumptions and undefined floating potentials. No current/resistance or motor power solver is claimed.

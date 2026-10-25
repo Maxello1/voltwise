@@ -2,6 +2,7 @@ import { diagnosticScenario, diagnosticMechanisms } from '../content/diagnostic-
 import { diagnosticAnswerSchema, type DiagnosticAnswer } from './diagnostic-schema'
 import {
   measureReversing,
+  reversingNets,
   reversingVisuals,
   transitionReversing,
   type ReversingState,
@@ -48,9 +49,14 @@ export function assessDiagnosis(
   const result = replayDiagnosis(scenarioId, answer)
   const location = answer.location === scenario.location
   const mechanism = answer.mechanism === scenario.mechanism
+  // Only fixed wire membership is interchangeable. Closed contacts can join potentials,
+  // but do not turn another net into evidence for the requested measurement.
+  const net = (terminal: string) =>
+    reversingNets.find((n) => (n.terminals as readonly string[]).includes(terminal))?.id
+  const sameNet = (a: string, b: string) => net(a) !== undefined && net(a) === net(b)
   const matches = (r: DiagnosticReading, red: string, black: string, voltage: number) =>
-    (r.red === red && r.black === black && r.voltage === voltage) ||
-    (r.red === black && r.black === red && r.voltage === -voltage)
+    (sameNet(r.red, red) && sameNet(r.black, black) && r.voltage === voltage) ||
+    (sameNet(r.red, black) && sameNet(r.black, red) && r.voltage === -voltage)
   let witnessIndex = -1
   const witness = scenario.witness.every((w) => {
     const reading = result.readings.find(

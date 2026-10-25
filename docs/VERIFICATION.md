@@ -1,5 +1,9 @@
 # Verification
 
+## v0.6 diagnostic correction — 25 October 2026
+
+The open PR #5 review finding is corrected using fixed `reversingNets` membership for each probe. Regression checks cover alternative coil/return/source terminals, reversed signed probes, distinct equipotential nets, missing evidence, wrong operating state, ordering and required inspection. Targeted diagnostic unit/persistence checks pass (21 tests), as does strict typechecking.
+
 ## v0.6 verification — 25 October 2026
 
 Base: `07a6e5718222197c07bda9b43cf614e495077671`, fetched from `origin/feat/control-circuits-v05`. PR #4 remains open; the new branch `codex/advanced-diagnostics-v06` targets that branch. Main and the parent history are unchanged. No production deployment was requested or performed.

@@ -208,6 +208,41 @@ describe('bounded reversing controls', () => {
 })
 
 describe('versioned diagnostic grading', () => {
+  it('accepts hardwired return/feed alternatives and reversed signed probes', () => {
+    const answer = diagnosticSolutions['diag-hold-v1']!
+    for (const reverse of [false, true]) {
+      const actions: DiagnosticAnswer['actions'] = answer.actions.map((a) => {
+        if (a[0] !== 'measure') return a
+        const red = a[1] === 'k1-coil.a' ? 'k2-nc.b' : 'b1.a'
+        const black = 'g1.b'
+        return reverse ? ['measure', black, red] : ['measure', red, black]
+      })
+      expect(assessDiagnosis('diag-hold-v1', 3, { ...answer, actions }).score).toBe(6)
+    }
+  })
+  it('does not substitute switched equipotentials, wrong states or missing/late evidence', () => {
+    const answer = diagnosticSolutions['diag-hold-v1']!
+    // The opposite coil is also at 0 V after release, but is on a distinct fixed net.
+    const otherCoil: DiagnosticAnswer['actions'] = answer.actions.map((a, i) =>
+      i === 5 ? ['measure', 'k2-coil.a', 'g1.b'] : a,
+    )
+    expect(assessDiagnosis('diag-hold-v1', 3, { ...answer, actions: otherCoil }).evidence).toBe(
+      false,
+    )
+    const switchedReference: DiagnosticAnswer['actions'] = answer.actions.map((a, i) =>
+      i === 0 ? ['measure', 's1.a', 'g1.b'] : a,
+    )
+    expect(
+      assessDiagnosis('diag-hold-v1', 3, { ...answer, actions: switchedReference }).evidence,
+    ).toBe(false)
+    for (const actions of [
+      answer.actions.filter((_, i) => i !== 3),
+      [...answer.actions.slice(0, 3), ['forward', false], ['measure', 'k2-nc.b', 'g1.b']],
+      [['measure', 'k2-nc.b', 'g1.b'], ...answer.actions.slice(0, 4)],
+      answer.actions.filter((a) => a[0] !== 'inspect'),
+    ] as DiagnosticAnswer['actions'][])
+      expect(assessDiagnosis('diag-hold-v1', 3, { ...answer, actions }).evidence).toBe(false)
+  })
   it('has four curated investigations per level and grades every independent reference path', () => {
     expect(diagnosticExercises).toHaveLength(15)
     for (const level of [1, 2, 3])
