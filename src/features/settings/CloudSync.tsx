@@ -103,17 +103,18 @@ export function CloudSync() {
   }, [state?.error])
   const enabled = !!state?.enabled
   const activeError = error || storageError || state?.error
-  const status = !enabled
-    ? 'Nur lokal gespeichert'
-    : !online
-      ? 'Offline – Änderungen werden später übertragen'
-      : syncing
-        ? 'Synchronisierung läuft …'
-        : activeError
-          ? 'Synchronisierung fehlgeschlagen'
-          : session && !session.authenticated
-            ? 'Anmeldung erforderlich'
-            : 'Synchronisierung aktiv'
+  const status =
+    !cloudAvailable || !enabled
+      ? 'Nur lokal gespeichert'
+      : !online
+        ? 'Offline – Änderungen werden später übertragen'
+        : syncing
+          ? 'Synchronisierung läuft …'
+          : activeError
+            ? 'Synchronisierung fehlgeschlagen'
+            : session && !session.authenticated
+              ? 'Anmeldung erforderlich'
+              : 'Synchronisierung aktiv'
   return (
     <section className="card settings-card cloud-card" aria-labelledby="cloud-title">
       <span className="small-icon sage">
@@ -127,6 +128,11 @@ export function CloudSync() {
       <p className="storage-status" role="status">
         <strong>{status}</strong>
       </p>
+      {enabled && (
+        <button className="button button-outline" onClick={() => void action(() => disableSync())}>
+          Synchronisierung ausschalten
+        </button>
+      )}
       <p className="muted">
         Übertragen werden abgegebene Versuche einschließlich Diagnosen, ausdrückliche
         Gedächtnisbewertungen und gelesene Lektionen. Antworten und Zeitpunkte werden auf deinem
@@ -183,15 +189,7 @@ export function CloudSync() {
           ) : (
             <>
               <p>Mit GitHub angemeldet · Gerätekennung {session.deviceId?.slice(0, 8)}</p>
-              {enabled ? (
-                <button
-                  className="button button-outline"
-                  disabled={busy}
-                  onClick={() => void action(() => disableSync())}
-                >
-                  Synchronisierung ausschalten
-                </button>
-              ) : (
+              {!enabled && (
                 <>
                   <label className="cloud-consent">
                     <input

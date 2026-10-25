@@ -24,6 +24,41 @@ async function enable(page: Page) {
   await page.getByRole('button', { name: 'Synchronisierung einschalten' }).click()
   await expect(page.getByText(/Letzte Synchronisierung:/)).toBeVisible()
 }
+test('disables queued synchronization after an offline reopen without requiring a session response', async ({
+  page,
+  context,
+}) => {
+  await login(page)
+  await enable(page)
+  await page.goto('./#/ueben?trainer=dc&code=000000')
+  await expect(page.getByText('Offline bereit', { exact: true })).toBeVisible({ timeout: 20000 })
+  await context.setOffline(true)
+  await page.getByRole('button', { name: 'Rechenrunde starten' }).click()
+  await page.getByLabel('Deine Antwort in A').fill('10 mA')
+  await page.getByRole('button', { name: 'Antwort prüfen' }).click()
+  await expect(page.getByRole('button', { name: 'Nächste Aufgabe' })).toBeVisible()
+  await page.goto('./#/einstellungen')
+  await page.reload()
+  await expect(
+    page.getByText('Offline – Änderungen werden später übertragen', { exact: true }),
+  ).toBeVisible()
+  await page.getByRole('button', { name: 'Synchronisierung ausschalten' }).click()
+  await expect(page.getByText('Nur lokal gespeichert', { exact: true })).toBeVisible()
+  const uploads: string[] = []
+  page.on('request', (request) => {
+    if (request.method() === 'POST' && new URL(request.url()).pathname === '/api/v1/events')
+      uploads.push(request.url())
+  })
+  await page.clock.install()
+  await context.setOffline(false)
+  await page.clock.runFor(2500)
+  expect(uploads).toEqual([])
+  await page.reload()
+  await expect(page.getByText('Nur lokal gespeichert', { exact: true })).toBeVisible()
+  await expect(page.getByText(/1 Änderungen ausstehend/)).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Synchronisierung einschalten' })).toBeDisabled()
+})
+
 test('an expired browser session offers login again and preserves local data and consent', async ({
   page,
 }) => {
@@ -76,13 +111,11 @@ test('offline attempt uploads on reconnect and a second browser restores it with
     fullPage: true,
     animations: 'disabled',
   })
-  await page
-    .locator('.cloud-card')
-    .screenshot({
-      path: `.cache/cloud-card-${info.project.name}-dark.png`,
-      animations: 'disabled',
-      style: '.topbar,.mobile-nav,.skip-link{visibility:hidden!important}',
-    })
+  await page.locator('.cloud-card').screenshot({
+    path: `.cache/cloud-card-${info.project.name}-dark.png`,
+    animations: 'disabled',
+    style: '.topbar,.mobile-nav,.skip-link{visibility:hidden!important}',
+  })
   const second = await browser.newContext({ viewport: { width: 390, height: 844 } })
   try {
     const restored = await second.newPage()

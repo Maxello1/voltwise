@@ -7,7 +7,7 @@
 - Added atomic local outbox writes, safe historical discovery, startup/foreground/reconnect/activity/manual triggers and bounded visible-app retry. Local learning and independent JSON backups remain available without cloud.
 - Added deterministic FSRS replay from all preserved explicit ratings, using authoritative acceptance order and documented clock-skew clamping. Original scheduling history is never overwritten.
 - Added additive Dexie migration 3 and backup format 3 with schema-1/2 and backup-1/2 compatibility, generated DC IDs, pending reviews and diagnostic drafts preserved.
-- Added German consent/status/login/device controls, local-only Pages builds, a separate root Cloudflare PWA build, API cache exclusion, deployment/migration/security guides and a manual deployment workflow. No live Cloudflare deployment or parent PR merge was performed.
+- Added German consent/status/login/device controls, local-only Pages builds, a separate root Cloudflare PWA build, API cache exclusion, deployment/migration/security guides and a manual deployment workflow. The local opt-out remains available without a reachable session; production configuration correctly parses JSONC comments/trailing commas. No live Cloudflare deployment or parent PR merge was performed.
 - Added local Worker/D1 security and three-device convergence tests, v0.6 fixtures, acknowledgment-loss and storage/quota cases, plus browser offline/reconnect/restoration flows with synthetic GitHub identity. Physical-device/live-provider acceptance remains outstanding.
 
 ## 0.6.0 — 2026-10-25

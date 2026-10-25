@@ -1,4 +1,5 @@
 import { readFile, writeFile } from 'node:fs/promises'
+import { parse } from 'jsonc-parser'
 const { CLOUDFLARE_DATABASE_ID, APP_ORIGIN, OWNER_GITHUB_ID, GITHUB_CLIENT_ID } = process.env
 if (
   !CLOUDFLARE_DATABASE_ID ||
@@ -16,7 +17,10 @@ if (
 if (!/^[1-9]\d*$/.test(OWNER_GITHUB_ID ?? '') || !GITHUB_CLIENT_ID)
   throw new Error('Set OWNER_GITHUB_ID and GITHUB_CLIENT_ID.')
 const source = await readFile('wrangler.jsonc', 'utf8')
-const config = JSON.parse(source.replace(/^\s*\/\/.*$/gm, ''))
+const errors = []
+const config = parse(source, errors, { allowTrailingComma: true })
+if (errors.length || !config?.d1_databases?.[0])
+  throw new Error('The Worker configuration template is not valid JSONC with a D1 binding.')
 config.vars = { APP_ORIGIN, OWNER_GITHUB_ID, GITHUB_CLIENT_ID }
 config.d1_databases[0].database_id = CLOUDFLARE_DATABASE_ID
 await writeFile('wrangler.production.jsonc', JSON.stringify(config, null, 2) + '\n')
