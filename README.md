@@ -41,10 +41,25 @@ For browser tests, install Chromium once with `pnpm exec playwright install chro
 - **Five analytically verified DC circuits**: parallel, series, unloaded voltage divider, switched idealized lamp and ideal meter placement. Includes original SVG symbols, keyboard/component/terminal selection, net highlighting, zoom, pan and fit.
 - **Four interactive 24 V control circuits**: momentary lamp, K1 self-holding, overload/reset and mutually interlocked forward/reverse contactors. Includes explicit B1 release/command permission and signed virtual DC voltage measurements for the fixed reversing topology.
 - **Fehlersuche**: six genuine injected fault/permission cases, three levels, persisted investigations, electrical measurement evidence and a transparent 6-point diagnosis rubric. Distinct-case coverage stays separate from FSRS memory ratings.
-- Validated version-2 JSON export/import, with original version-1 import compatibility and additive, idempotent events; readable Markdown lesson export.
+- Version-3 JSON export/import, with version-1/2 compatibility, preserved remote session descriptors and additive, idempotent events; readable Markdown lesson export.
+- Optional single-owner Cloudflare Worker/D1 synchronization with identity-only GitHub login, persistent outbox, immutable history, device revocation and deterministic review reconciliation. Explicit consent and production setup are required.
 - Light/dark/system themes, local daily goal, installation guidance and an offline app shell that precaches lesson/code assets, including lazy-loaded screens.
 
-There is **no cloud synchronization, automatic GitHub backup, general industrial network simulator or complete apprenticeship curriculum** yet. The private data repository contains documentation only. Browser storage is not a long-term backup; export regularly. Install/read the app online once and wait for **Offline bereit** before relying on airplane-mode access. The development server does not register the production worker.
+GitHub Pages remains the **local-only edition**. The synchronized edition requires a deliberate same-origin Cloudflare deployment; it has been tested locally, not deployed to a production account. There is no automatic GitHub backup, general industrial network simulator or complete apprenticeship curriculum. The private data repository remains untouched. Browser/cloud storage is not an independent backup; export regularly. Install/read the app online once and wait for **Offline bereit** before relying on airplane-mode access. The development server does not register the production service worker.
+
+## Optional secure synchronization — v0.7
+
+In a configured Cloudflare edition, open **Einstellungen → Cloud-Synchronisierung**, sign in with the allowed GitHub account and explicitly consent to storing history. Submitted attempts (including diagnoses), separate memory ratings and lesson completion events merge across devices. Learning saves locally before any network operation. Failed/quota-limited uploads remain queued; a successful timestamp requires persisted server acknowledgments and completed downloads. Repeated deliveries do not duplicate events, and all concurrent reviews survive deterministic FSRS replay.
+
+Active sessions, pending ratings, diagnostic drafts and preferences remain device-local. Signing out never erases local learning data. Sync runs while the app is visible and on reconnect/foreground; always-on iOS background execution is not promised. The GitHub login requests no private-repository scope. Account secrets remain on the Worker; there are no browser-stored long-lived auth tokens. The system uses TLS and provider storage controls, not end-to-end encryption.
+
+GitHub Pages and Cloudflare have separate IndexedDB storage. Move existing progress deliberately using JSON export/import; there is no silent redirect or storage migration. See [deployment and exact prerequisites](docs/CLOUD_DEPLOYMENT.md), [data migration/recovery](docs/DATA_MIGRATION.md), [protocol](docs/SYNC_PROTOCOL.md), [review ordering/design](docs/SYNC_DESIGN.md) and [security](docs/SECURITY.md).
+
+`pnpm test` includes real local Worker/D1 integration tests with three independent device databases. `pnpm test:e2e` checks the local-only app and a separate same-origin cloud test server; GitHub identity is synthetic in automated tests. `pnpm build:cloud` produces the root-path synchronized PWA. Neither tests nor builds deploy it. Physical iPhone Safari/Windows/macOS installation and real OAuth/Cloudflare acceptance remain manual.
+
+![Cloud controls in the local phone-width test](docs/screenshots/cloud-sync-mobile-dark.png)
+
+The capture shows the actual local Worker/D1 test with synthetic GitHub identity, not a production login. Navigation is hidden for the isolated settings-card capture.
 
 ![Voltwise circuit library](docs/screenshots/circuit-library-desktop.png)
 
@@ -66,7 +81,7 @@ Open **Üben → Fehlersuche öffnen** or **Schaltpläne → Wenden & Verriegeln
 
 The reversing model has explicit NO holding contacts, opposing NC interlocks, common Stop/overload and additional B1 command arbitration. Simultaneous Start commands inhibit both coils. Direction change requires Stop, release and a new Start. There is no mechanical interlock physics or motor power simulation. Measurements use fixed terminal connectivity and ideal DC potentials, including signed values and undefined floating potentials; source loss is explicitly a 0 V output in this bounded model.
 
-Unsubmitted investigations survive navigation/reload; only explicit submission appends a learning attempt. Dexie migration 2 adds drafts while preserving all older events/queues. Backups now export version 2 and still import v1. Restore v0.6 backups with v0.6 or newer. All functionality works offline after the production cache is ready. See [diagnostic architecture, rubric, assumptions and compatibility](docs/DIAGNOSTICS.md).
+Unsubmitted investigations survive navigation/reload; only explicit submission appends a learning attempt. Dexie migration 2 introduced drafts while preserving all older events/queues. v0.6 exported backup 2; v0.7 exports backup 3 and still imports v1/v2. Restore v0.7 backups with v0.7 or newer. All functionality works offline after the production cache is ready. See [diagnostic architecture, rubric, assumptions and compatibility](docs/DIAGNOSTICS.md).
 
 ## Targeted practice
 

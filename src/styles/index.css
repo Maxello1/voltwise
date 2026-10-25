@@ -1969,6 +1969,7 @@ main {
   gap: 23px;
 }
 .settings-card {
+  min-width: 0;
   padding: 27px 30px;
 }
 .settings-card h2 {
@@ -3863,4 +3864,52 @@ main#main:focus-visible {
   .control-readings {
     gap: 12px 18px;
   }
+}
+/* Optional synchronization controls retain the existing settings typography and colors. */
+.cloud-card {
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.cloud-card .button,
+.cloud-card .text-link {
+  max-width: 100%;
+  white-space: normal;
+  text-align: left;
+  min-height: 44px;
+}
+.cloud-card > .button,
+.cloud-card > .text-link {
+  margin-top: 12px;
+}
+.cloud-card > input {
+  width: 100%;
+  min-height: 44px;
+  margin-bottom: 8px;
+}
+.cloud-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 16px 0;
+  cursor: pointer;
+}
+.cloud-consent input {
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  margin-top: 2px;
+}
+.cloud-devices {
+  list-style: none;
+  padding: 0;
+}
+.cloud-devices li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+}
+.cloud-devices li span {
+  flex: 1 1 180px;
 }

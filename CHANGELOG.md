@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.7.0 — 2026-10-25
+
+- Added optional same-origin Cloudflare Worker/D1 learning-history synchronization with identity-only GitHub OAuth, S256 PKCE, one-time state, a stable single-owner allowlist, opaque server sessions, CSRF/Origin validation and sticky device revocation.
+- Added immutable, hashed protocol-1 attempt/review/completion events with transactional UUID idempotency/conflicts, server sequences, bounded uploads and cursor downloads. Historical session metadata never makes remote active work resumable.
+- Added atomic local outbox writes, safe historical discovery, startup/foreground/reconnect/activity/manual triggers and bounded visible-app retry. Local learning and independent JSON backups remain available without cloud.
+- Added deterministic FSRS replay from all preserved explicit ratings, using authoritative acceptance order and documented clock-skew clamping. Original scheduling history is never overwritten.
+- Added additive Dexie migration 3 and backup format 3 with schema-1/2 and backup-1/2 compatibility, generated DC IDs, pending reviews and diagnostic drafts preserved.
+- Added German consent/status/login/device controls, local-only Pages builds, a separate root Cloudflare PWA build, API cache exclusion, deployment/migration/security guides and a manual deployment workflow. No live Cloudflare deployment or parent PR merge was performed.
+- Added local Worker/D1 security and three-device convergence tests, v0.6 fixtures, acknowledgment-loss and storage/quota cases, plus browser offline/reconnect/restoration flows with synthetic GitHub identity. Physical-device/live-provider acceptance remains outstanding.
+
 ## 0.6.0 — 2026-10-25
 
 - Corrected diagnostic evidence matching to accept fixed hardwired terminal alternatives, including G1− for K1 A2. Signed polarity, operating-state, ordering and inspection requirements remain enforced; switched equipotentials do not substitute for fixed nets.

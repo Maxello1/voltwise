@@ -69,7 +69,7 @@ it('preserves local drafts, hints, old pending sessions and all history in addit
   await saveDiagnosticDraft(session.id, 'diag-supply-v1-l1', ['measure', 'g1.a', 'g1.b'], database)
   await saveDiagnosticDraft(session.id, 'diag-supply-v1-l1', { hint: true }, database)
   const backup = await exportBackup(database)
-  expect(backup.version).toBe(2)
+  expect(backup.version).toBe(3)
   const restored = new VoltwiseDatabase(`restore-${crypto.randomUUID()}`)
   try {
     await initializeDatabase(restored)
@@ -126,7 +126,7 @@ it('preserves local drafts, hints, old pending sessions and all history in addit
   }
 })
 
-it('performs the numbered v1 to v2 migration without changing old attempts, queues, settings or pending ratings', async () => {
+it('performs numbered migrations from v1 through v3 without changing old attempts, queues, settings or pending ratings', async () => {
   const name = `v05-${crypto.randomUUID()}`
   const previous = new Dexie(name)
   previous.version(1).stores({
@@ -149,12 +149,12 @@ it('performs the numbered v1 to v2 migration without changing old attempts, queu
   const upgraded = new VoltwiseDatabase(name)
   try {
     await upgraded.open()
-    expect(upgraded.verno).toBe(2)
+    expect(upgraded.verno).toBe(3)
     expect(await upgraded.attempts.toArray()).toEqual(legacy.attempts)
     expect(await upgraded.sessions.toArray()).toEqual(legacy.sessions)
     expect(await upgraded.settings.get('preferences')).toEqual(legacy.settings)
     expect(await upgraded.diagnosticDrafts.count()).toBe(0)
-    expect((await upgraded.metadata.get('dbSchemaVersion'))?.value).toBe('2')
+    expect((await upgraded.metadata.get('dbSchemaVersion'))?.value).toBe('3')
     await initializeDatabase(upgraded)
     const resumed = await startSession(
       'practice',
@@ -170,7 +170,7 @@ it('performs the numbered v1 to v2 migration without changing old attempts, queu
     expect(await upgraded.reviews.count()).toBe(1)
     const backup = await exportBackup(upgraded)
     expect(parseBackup(backup).attempts).toEqual(legacy.attempts)
-    expect(parseBackup(legacy).version).toBe(2)
+    expect(parseBackup(legacy).version).toBe(3)
   } finally {
     await upgraded.delete()
   }

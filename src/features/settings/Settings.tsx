@@ -22,6 +22,7 @@ import {
 import { ErrorMessage, PageHeading } from '../../components/ui'
 import { lessons } from '../../content/curriculum'
 import type { Settings } from '../../domain/models'
+import { CloudSync } from './CloudSync'
 
 export function SettingsPage({ data }: { data: LearningData }) {
   const [status, setStatus] = useState('')
@@ -65,7 +66,7 @@ export function SettingsPage({ data }: { data: LearningData }) {
       setPending(parseBackup(JSON.parse(await file.text())))
     } catch {
       setError(
-        'Die Datei ist keine gültige Voltwise-Sicherung in Version 1. Es wurden keine Daten verändert.',
+        'Die Datei ist keine gültige Voltwise-Sicherung in Version 1, 2 oder 3. Es wurden keine Daten verändert.',
       )
     }
   }
@@ -175,7 +176,7 @@ export function SettingsPage({ data }: { data: LearningData }) {
             <ShieldCheck size={18} />
             <div>
               <strong>Lokal gespeichert</strong>
-              <span>Cloud-Sync: nicht eingerichtet</span>
+              <span>Cloud-Verbindung separat einstellbar</span>
             </div>
           </div>
           <p className="storage-warning">
@@ -186,6 +187,7 @@ export function SettingsPage({ data }: { data: LearningData }) {
             Dauerhafte Speicherung anfragen
           </button>
         </section>
+        <CloudSync />
         <section className="card settings-card backup-card">
           <h2>Eine Sicherung gibt Sicherheit.</h2>
           <p className="muted">

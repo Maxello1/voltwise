@@ -17,6 +17,7 @@ import { useLearningData } from './useLearningData'
 import { db } from '../storage/db'
 import { Loading } from '../components/ui'
 import { PwaStatus } from '../components/PwaStatus'
+import { startAutomaticSync } from '../sync/runtime'
 
 const Dashboard = lazy(() =>
   import('../features/dashboard/Dashboard').then((module) => ({ default: module.Dashboard })),
@@ -49,6 +50,7 @@ const navigation = [
   { to: '/einstellungen', label: 'Einstellungen', icon: Settings2 },
 ]
 function Shell() {
+  useEffect(startAutomaticSync, [])
   const data = useLearningData()
   const location = useLocation()
   const current =
@@ -177,7 +179,7 @@ function Shell() {
           <span>Schritt für Schritt zum Durchblick.</span>
           <span>
             <span className="status-dot" />
-            Lokal gespeichert · ohne Konto
+            Offline lernen · lokal gespeichert
           </span>
         </footer>
       </div>

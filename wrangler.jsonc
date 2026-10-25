@@ -1,0 +1,29 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "voltwise",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-10-25",
+  "workers_dev": true,
+  "preview_urls": false,
+  "observability": { "enabled": false },
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"],
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "voltwise",
+      // Add your actual database_id to an ignored wrangler.production.jsonc.
+      "migrations_dir": "worker/migrations",
+    },
+  ],
+  "ratelimits": [
+    { "name": "AUTH_LIMITER", "namespace_id": "1001", "simple": { "limit": 10, "period": 60 } },
+    { "name": "API_LIMITER", "namespace_id": "1002", "simple": { "limit": 60, "period": 60 } },
+  ],
+  "vars": { "APP_ORIGIN": "http://127.0.0.1:8787", "GITHUB_CLIENT_ID": "", "OWNER_GITHUB_ID": "" },
+  "dev": { "ip": "127.0.0.1", "port": 8787 },
+}
