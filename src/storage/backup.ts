@@ -9,8 +9,10 @@ import {
 import { lessons } from '../content/curriculum'
 import { resolveExercise } from '../content/exercise-catalogue'
 import { db, type VoltwiseDatabase } from './db'
+import { diagnosticAnswerSchema, diagnosticDraftSchema } from '../domain/diagnostic-schema'
+import { replayDiagnosis } from '../domain/diagnostics'
 
-export const backupSchema = z
+const legacyBackupSchema = z
   .object({
     format: z.literal('voltwise-backup'),
     version: z.literal(1),
@@ -22,6 +24,19 @@ export const backupSchema = z
     settings: settingsSchema,
   })
   .strict()
+export const backupSchema = z
+  .union([
+    legacyBackupSchema.extend({
+      version: z.literal(2),
+      diagnosticDrafts: z.array(diagnosticDraftSchema).max(20000),
+    }),
+    legacyBackupSchema,
+  ])
+  .transform((backup) => ({
+    ...backup,
+    version: 2 as const,
+    diagnosticDrafts: 'diagnosticDrafts' in backup ? backup.diagnosticDrafts : [],
+  }))
 export type Backup = z.infer<typeof backupSchema>
 export async function exportBackup(database = db): Promise<Backup> {
   return database.transaction(
@@ -32,17 +47,19 @@ export async function exportBackup(database = db): Promise<Backup> {
       database.sessions,
       database.completions,
       database.settings,
+      database.diagnosticDrafts,
     ],
     async () =>
       backupSchema.parse({
         format: 'voltwise-backup',
-        version: 1,
+        version: 2,
         exportedAt: new Date().toISOString(),
         attempts: await database.attempts.toArray(),
         reviews: await database.reviews.toArray(),
         sessions: await database.sessions.toArray(),
         completions: await database.completions.toArray(),
         settings: await database.settings.get('preferences'),
+        diagnosticDrafts: await database.diagnosticDrafts.toArray(),
       }),
   )
 }
@@ -66,6 +83,10 @@ export function parseBackup(input: unknown): Backup {
       attempt.conceptIds.join('|') !== exercise.conceptIds.join('|')
     )
       throw new Error('Unbekannte Aufgabe, Version oder Sitzungsreferenz.')
+    if (exercise.type === 'diagnostic') {
+      const response = diagnosticAnswerSchema.parse(JSON.parse(attempt.answer))
+      replayDiagnosis(exercise.scenarioId, response)
+    }
   }
   for (const review of backup.reviews) {
     const attempt = attempts.get(review.attemptId)
@@ -87,6 +108,21 @@ export function parseBackup(input: unknown): Backup {
   }
   if (backup.completions.some((c) => !lessons.some((l) => l.id === c.lessonId)))
     throw new Error('Unbekannte Lektion.')
+  if (
+    new Set(backup.diagnosticDrafts.map((d) => d.sessionId)).size !== backup.diagnosticDrafts.length
+  )
+    throw new Error('Doppelte Fehlersuchentwürfe.')
+  for (const draft of backup.diagnosticDrafts) {
+    const exercise = resolveExercise(draft.exerciseId)
+    const session = sessions.get(draft.sessionId)
+    if (
+      !session ||
+      !session.exerciseIds.includes(draft.exerciseId) ||
+      exercise?.type !== 'diagnostic'
+    )
+      throw new Error('Ungültiger Fehlersuchentwurf.')
+    replayDiagnosis(exercise.scenarioId, draft.answer)
+  }
   return backup
 }
 const equal = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b)
@@ -101,6 +137,7 @@ export async function importBackup(input: unknown, database: VoltwiseDatabase = 
       database.completions,
       database.settings,
       database.reviewStates,
+      database.diagnosticDrafts,
     ],
     async () => {
       for (const attempt of backup.attempts) {
@@ -139,6 +176,10 @@ export async function importBackup(input: unknown, database: VoltwiseDatabase = 
       for (const completion of backup.completions)
         if (!(await database.completions.get(completion.lessonId)))
           await database.completions.add(completion)
+      // Local investigations take precedence; importing a backup never discards an open draft.
+      for (const draft of backup.diagnosticDrafts)
+        if (!(await database.diagnosticDrafts.get(draft.sessionId)))
+          await database.diagnosticDrafts.add(draft)
       await database.settings.put(backup.settings)
       // Review aggregates are rebuilt from the newest immutable event, never imported as counters.
       const reviews = await database.reviews.toArray()

@@ -41,7 +41,15 @@ The schematic DSL is discriminated by `simulationMode`: existing `verified-stati
 
 ## Migrations
 
-Database version 1 declares the initial tables and indexes. Metadata records database/content schema versions and a locally generated device UUID. Future releases must add Dexie numbered upgrades; never change a historical migration or clear storage. Add a fixture of the previous schema, migrate it, verify event IDs/history and run an export/restore drill. IndexedDB may be unavailable in restricted browser contexts; startup reports this without deleting anything.
+Database version 1 declares the initial tables and indexes unchanged. Version 2 additively introduces `diagnosticDrafts` and updates schema metadata without rewriting history. A v0.5 schema-1 fixture verifies pending ratings, active queues, original attempts/settings and generated IDs through upgrade/export/restore. Future releases must add numbered upgrades; never change a historical migration or clear storage. IndexedDB may be unavailable in restricted browser contexts; startup reports this without deleting anything.
+
+## Reversing control and diagnostics — v0.6
+
+`domain/reversing.ts` is a separate immutable `reversing-v1` model. The new `simulationMode: 'reversing'` drawing keeps original `verified-static` and `control-v1` content intact. Explicit contact/device/net bindings are validated by `reversing-validation.ts`; geometry never drives transitions or potentials. A closed-contact equipotential reduction supports only this fixed two-coil topology, with undefined isolated groups. B1 explicitly adds release/command arbitration; no mechanical or motor solver is implied.
+
+Versioned fault scenarios, initial conditions and electrical witnesses live in packaged content. The pure diagnostic replay reconstructs each measurement/inspection from the action trace, checks operating conditions and applies a declared 6-point rubric. `DiagnosticStep` participates in the existing practice session/planner, immutable attempt and concept-recommendation flow. The versioned response fits the existing answer field; no historical event schema or FSRS meaning changes.
+
+Draft commands reread/merge the active step in Dexie transactions. Submitted answers must match the current stored draft. Navigation/reload preserves unsubmitted investigations; free exploration creates no attempts. Backup v2 includes drafts, still imports v1 and keeps existing local investigations on conflict. The production worker precaches the new route and all model/content assets. See [diagnostics](DIAGNOSTICS.md).
 
 ## Platform limits
 

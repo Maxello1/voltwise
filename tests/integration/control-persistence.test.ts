@@ -38,7 +38,7 @@ it('appends all overload attempts, resumes a pending answer, and restores it ide
   await submitAnswer(repeat.id, 's0', false, 600, database)
   expect(await database.attempts.count()).toBe(5)
   const backup = JSON.parse(JSON.stringify(await exportBackup(database)))
-  expect(backup.version).toBe(1)
+  expect(backup.version).toBe(2)
   const restored = new VoltwiseDatabase(`restore-${crypto.randomUUID()}`)
   try {
     await initializeDatabase(restored)
@@ -121,7 +121,7 @@ it('reopens an independently declared schema-1 database without altering events,
   const upgraded = new VoltwiseDatabase(name)
   try {
     await initializeDatabase(upgraded)
-    expect(upgraded.verno).toBe(1)
+    expect(upgraded.verno).toBe(2)
     expect(await upgraded.attempts.toArray()).toEqual(fixture.attempts)
     expect(await upgraded.sessions.get(generatedSession.id)).toEqual(generatedSession)
     const active = (await startSession('schematic', undefined, upgraded, 'control-hold-v1'))!

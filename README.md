@@ -33,14 +33,15 @@ For browser tests, install Chromium once with `pnpm exec playwright install chro
 ## Included now
 
 - Six responsive sections: Übersicht, Lernen, Üben, Schaltpläne, Fortschritt and Einstellungen; desktop sidebar and phone bottom navigation.
-- Five lessons and **46 checked exercises**, including choices, typed recall, unit-aware calculations and component selection.
+- Six lessons and **61 checked exercises**, including choices, typed recall, unit-aware calculations, component selection and twelve interactive diagnostic investigations.
 - A DC calculation trainer with five reproducible numeric templates, matching series/parallel diagrams, shareable round codes and offline backup/restore support.
 - Atomic IndexedDB persistence through Dexie, resumable sessions, immutable attempts/review events and separate explicit FSRS memory ratings.
 - Stable `ts-fsrs@5.4.2` behind an adapter, a due queue, actual activity and an explained practice metric.
 - Concept recommendations with real sample counts, shareable targeted practice and an explained five-task preview. The mixed selection respects read prerequisites and keeps future scheduled facts on their own timetable.
 - **Five analytically verified DC circuits**: parallel, series, unloaded voltage divider, switched idealized lamp and ideal meter placement. Includes original SVG symbols, keyboard/component/terminal selection, net highlighting, zoom, pan and fit.
-- **Three interactive 24 V control circuits**: a momentary lamp circuit, K1 self-holding with Start/Stop, and overload with manual reset and troubleshooting. Includes linked coil/contact states, supply interruption and an explicit additional B1 restart permission.
-- Validated version-1 JSON export/import with additive, idempotent events; readable Markdown lesson export.
+- **Four interactive 24 V control circuits**: momentary lamp, K1 self-holding, overload/reset and mutually interlocked forward/reverse contactors. Includes explicit B1 release/command permission and signed virtual DC voltage measurements for the fixed reversing topology.
+- **Fehlersuche**: six genuine injected fault/permission cases, three levels, persisted investigations, electrical measurement evidence and a transparent 6-point diagnosis rubric. Distinct-case coverage stays separate from FSRS memory ratings.
+- Validated version-2 JSON export/import, with original version-1 import compatibility and additive, idempotent events; readable Markdown lesson export.
 - Light/dark/system themes, local daily goal, installation guidance and an offline app shell that precaches lesson/code assets, including lazy-loaded screens.
 
 There is **no cloud synchronization, automatic GitHub backup, general industrial network simulator or complete apprenticeship curriculum** yet. The private data repository contains documentation only. Browser storage is not a long-term backup; export regularly. Install/read the app online once and wait for **Offline bereit** before relying on airplane-mode access. The development server does not register the production worker.
@@ -56,6 +57,16 @@ Open **Schaltpläne → Taster & Meldeleuchte → Schütz & Selbsthaltung → Ü
 B1 explicitly adds release-before-restart behavior after Stop, overload or supply interruption. An ordinary self-holding circuit alone can restart with Start held; the lesson explains this distinction. The model is ideal and instantaneous, with no motor power circuit or safety certification. Exploratory circuit states reset when reopened; learning attempts persist. Nine applied tasks stay outside FSRS; the separate contact fact offers an explicit memory rating. See [control model, assumptions and tests](docs/CONTROL_CIRCUITS.md).
 
 ![Interactive overload control](docs/screenshots/control-running-desktop.png)
+
+## Interactive fault diagnosis — v0.6
+
+Open **Üben → Fehlersuche öffnen** or **Schaltpläne → Wenden & Verriegeln**. Operate Vor/Rück/Stop, select contacts/nets/terminals, record inspections and choose two virtual voltage probes. Diagnose the location and causal mechanism using electrical evidence. Hints are optional; advanced cases also require a relevant component-state observation. The real fault outline appears only after submission. A correct guess without evidence earns partial credit.
+
+![Completed offline diagnostic investigation](docs/screenshots/diagnosis-complete-desktop.png)
+
+The reversing model has explicit NO holding contacts, opposing NC interlocks, common Stop/overload and additional B1 command arbitration. Simultaneous Start commands inhibit both coils. Direction change requires Stop, release and a new Start. There is no mechanical interlock physics or motor power simulation. Measurements use fixed terminal connectivity and ideal DC potentials, including signed values and undefined floating potentials; source loss is explicitly a 0 V output in this bounded model.
+
+Unsubmitted investigations survive navigation/reload; only explicit submission appends a learning attempt. Dexie migration 2 adds drafts while preserving all older events/queues. Backups now export version 2 and still import v1. Restore v0.6 backups with v0.6 or newer. All functionality works offline after the production cache is ready. See [diagnostic architecture, rubric, assumptions and compatibility](docs/DIAGNOSTICS.md).
 
 ## Targeted practice
 
@@ -100,7 +111,7 @@ Pages must use **Settings → Pages → Source: GitHub Actions**. Repository cre
 
 - [Roadmap](docs/ROADMAP.md) retains the supplied long-term specification; its milestones are not a completion claim.
 - [Delivery status and backlog](docs/BACKLOG.md) distinguishes this first usable slice from later alpha work.
-- [Architecture](docs/ARCHITECTURE.md), [circuit schema](docs/CIRCUIT_SCHEMA.md), [control circuits](docs/CONTROL_CIRCUITS.md), [learning model](docs/LEARNING_MODEL.md), [sync design](docs/SYNC_DESIGN.md), [security](docs/SECURITY.md), [verification](docs/VERIFICATION.md).
+- [Architecture](docs/ARCHITECTURE.md), [circuit schema](docs/CIRCUIT_SCHEMA.md), [control circuits](docs/CONTROL_CIRCUITS.md), [diagnostics](docs/DIAGNOSTICS.md), [learning model](docs/LEARNING_MODEL.md), [sync design](docs/SYNC_DESIGN.md), [security](docs/SECURITY.md), [verification](docs/VERIFICATION.md).
 - [Decisions](docs/DECISIONS.md), [changelog](CHANGELOG.md), [license decision](LICENSE).
 
 Stable npm releases were checked on 21 October 2026. TypeScript 6.0.3 is used because the current TypeScript ESLint parser supports `<6.1`; jsdom 29.1.1 supports the installed Node 24.14.1, while jsdom 30 requires a newer patch version. Exact dependencies and transitive resolutions are committed in the pnpm lockfile.

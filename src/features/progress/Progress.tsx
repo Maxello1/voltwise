@@ -7,6 +7,7 @@ import { EmptyState, PageHeading, SectionHeading } from '../../components/ui'
 import { ConceptRecommendations } from '../../components/ConceptRecommendations'
 import { ExerciseHistoryTitle } from '../../components/ExerciseHistoryTitle'
 import { formatDate, formatNumber } from '../../i18n/de'
+import { diagnosticCoverage } from '../diagnostics/diagnostic-summary'
 
 export function Progress({ data }: { data: LearningData }) {
   const correct = data.attempts.filter((a) => a.correct).length
@@ -58,6 +59,14 @@ export function Progress({ data }: { data: LearningData }) {
           </div>
         ))}
       </div>
+      <section className="card diagnostic-coverage">
+        <h2>Fehlersuche über verschiedene Ursachen</h2>
+        <p>
+          {diagnosticCoverage(data).size} von 6 Ursachen ohne Hinweis vollständig belegt. Ein
+          wiederholter Fall zählt hier einmal. Die Übungsquote allein belegt keinen Transfer auf
+          weitere Anlagen.
+        </p>
+      </section>
       <div className="progress-layout">
         <section>
           <SectionHeading title="Deine Themenstärken" />

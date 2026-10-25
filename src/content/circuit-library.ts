@@ -2,6 +2,7 @@ import type { CircuitDefinition } from '../schematics/model'
 import { parallelDemo } from './circuit'
 import { dividerDemo, lampDemo, meteringDemo, seriesDemo } from './circuits/dc'
 import { controlLamp, controlHold, controlOverload } from './circuits/control'
+import { reversingCircuit } from './circuits/reversing'
 
 export interface CircuitStudy {
   circuit: CircuitDefinition
@@ -112,5 +113,20 @@ export const controlCircuitLibrary: CircuitStudy[] = [
     ],
   },
 ]
-export const circuitLibrary: CircuitStudy[] = [...dcCircuitLibrary, ...controlCircuitLibrary]
+export const circuitLibrary: CircuitStudy[] = [
+  ...dcCircuitLibrary,
+  ...controlCircuitLibrary,
+  {
+    circuit: reversingCircuit,
+    shortTitle: 'Wenden & Verriegeln',
+    tier: 4,
+    note: 'K1 und K2 verriegeln die Gegenrichtung über 21–22. B1 wertet zusätzlich die Startbefehle aus. Keine Motor- oder Sicherheitsberechnung.',
+    challenge: 'Finde den Fehler mit Messbelegen.',
+    steps: [
+      { title: 'Vor', formula: 'S1 → K1 · K1 hält · K2 wird gesperrt' },
+      { title: 'Wenden', formula: 'Stop → beide Starttaster los → neue Richtung' },
+      { title: 'Befehlskonflikt', formula: 'Vor + Rück → B1 sperrt beide Schütze' },
+    ],
+  },
+]
 export const circuitById = new Map(circuitLibrary.map((study) => [study.circuit.id, study.circuit]))

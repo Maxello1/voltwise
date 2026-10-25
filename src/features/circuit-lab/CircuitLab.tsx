@@ -12,6 +12,7 @@ import { ErrorMessage, PageHeading } from '../../components/ui'
 import { formatNumber } from '../../i18n/de'
 import { controlVisuals, initialControlState } from '../../domain/control'
 import { ControlPanel } from './ControlPanel'
+import { ReversingExplorer } from './ReversingExplorer'
 
 export function CircuitLab({ data }: { data: LearningData }) {
   const [params, setParams] = useSearchParams()
@@ -22,7 +23,7 @@ export function CircuitLab({ data }: { data: LearningData }) {
       <PageHeading
         eyebrow="DER SCHALTPLANRAUM"
         title="Sieh die Verbindung."
-        description="Fünf geprüfte DC-Schaltungen und drei interaktive Steuerstromkreise. Entdecke jeden Strompfad."
+        description="Fünf geprüfte DC-Schaltungen und vier interaktive Steuerstromkreise. Entdecke jeden Strompfad."
         action={
           <span className="soft-badge sage">
             <CheckCircle2 size={14} />
@@ -55,7 +56,11 @@ export function CircuitLab({ data }: { data: LearningData }) {
           ))}
         </div>
       </section>
-      <CircuitDetail key={study.circuit.id} study={study} data={data} />
+      {study.circuit.simulationMode === 'reversing' ? (
+        <ReversingExplorer key={study.circuit.id} />
+      ) : (
+        <CircuitDetail key={study.circuit.id} study={study} data={data} />
+      )}
     </div>
   )
 }

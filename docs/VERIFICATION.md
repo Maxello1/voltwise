@@ -1,5 +1,31 @@
 # Verification
 
+## v0.6 verification — 25 October 2026
+
+Base: `07a6e5718222197c07bda9b43cf614e495077671`, fetched from `origin/feat/control-circuits-v05`. PR #4 remains open; the new branch `codex/advanced-diagnostics-v06` targets that branch. Main and the parent history are unchanged. No production deployment was requested or performed.
+
+Environment: Windows, `D:\Lern App`, Node 24.14.1, pnpm 11.25.0, Playwright 1.64.1 and the workspace Chromium cache. No new dependencies were introduced.
+
+| Required check   | Result                                                                    |
+| ---------------- | ------------------------------------------------------------------------- |
+| `pnpm lint`      | Passed, zero warnings                                                     |
+| `pnpm typecheck` | Passed                                                                    |
+| `pnpm test`      | 177 passed across 15 files                                                |
+| `pnpm build`     | Passed; production worker precaches 37 entries                            |
+| `pnpm test:e2e`  | 64 passed: 48 functional cases and 16 Windows image comparisons, no skips |
+
+Browser invocation: `$env:PLAYWRIGHT_BROWSERS_PATH='D:\Lern App\.cache\playwright'; pnpm test:e2e`. The six new image references were generated, visually reviewed and passed in an ordinary comparison run. They cover the intact light drawing, self-holding dark drawing and revealed Start fault on desktop and phone. Navigation chrome is hidden only for the isolated diagram comparison so fixed mobile controls cannot obscure the captured schematic. Ten earlier DC diagram references also pass unchanged. Non-Windows CI runs the 48 functional cases and skips the 16 Windows image comparisons until native references are reviewed.
+
+Electrical checks enumerate every reachable state against all 64 simultaneous input samples for healthy reversing control and each supported fault/initial-permission condition. A separately hard-coded contact graph verifies powered coil paths and mutual exclusion; independent terminal partitions pin the diagram topology. Direct references check signed voltage, open contact drops, 0 V and undefined isolated potentials. Explicit sequences check Stop/conflict priority, self-holding failure, supply restoration, opposing commands, fault clearing, trip latching, rejected resets, reset edges and release/new-Start recovery of the same B1 diagnosis.
+
+Independent editorial action traces solve all twelve investigations. Negative cases reject missing/incorrect-state evidence, manually disabled supply as a source-fault witness, premature inspections and reversed holding-measurement order. Correctness, hint use, rubric points and memory ratings remain separate. Malformed diagnostic backup responses are rejected before restoring feedback.
+
+Persistence checks reopen independently declared schema 1 with v0.4 and v0.5 fixtures, migrate to schema 2 and preserve attempts, pending ratings, original session queues, settings and generated DC IDs. They cover unsubmitted draft reopening, concurrent actions, stale submission rejection, duplicate submission idempotency, append-only completed attempts, sticky hints, local draft precedence and additive v1/v2 JSON import/export. The v0.5 fixture retains a pending control fact followed by a control application and a generated DC task.
+
+Browser checks complete offline diagnoses at all three levels on desktop and phone emulation, navigate to the healthy schematic without losing the investigation, reload before/after submission, show partial credit for unproven answers and restore diagnostic feedback in a fresh offline profile. Additional cases exercise B1 recovery, component keyboard selection, real Chromium touch events for drag/pinch, 44 px view buttons and widths 320/375/390/430 in both themes. Earlier navigation, FSRS, control-v1, DC calculation and backup flows continue to pass.
+
+Scope limits: ideal fixed 24 V control topology, instantaneous contacts, abstract B1 arbitration, disabled G1 modeled as 0 V and isolated net potentials explicitly undefined. No current/resistance tool, mechanical interlock physics, motor power/dynamics solver, arbitrary fault generation or safety certification. Physical iPhone Safari, Home Screen/update acceptance, native Linux image review and independent qualified electrical/pedagogical acceptance remain outstanding. See [DIAGNOSTICS.md](DIAGNOSTICS.md) for assumptions and the exact scoring/compatibility contract.
+
 ## v0.5 verification — 22 October 2026
 
 Base: reviewed `main` commit `a518273d17`, fetched before work; branch `feat/control-circuits-v05`. Existing source content was extended additively. The five DC definitions, original exercise IDs/versions, generated v1 algorithms, database schema and backup format remain intact.

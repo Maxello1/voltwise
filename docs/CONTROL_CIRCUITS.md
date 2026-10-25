@@ -1,4 +1,14 @@
-# Control circuits — v0.5
+# Control circuits — v0.5 and v0.6
+
+## v0.6 addition: forward/reverse contactors
+
+The fourth control circuit is `control-reversing-v1`, using the separately versioned `reversing-v1` domain model. It adds K1/K2 coils, two NO holding contacts, explicit opposing NC 21–22 interlocks, common S0/F1 and an additional B1 release/command block. Both coil returns share G1−. Start Vor energizes K1, Start Rück energizes K2, and the running direction inhibits its opponent. Stop precedes a direction change; both Starts must be released before the new command. Simultaneous Starts open B1 until both are released. Supply loss/trip dominate; the conservative reset-edge/released-control rules remain explicit.
+
+B1 also locks after an unexpected coil dropout. It senses command inputs and the trip latch; it does not magically identify a stuck-open contact. Ordinary electrical NC interlocking alone is not asserted to establish the chosen simultaneous-command rule. No mechanical interlock, motor power sheet, motor stop time or real contactor dynamics are modeled. This is a bounded teaching control, with independent contact-path tests rather than an installation-safety claim.
+
+Six faults/missing-permission cases alter actual supply/contact/coil behavior. The shared SVG workbench includes supported virtual voltage measurements, contact/device inspection, net identity versus potential overlays and drag/pinch with keyboard alternatives. Dedicated Fehlersuche investigations save drafts and append attempts only on submission. Read [DIAGNOSTICS.md](DIAGNOSTICS.md) for exact topology, witness paths, initial conditions, physics, scoring, data compatibility and limitations.
+
+The remaining sections describe the preserved v0.5 `control-v1` models. Their IDs, assumptions, transitions and exercise versions are unchanged.
 
 Voltwise contains three curated, ideal 24 V DC control circuits. They use a deterministic finite-state model, **not a general network solver, motor simulation or safety-rated simulator**. SVG geometry and React do not decide electrical behavior.
 

@@ -10,6 +10,7 @@ import type {
   SyncOutbox,
 } from '../domain/models'
 import { defaultSettings } from '../domain/models'
+import type { DiagnosticDraft } from '../domain/diagnostic-schema'
 
 export class VoltwiseDatabase extends Dexie {
   attempts!: Table<AttemptEvent, string>
@@ -20,6 +21,7 @@ export class VoltwiseDatabase extends Dexie {
   settings!: Table<Settings, string>
   metadata!: Table<Metadata, string>
   syncOutbox!: Table<SyncOutbox, string>
+  diagnosticDrafts!: Table<DiagnosticDraft, string>
   constructor(name = 'voltwise') {
     super(name)
     this.version(1).stores({
@@ -32,6 +34,11 @@ export class VoltwiseDatabase extends Dexie {
       metadata: 'key',
       syncOutbox: 'eventId, createdAt',
     })
+    this.version(2)
+      .stores({ diagnosticDrafts: 'sessionId, exerciseId, updatedAt' })
+      .upgrade(async (transaction) => {
+        await transaction.table('metadata').put({ key: 'dbSchemaVersion', value: '2' })
+      })
   }
 }
 export const db = new VoltwiseDatabase()
@@ -40,7 +47,7 @@ export async function initializeDatabase(database = db) {
     if (!(await database.settings.get('preferences'))) await database.settings.add(defaultSettings)
     if (!(await database.metadata.get('deviceId')))
       await database.metadata.add({ key: 'deviceId', value: crypto.randomUUID() })
-    await database.metadata.put({ key: 'dbSchemaVersion', value: '1' })
+    await database.metadata.put({ key: 'dbSchemaVersion', value: '2' })
     await database.metadata.put({ key: 'contentSchemaVersion', value: '1' })
   })
 }

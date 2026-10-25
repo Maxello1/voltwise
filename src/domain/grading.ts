@@ -1,4 +1,6 @@
 import type { Exercise, Grade, Unit } from './models'
+import { gradeDiagnostic } from './diagnostics'
+import { diagnosticScenario } from '../content/diagnostic-scenarios'
 
 const units: Record<string, { dimension: Unit; factor: number }> = {
   A: { dimension: 'A', factor: 1 },
@@ -63,6 +65,8 @@ export function parseQuantity(
 }
 
 export function gradeExercise(exercise: Exercise, answer: string): Grade {
+  if (exercise.type === 'diagnostic')
+    return gradeDiagnostic(exercise.scenarioId, exercise.difficulty, answer)
   if (exercise.type === 'numeric') {
     const parsed = parseQuantity(answer, exercise.unit)
     if (parsed.value === undefined)
@@ -84,6 +88,7 @@ export function gradeExercise(exercise: Exercise, answer: string): Grade {
 }
 
 export function answerLabel(exercise: Exercise): string {
+  if (exercise.type === 'diagnostic') return diagnosticScenario(exercise.scenarioId).explanation
   if (exercise.type === 'numeric')
     return `${exercise.answer.toLocaleString('de-DE', { useGrouping: false, maximumSignificantDigits: 8 })} ${exercise.unit}`
   if (exercise.type === 'choice')

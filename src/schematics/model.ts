@@ -55,7 +55,14 @@ export type ControlCircuitDefinition = CircuitBase & {
   devices: { id: string; kind: 'relay' | 'contactor' | 'overload' | 'restart-monitor' }[]
   validation: { method: string }
 }
-export type CircuitDefinition = StaticCircuitDefinition | ControlCircuitDefinition
+export type ReversingCircuitDefinition = CircuitBase & {
+  simulationMode: 'reversing'
+  revision: 'reversing-v1'
+  devices: ControlCircuitDefinition['devices']
+  validation: { method: string }
+}
+export type CircuitDefinition =
+  StaticCircuitDefinition | ControlCircuitDefinition | ReversingCircuitDefinition
 export function terminalPoint(component: CircuitComponent, offset: Point): Point {
   const [x, y] = offset
   const rotated: Point =

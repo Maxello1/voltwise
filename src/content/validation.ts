@@ -1,5 +1,6 @@
 import type { Concept, Exercise, Lesson, Subject, Topic } from '../domain/models'
 import { normalizeRecall } from '../domain/grading'
+import { diagnosticScenarios } from './diagnostic-scenarios'
 
 /** Content-authoring checks. Electrical worked solutions also require independent reference tests. */
 export function validateCurriculum(catalogue: {
@@ -74,6 +75,17 @@ export function validateCurriculum(catalogue: {
     }
     if (exercise.reviewable && (exercise.type === 'numeric' || exercise.type === 'schematic'))
       errors.push(`Anwendung hat Gedächtnisbewertung: ${exercise.id}`)
+    if (
+      exercise.type === 'diagnostic' &&
+      (exercise.reviewable ||
+        !diagnosticScenarios.some(
+          (s) =>
+            s.id === exercise.scenarioId &&
+            s.circuitId === exercise.circuitId &&
+            s.difficulties.includes(exercise.difficulty),
+        ))
+    )
+      errors.push(`Ungültige Fehlersuchaufgabe: ${exercise.id}`)
   }
   return errors
 }

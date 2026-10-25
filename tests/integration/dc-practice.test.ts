@@ -99,6 +99,6 @@ describe('generated exercise persistence and compatibility', () => {
     expect(review.deviceId).toBe(originalDevice)
     expect(review.attemptId).toBe(fixture.attempts[0]!.eventId)
     expect((await database.sessions.get(resumed.id))?.exerciseIds[1]).toBe('voltage-symbol')
-    expect((await database.metadata.get('dbSchemaVersion'))?.value).toBe('1')
+    expect((await database.metadata.get('dbSchemaVersion'))?.value).toBe('2')
   })
 })

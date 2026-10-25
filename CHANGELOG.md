@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.6.0 — 2026-10-25
+
+- Added a fixed 24 V reversing contactor control with explicit opposing NC interlocks, self-holding, Stop/trip priority, reset edges and additional B1 release/command arbitration. Simultaneous Starts inhibit both coils; changing direction requires Stop/release/new Start.
+- Added six versioned electrical fault/permission scenarios, twelve graded investigations across three levels and three supporting applications, for 61 curated exercises and six lessons.
+- Added signed terminal-based virtual voltage measurements with explicit 0 V reference, ideal disabled-source assumptions and undefined floating potentials. No current/resistance or motor power solver is claimed.
+- Added persisted investigation actions, component observations, measurement evidence, explicit causal explanations and a 6-point rubric; only submitted diagnoses affect learning attempts. Added distinct-fault coverage without inflating it through repeated positions or creating FSRS cards.
+- Added numbered Dexie migration 2 and JSON backup version 2 for drafts, preserving old events, pending ratings, generated DC IDs and import of version-1 backups.
+- Extended the original SVG viewer with drag/pinch, net-versus-potential overlays and post-submission fault outlines. Added a larger original two-branch schematic with explicit terminal/device references and connection dots.
+- Added independent electrical references, exhaustive state/input enumeration, migration/concurrency/restore checks, complete offline browser diagnoses at all levels and six Windows diagram baselines. Physical Safari and independent qualified acceptance remain open.
+
 ## 0.5.0 — 2026-10-22
 
 - Added three progressive interactive 24 V control circuits: momentary lamp, contactor self-holding and latched overload with manual reset and three troubleshooting scenarios.

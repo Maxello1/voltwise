@@ -36,6 +36,9 @@ const Progress = lazy(() =>
 const SettingsPage = lazy(() =>
   import('../features/settings/Settings').then((module) => ({ default: module.SettingsPage })),
 )
+const Diagnostics = lazy(() =>
+  import('../features/diagnostics/Diagnostics').then((module) => ({ default: module.Diagnostics })),
+)
 
 const navigation = [
   { to: '/', label: 'Übersicht', icon: House },
@@ -48,7 +51,9 @@ const navigation = [
 function Shell() {
   const data = useLearningData()
   const location = useLocation()
-  const current = navigation.find((item) => item.to === location.pathname)?.label ?? 'Lernraum'
+  const current =
+    navigation.find((item) => item.to === location.pathname)?.label ??
+    (location.pathname === '/fehlersuche' ? 'Fehlersuche' : 'Lernraum')
   const theme = data?.settings?.theme ?? 'system'
   useEffect(() => {
     const media = matchMedia('(prefers-color-scheme: dark)')
@@ -151,6 +156,7 @@ function Shell() {
                 <Route path="/" element={<Dashboard data={data} />} />
                 <Route path="/lernen" element={<Learn data={data} />} />
                 <Route path="/ueben" element={<Practice data={data} />} />
+                <Route path="/fehlersuche" element={<Diagnostics data={data} />} />
                 <Route path="/schaltplaene" element={<CircuitLab data={data} />} />
                 <Route path="/fortschritt" element={<Progress data={data} />} />
                 <Route path="/einstellungen" element={<SettingsPage data={data} />} />
