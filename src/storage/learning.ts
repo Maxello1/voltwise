@@ -1,6 +1,7 @@
 import { concepts, exercises, lessons, topics } from '../content/curriculum'
 import { resolveExercise } from '../content/exercise-catalogue'
 import { createDcRound } from '../domain/dc-practice'
+import { schoolRound, type SchoolArea } from '../domain/school-practice'
 import { gradeExercise } from '../domain/grading'
 import { planPractice } from '../domain/practice-plan'
 import { scheduleReview } from '../domain/review'
@@ -17,6 +18,8 @@ export async function startSession(
   conceptId?: string,
   calculationCode?: string,
   diagnosticId?: string,
+  schoolCalculation?: { area: SchoolArea; code: string },
+  requestedExerciseId?: string,
 ): Promise<LearningSession | undefined> {
   await initializeDatabase(database)
   return database.transaction(
@@ -31,7 +34,14 @@ export async function startSession(
       const attempts = await database.attempts.orderBy('createdAt').toArray()
       const candidates = exercises.filter((e) => !topicId || e.topicId === topicId)
       let selected: Exercise[]
-      if (diagnosticId !== undefined) {
+      if (requestedExerciseId) {
+        const requested = resolveExercise(requestedExerciseId)
+        if (!requested) throw new Error('Unbekannte Aufgabe.')
+        selected = [requested]
+      } else if (schoolCalculation) {
+        if (mode !== 'practice') throw new Error('Eine Rechenrunde verwendet den Übungsmodus.')
+        selected = schoolRound(schoolCalculation.area, schoolCalculation.code)
+      } else if (diagnosticId !== undefined) {
         const exercise = resolveExercise(diagnosticId)
         if (exercise?.type !== 'diagnostic') throw new Error('Unbekannte Fehlersuchaufgabe.')
         selected = [exercise]
@@ -72,7 +82,9 @@ export async function startSession(
       const session: LearningSession = {
         id: crypto.randomUUID(),
         mode,
-        exerciseIds: selected.slice(0, mode === 'schematic' && !circuitId ? 2 : 5).map((e) => e.id),
+        exerciseIds: selected
+          .slice(0, schoolCalculation ? 10 : mode === 'schematic' && !circuitId ? 2 : 5)
+          .map((e) => e.id),
         position: 0,
         status: 'active',
         startedAt: now.toISOString(),

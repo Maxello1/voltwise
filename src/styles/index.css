@@ -1,5 +1,464 @@
 @import 'tailwindcss';
 
+/* Scientific learning tools use the same surfaces and German controls as the workspace. */
+.school-lab,
+.school-practice-links,
+.school-round,
+.plc-theory {
+  margin-block: 24px;
+}
+.school-practice-links,
+.school-round {
+  padding: 24px;
+}
+.school-practice-links > p,
+.school-round > p {
+  margin-block: 12px;
+}
+.lab-mode-tabs,
+.lab-controls-row,
+.canvas-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.lab-mode-tabs {
+  margin-block: 18px 24px;
+}
+.lab-mode-tabs button,
+.lab-mode-tabs a,
+.canvas-tools button {
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+}
+.lab-mode-tabs [aria-pressed='true'] {
+  background: var(--green);
+  color: var(--surface);
+}
+.lab-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 300px);
+  gap: 20px;
+  margin-block: 20px;
+  align-items: start;
+}
+.lab-main,
+.lab-settings {
+  padding: 24px;
+  min-width: 0;
+}
+.lab-main > p,
+.lab-settings > p,
+.lab-main > h2,
+.lab-settings > h3 {
+  margin-bottom: 16px;
+}
+.lab-main > .formula {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.7;
+}
+.lab-settings > button {
+  margin-bottom: 12px;
+  width: 100%;
+}
+.lab-control {
+  display: grid;
+  gap: 10px;
+  margin-block: 18px;
+  min-width: 0;
+}
+.lab-control > span {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.lab-control output {
+  font-variant-numeric: tabular-nums;
+}
+.lab-control input[type='range'] {
+  width: 100%;
+  min-height: 44px;
+  accent-color: var(--green);
+}
+.lab-control select,
+.prediction-box select {
+  width: 100%;
+  min-height: 44px;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  background: var(--surface);
+}
+.lab-check {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  min-height: 48px;
+  margin-block: 10px;
+  font-size: 14px;
+}
+.lab-check input {
+  width: 22px;
+  height: 22px;
+  accent-color: var(--green);
+}
+.lab-canvas {
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-block: 16px;
+}
+.canvas-tools {
+  padding: 6px;
+  gap: 4px;
+  border-bottom: 1px solid var(--line);
+}
+.canvas-tools button {
+  padding: 5px 10px;
+  min-width: 44px;
+  font-size: 12px;
+}
+.lab-canvas svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: auto;
+  color: var(--ink);
+  user-select: none;
+}
+.lab-canvas svg text {
+  fill: currentColor;
+  font-size: 14px;
+  font-family: inherit;
+}
+.plot-grid,
+.phasor-circle {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 1;
+}
+.plot-axis {
+  fill: none;
+  stroke: var(--muted);
+  stroke-width: 1.4;
+}
+.voltage-line,
+.current-line {
+  fill: none;
+  stroke-width: 3;
+}
+.voltage-line,
+.voltage-vector,
+.voltage-dot {
+  stroke: #3268bd;
+}
+.current-line,
+.current-vector,
+.current-dot {
+  stroke: #b46519;
+}
+.current-line {
+  stroke-dasharray: 8 5;
+}
+.voltage-dot {
+  fill: #3268bd;
+}
+.current-dot {
+  fill: #b46519;
+}
+.lab-canvas .voltage-text {
+  fill: #3268bd;
+}
+.lab-canvas .current-text {
+  fill: #a25917;
+}
+.voltage-vector,
+.current-vector,
+.result-vector {
+  fill: none;
+  stroke-width: 3;
+}
+.current-vector {
+  stroke-dasharray: 7 4;
+}
+.result-vector {
+  stroke: var(--green);
+  stroke-width: 4;
+}
+.period-marker {
+  fill: none;
+  stroke: var(--muted);
+  stroke-width: 1;
+}
+.time-cursor {
+  stroke: var(--ink);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 4;
+}
+.lab-readings {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(115px, 1fr));
+  gap: 10px;
+  margin-block: 18px;
+}
+.lab-readings > span {
+  display: grid;
+  gap: 8px;
+  background: var(--surface-soft);
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font-size: 12px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+.lab-readings strong {
+  color: var(--ink);
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+}
+.lab-diagram-row {
+  display: grid;
+  grid-template-columns: minmax(170px, 1fr) minmax(0, 1fr);
+  gap: 20px;
+  align-items: center;
+}
+.lab-diagram-row .formula {
+  font-size: 14px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  margin-block: 16px;
+}
+.lab-diagram-row p {
+  margin-block: 12px;
+}
+.prediction-box {
+  background: var(--surface-soft);
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  padding: 16px;
+  margin-block: 20px;
+}
+.prediction-box > * + * {
+  margin-top: 12px;
+}
+.symbol-outline {
+  fill: var(--surface-soft);
+  stroke: currentColor;
+  stroke-width: 2;
+}
+.circuit-wire {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+}
+.motor-part {
+  cursor: pointer;
+}
+.motor-part:focus-visible,
+.motor-part.selected-part {
+  outline: none;
+  filter: drop-shadow(0 0 4px var(--green));
+}
+.motor-part:focus-visible > rect,
+.motor-part.selected-part > rect,
+.motor-part:focus-visible > circle,
+.motor-part.selected-part > circle {
+  stroke: var(--green);
+  stroke-width: 4;
+}
+.motor-stator {
+  fill: var(--surface-soft);
+  stroke: var(--muted);
+  stroke-width: 3;
+}
+.north-pole {
+  fill: var(--peach);
+  stroke: #b85b38;
+  stroke-width: 2;
+}
+.south-pole {
+  fill: var(--blue);
+  stroke: #3268bd;
+  stroke-width: 2;
+}
+.lab-canvas .pole-letter {
+  font-size: 28px;
+  font-weight: 700;
+}
+.motor-armature {
+  fill: var(--surface);
+  fill-opacity: 0.8;
+  stroke: var(--muted);
+  stroke-width: 2;
+}
+.field-line {
+  fill: none;
+  stroke: #967e50;
+  stroke-width: 2;
+  stroke-dasharray: 5 4;
+}
+.motor-shaft {
+  stroke: var(--muted);
+  stroke-width: 10;
+}
+.motor-loop {
+  stroke: #bd6b27;
+  stroke-width: 6;
+}
+.motor-conductor {
+  fill: var(--amber);
+  stroke: #bd6b27;
+  stroke-width: 2;
+}
+.conductor-dot {
+  fill: var(--ink);
+}
+.force-vector {
+  fill: none;
+  stroke: var(--green);
+  stroke-width: 3;
+}
+.neutral-zone {
+  stroke: var(--muted);
+  stroke-dasharray: 4 6;
+}
+.commutator-a,
+.commutator-b {
+  fill: none;
+  stroke-width: 12;
+}
+.commutator-a {
+  stroke: #b96d28;
+}
+.commutator-b {
+  stroke: #d69951;
+}
+.brush {
+  fill: var(--muted);
+  stroke: var(--ink);
+  stroke-width: 1;
+}
+.application-input {
+  border: 0;
+  padding: 0;
+  margin-block: 16px;
+  min-width: 0;
+}
+.application-input legend {
+  font-weight: 600;
+}
+.school-round-preview {
+  display: grid;
+  gap: 12px;
+  padding-left: 22px;
+  margin-block: 20px;
+}
+.school-round-preview li strong,
+.school-round-preview li span {
+  display: block;
+  margin-bottom: 5px;
+}
+.school-round-preview li span {
+  color: var(--muted);
+  font-size: 14px;
+}
+.school-table-wrap {
+  overflow-x: auto;
+  max-width: 100%;
+}
+.school-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 14px;
+}
+.school-table th,
+.school-table td {
+  padding: 12px 8px;
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+}
+.school-table caption {
+  text-align: left;
+  padding-block: 12px;
+  color: var(--muted);
+}
+.boundary-row {
+  background: var(--amber);
+}
+:root[data-theme='dark'] .voltage-line,
+:root[data-theme='dark'] .voltage-vector,
+:root[data-theme='dark'] .voltage-dot {
+  stroke: #83b3ff;
+}
+:root[data-theme='dark'] .current-line,
+:root[data-theme='dark'] .current-vector,
+:root[data-theme='dark'] .current-dot {
+  stroke: #ffc17b;
+}
+:root[data-theme='dark'] .lab-canvas .voltage-text {
+  fill: #83b3ff;
+}
+:root[data-theme='dark'] .lab-canvas .current-text {
+  fill: #ffc17b;
+}
+@media (max-width: 1100px) {
+  .lab-workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .lab-settings {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 24px;
+  }
+  .lab-settings h3,
+  .lab-settings > p,
+  .lab-settings .prediction-box {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 600px) {
+  .lab-main,
+  .lab-settings,
+  .school-round,
+  .school-practice-links {
+    padding: 14px;
+  }
+  .lab-diagram-row,
+  .lab-settings {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .canvas-tools button {
+    padding-inline: 9px;
+  }
+  .lab-mode-tabs > * {
+    flex: 1 1 auto;
+  }
+  .lab-controls-row > .button {
+    width: 100%;
+  }
+  .school-table {
+    font-size: 12px;
+  }
+  .school-table th,
+  .school-table td {
+    padding: 10px 5px;
+  }
+  .lab-main h2 {
+    font-size: 23px;
+  }
+}
+
 :root {
   font-family:
     Inter,
@@ -3912,4 +4371,37 @@ main#main:focus-visible {
 }
 .cloud-devices li span {
   flex: 1 1 180px;
+}
+
+/* Keep long curriculum titles and formulae within narrow learning cards. */
+.learn-layout > *,
+.topic-menu > *,
+.lesson {
+  min-width: 0;
+}
+.topic-menu {
+  max-height: 680px;
+  overflow-y: auto;
+  padding: 2px;
+}
+.topic-button > span:last-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.lesson .formula {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.lesson .plc-theory {
+  padding-left: 0;
+}
+.topic-quick-select select {
+  min-width: 0;
+  max-width: 100%;
+}
+@media (max-width: 1100px) {
+  .learn-layout .topic-menu {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-height: 280px;
+  }
 }

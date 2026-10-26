@@ -4,6 +4,7 @@ import { resolveExercise } from '../content/exercise-catalogue'
 import { lessons } from '../content/curriculum'
 import { diagnosticAnswerSchema } from '../domain/diagnostic-schema'
 import { replayDiagnosis } from '../domain/diagnostics'
+import { validateApplicationAnswer } from '../domain/application'
 
 export const protocolVersion = 1
 export const batchSize = 20
@@ -121,6 +122,8 @@ export function validateSyncEvent(input: unknown): SyncEvent {
           exercise.scenarioId,
           diagnosticAnswerSchema.parse(JSON.parse(event.data.answer)),
         )
+      if (exercise.type === 'application')
+        validateApplicationAnswer(exercise.activity, event.data.answer)
     } else if (!exercise.reviewable) throw new Error('Diese Aufgabe verwendet keinen Lernplan.')
   }
   return event

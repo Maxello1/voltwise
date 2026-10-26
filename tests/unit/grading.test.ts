@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { gradeExercise, parseQuantity } from '../../src/domain/grading'
 import { exercises, exerciseById } from '../../src/content/curriculum'
+import { schoolApplicationAnswers } from '../fixtures/school-answers'
 
 describe('locale-aware quantity grading', () => {
   it.each(['0,36', '0.36 A', '360 mA', '3,6e-1 A', '360000 µA'])(
@@ -62,11 +63,13 @@ describe('locale-aware quantity grading', () => {
       // Interactive submissions require a recorded investigation; their independent paths live in diagnostics.test.ts.
       if (exercise.type === 'diagnostic') continue
       const answer =
-        exercise.type === 'numeric'
-          ? `${exercise.answer} ${exercise.unit}`
-          : exercise.type === 'recall'
-            ? exercise.aliases[0]!
-            : exercise.answer
+        exercise.type === 'application'
+          ? JSON.stringify(schoolApplicationAnswers[exercise.id])
+          : exercise.type === 'numeric'
+            ? `${exercise.answer} ${exercise.unit}`
+            : exercise.type === 'recall'
+              ? exercise.aliases[0]!
+              : exercise.answer
       expect(gradeExercise(exercise, answer).correct, exercise.id).toBe(true)
       expect(exercise.explanation.length).toBeGreaterThan(40)
     }

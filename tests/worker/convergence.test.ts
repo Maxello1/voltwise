@@ -12,6 +12,9 @@ import type { LearningSession } from '../../src/domain/models'
 import legacy from '../fixtures/backup-v1-pending-0.5.json'
 import v06 from '../fixtures/backup-v2-v06.json'
 import { diagnosticSolutions } from '../fixtures/diagnostic-solutions'
+import { schoolApplicationAnswers } from '../fixtures/school-answers'
+import { schoolProblem } from '../../src/domain/school-practice'
+import { answerLabel } from '../../src/domain/grading'
 
 let cloud: TestCloud
 let devices: VoltwiseDatabase[]
@@ -55,6 +58,39 @@ async function answer(
 }
 const countEvents = async () =>
   (await cloud.database.prepare('SELECT COUNT(*) AS n FROM events').first<{ n: number }>())!.n
+
+it('merges all school application formats and generated prefixes through real D1 onto three devices', async () => {
+  const [a, b, c] = devices as [VoltwiseDatabase, VoltwiseDatabase, VoltwiseDatabase]
+  for (const [id, payload] of Object.entries(schoolApplicationAnswers))
+    await answer(a, id, JSON.stringify(payload))
+  for (const [area, name] of [
+    ['ac', 'rms'],
+    ['motor', 'force'],
+    ['plc', 'margin'],
+  ] as const) {
+    const exercise = schoolProblem(area, name, '123456')!
+    await answer(b, exercise.id, answerLabel(exercise))
+  }
+  const ta = await connect(a),
+    tb = await connect(b),
+    tc = await connect(c)
+  expect(await synchronize(a, ta)).toBe(true)
+  expect(await synchronize(b, tb)).toBe(true)
+  expect(await synchronize(a, ta)).toBe(true)
+  expect(await synchronize(c, tc)).toBe(true)
+  expect(await synchronize(c, tc)).toBe(true)
+  expect(await countEvents()).toBe(18)
+  for (const db of [a, b, c]) {
+    expect(await db.attempts.count()).toBe(18)
+    expect((await db.attempts.toArray()).every((record) => record.correct)).toBe(true)
+    expect(await db.reviews.count()).toBe(0)
+    expect(await db.reviewStates.count()).toBe(0)
+    expect(await db.syncOutbox.count()).toBe(0)
+  }
+  const backup = await exportBackup(c)
+  await importBackup(backup, b)
+  expect(await b.attempts.count()).toBe(18)
+})
 
 it('A/E: uploads offline work locally first and restores it on two independent devices without resuming remote sessions', async () => {
   const [a, b, c] = devices as [VoltwiseDatabase, VoltwiseDatabase, VoltwiseDatabase]

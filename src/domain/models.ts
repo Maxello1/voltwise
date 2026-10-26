@@ -1,4 +1,12 @@
 import { z } from 'zod'
+import type { ApplicationSpec } from './application'
+
+export interface Provenance {
+  tag: 'schulstoff-2026-10'
+  source: 'A' | 'B' | 'A+B'
+  pages: string
+  basis: 'Auftrag nach Arbeitsblatt' | 'Ergänzende Erklärung'
+}
 
 export interface Subject {
   id: string
@@ -14,6 +22,8 @@ export interface Topic {
   prerequisites: string[]
   tier: number
   color: string
+  area?: 'Wechselstromtechnik' | 'Gleichstrommaschinen' | 'SPS-Grundlagen'
+  lab?: 'ac' | 'motor' | 'plc'
 }
 export interface Concept {
   id: string
@@ -27,6 +37,7 @@ export interface Lesson {
   title: string
   minutes: number
   sections: { title: string; body: string; formula?: string }[]
+  provenance?: Provenance
 }
 interface ExerciseBase {
   id: string
@@ -40,6 +51,7 @@ interface ExerciseBase {
   hint: string
   reviewable: boolean
   circuitId?: string
+  provenance?: Provenance
 }
 export type Exercise = ExerciseBase &
   (
@@ -48,8 +60,10 @@ export type Exercise = ExerciseBase &
     | { type: 'numeric'; answer: number; unit: Unit; tolerance: number }
     | { type: 'schematic'; circuitId: string; answer: string; answerLabel: string }
     | { type: 'diagnostic'; circuitId: string; scenarioId: string }
+    | { type: 'application'; activity: ApplicationSpec }
   )
-export type Unit = 'A' | 'V' | 'Ω' | 'W' | 'Hz'
+export type Unit =
+  'A' | 'V' | 'Ω' | 'W' | 'Hz' | 's' | '°' | 'rad' | 'H' | 'F' | 'T' | 'N' | 'N·m' | 'var'
 export interface Grade {
   correct: boolean
   normalizedAnswer: string

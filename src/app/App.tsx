@@ -40,6 +40,9 @@ const SettingsPage = lazy(() =>
 const Diagnostics = lazy(() =>
   import('../features/diagnostics/Diagnostics').then((module) => ({ default: module.Diagnostics })),
 )
+const SchoolLab = lazy(() =>
+  import('../features/school-lab/SchoolLab').then((module) => ({ default: module.SchoolLab })),
+)
 
 const navigation = [
   { to: '/', label: 'Übersicht', icon: House },
@@ -55,7 +58,11 @@ function Shell() {
   const location = useLocation()
   const current =
     navigation.find((item) => item.to === location.pathname)?.label ??
-    (location.pathname === '/fehlersuche' ? 'Fehlersuche' : 'Lernraum')
+    (location.pathname === '/fehlersuche'
+      ? 'Fehlersuche'
+      : location.pathname === '/labor'
+        ? 'Lernlabore'
+        : 'Lernraum')
   const theme = data?.settings?.theme ?? 'system'
   useEffect(() => {
     const media = matchMedia('(prefers-color-scheme: dark)')
@@ -121,7 +128,7 @@ function Shell() {
             <ShieldCheck size={15} />
             <span>Dein Wissen. Deine Daten.</span>
           </div>
-          <p className="version-label">VOLTWISE · ERSTE LERNVERSION</p>
+          <p className="version-label">VOLTWISE · LERNVERSION 0.8</p>
         </div>
       </aside>
       <div className="workspace">
@@ -157,8 +164,9 @@ function Shell() {
               <Routes>
                 <Route path="/" element={<Dashboard data={data} />} />
                 <Route path="/lernen" element={<Learn data={data} />} />
-                <Route path="/ueben" element={<Practice data={data} />} />
+                <Route path="/ueben" element={<Practice key={location.search} data={data} />} />
                 <Route path="/fehlersuche" element={<Diagnostics data={data} />} />
+                <Route path="/labor" element={<SchoolLab />} />
                 <Route path="/schaltplaene" element={<CircuitLab data={data} />} />
                 <Route path="/fortschritt" element={<Progress data={data} />} />
                 <Route path="/einstellungen" element={<SettingsPage data={data} />} />

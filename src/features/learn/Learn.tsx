@@ -7,6 +7,7 @@ import { completeLesson } from '../../storage/sync'
 import { startSession } from '../../storage/learning'
 import { ErrorMessage, PageHeading } from '../../components/ui'
 import { prerequisitesRead } from '../../domain/practice-plan'
+import { PlcTheory } from '../school-lab/PlcTheory'
 
 export function Learn({ data }: { data: LearningData }) {
   const [params, setParams] = useSearchParams()
@@ -37,6 +38,31 @@ export function Learn({ data }: { data: LearningData }) {
         title="Verstehen kommt vor Auswendiglernen."
         description="Kurze Lektionen. Klare Zusammenhänge. Direkt anwenden."
       />
+      <label className="lab-control topic-quick-select">
+        <span>Thema direkt wählen</span>
+        <select
+          aria-label="Thema direkt wählen"
+          value={topic.id}
+          onChange={(e) => setParams({ topic: e.target.value })}
+        >
+          {[
+            'Grundlagen & Steuerung',
+            'Wechselstromtechnik',
+            'Gleichstrommaschinen',
+            'SPS-Grundlagen',
+          ].map((area) => (
+            <optgroup key={area} label={area}>
+              {topics
+                .filter((t) => (t.area ?? 'Grundlagen & Steuerung') === area)
+                .map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.title}
+                  </option>
+                ))}
+            </optgroup>
+          ))}
+        </select>
+      </label>
       <div className="learn-layout">
         <div className="topic-menu">
           {topics.map((t, index) => {
@@ -51,6 +77,7 @@ export function Learn({ data }: { data: LearningData }) {
                 <span>
                   <strong>{t.title}</strong>
                   <small>
+                    {t.area && `${t.area} · `}
                     {exercises.filter((e) => e.topicId === t.id).length} Aufgaben · Stufe {t.tier}
                   </small>
                   {!recommended && (
@@ -66,6 +93,12 @@ export function Learn({ data }: { data: LearningData }) {
           <p className="muted tiny">
             Die Reihenfolge ist eine Empfehlung. Du kannst jedes Thema öffnen.
           </p>
+          {lesson.provenance && (
+            <p className="input-help">
+              Schulstoff Oktober 2026 · Stoffzuordnung {lesson.provenance.pages} laut
+              Arbeitsauftrag. Eigene Erklärungen, Beispiele und Lehrmodelle zur Vertiefung.
+            </p>
+          )}
         </div>
         <article className="lesson card" key={lesson.id}>
           <span className={`soft-badge ${topic.color}`}>
@@ -85,7 +118,15 @@ export function Learn({ data }: { data: LearningData }) {
               {section.formula && <div className="formula">{section.formula}</div>}
             </section>
           ))}
+          {(topic.id === 'plc-generator' || topic.id === 'plc-fup') && (
+            <PlcTheory fup={topic.id === 'plc-fup'} />
+          )}
           <div className="lesson-actions">
+            {topic.lab && (
+              <Link className="button button-outline" to={`/labor?lab=${topic.lab}`}>
+                Im Labor ausprobieren <ArrowRight size={17} />
+              </Link>
+            )}
             {topic.id === 'controls' && (
               <Link className="button button-outline" to="/schaltplaene?circuit=control-lamp-v1">
                 Steuerstromkreise ausprobieren <ArrowRight size={17} />

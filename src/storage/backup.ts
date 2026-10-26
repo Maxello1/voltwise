@@ -11,6 +11,7 @@ import { resolveExercise } from '../content/exercise-catalogue'
 import { db, type VoltwiseDatabase } from './db'
 import { diagnosticAnswerSchema, diagnosticDraftSchema } from '../domain/diagnostic-schema'
 import { replayDiagnosis } from '../domain/diagnostics'
+import { validateApplicationAnswer } from '../domain/application'
 import {
   canonicalJson,
   contentHash,
@@ -125,6 +126,8 @@ export function parseBackup(input: unknown): Backup {
       const response = diagnosticAnswerSchema.parse(JSON.parse(attempt.answer))
       replayDiagnosis(exercise.scenarioId, response)
     }
+    if (exercise.type === 'application')
+      validateApplicationAnswer(exercise.activity, attempt.answer)
   }
   for (const review of backup.reviews) {
     const attempt = attempts.get(review.attemptId)

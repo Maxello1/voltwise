@@ -25,6 +25,9 @@ import { advanceSession, startSession, submitAnswer } from '../../storage/learni
 import { EmptyState, ErrorMessage, PageHeading } from '../../components/ui'
 import { RoundControls } from './RoundControls'
 import { newRoundCode } from './round-code'
+import { ApplicationInput } from '../school-lab/ApplicationInput'
+import { SchoolTrainer } from '../school-lab/SchoolLab'
+import { schoolArea } from '../../domain/school-practice'
 
 const ratings = [
   { value: 1, label: 'Noch einmal', detail: 'Nicht erinnert' },
@@ -45,30 +48,39 @@ export function Practice({ data }: { data: LearningData }) {
     : undefined
   const mode = params.get('mode') === 'review' ? 'review' : 'practice'
   const trainer = mode === 'practice' && params.get('trainer') === 'dc'
+  const directExercise = resolveExercise(params.get('aufgabe') ?? '')
   const roundCode = params.get('code') ?? ''
   const targetConcept =
     mode === 'practice' && !trainer
       ? concepts.find((entry) => entry.id === params.get('concept'))
       : undefined
-  const plan = trainer
-    ? validRoundCode(roundCode)
-      ? createDcRound(roundCode).map((exercise) => ({
-          exercise,
+  const plan = directExercise
+    ? [
+        {
+          exercise: directExercise,
           explanation:
-            'Eine Zahlenvariante deiner Rechenrunde. Derselbe Übungscode ergibt wieder dieselben Werte.',
-        }))
-      : []
-    : planPractice({
-        exercises,
-        concepts,
-        topics,
-        lessons,
-        attempts: data.attempts,
-        reviewStates: data.reviewStates,
-        completions: data.completions,
-        now: new Date(),
-        conceptId: targetConcept?.id,
-      }).filter((item) => mode !== 'review' || item.kind === 'due')
+            'Gezielt ausgewählte Anwendung. Deine offene Sitzung wird zuerst fortgesetzt.',
+        },
+      ]
+    : trainer
+      ? validRoundCode(roundCode)
+        ? createDcRound(roundCode).map((exercise) => ({
+            exercise,
+            explanation:
+              'Eine Zahlenvariante deiner Rechenrunde. Derselbe Übungscode ergibt wieder dieselben Werte.',
+          }))
+        : []
+      : planPractice({
+          exercises,
+          concepts,
+          topics,
+          lessons,
+          attempts: data.attempts,
+          reviewStates: data.reviewStates,
+          completions: data.completions,
+          now: new Date(),
+          conceptId: targetConcept?.id,
+        }).filter((item) => mode !== 'review' || item.kind === 'due')
   function selectRound(code: string) {
     setError('')
     setFinishedId(undefined)
@@ -86,6 +98,9 @@ export function Practice({ data }: { data: LearningData }) {
         undefined,
         topic ? undefined : targetConcept?.id,
         trainer && !topic ? roundCode : undefined,
+        undefined,
+        undefined,
+        directExercise && !topic ? directExercise.id : undefined,
       )
       if (!session)
         setError(
@@ -97,6 +112,7 @@ export function Practice({ data }: { data: LearningData }) {
       setBusy(false)
     }
   }
+  if (!active && schoolArea(params.get('trainer'))) return <SchoolTrainer />
   return (
     <div className="page-enter">
       <PageHeading
@@ -175,20 +191,24 @@ export function Practice({ data }: { data: LearningData }) {
               <h2>
                 {mode === 'review'
                   ? 'Deine Wiederholungen'
-                  : trainer
-                    ? 'Deine Rechenrunde'
-                    : targetConcept
-                      ? targetConcept.title
-                      : 'Dein täglicher Wissensmix'}
+                  : directExercise
+                    ? directExercise.title
+                    : trainer
+                      ? 'Deine Rechenrunde'
+                      : targetConcept
+                        ? targetConcept.title
+                        : 'Dein täglicher Wissensmix'}
               </h2>
               <p>
                 {mode === 'review'
                   ? `${due} Aufgaben sind nach deinem persönlichen FSRS-Zeitplan fällig.`
-                  : trainer
-                    ? 'Fünf Aufgaben mit wechselnden Werten: Ohmsches Gesetz, Leistung, Reihe und Parallel. Ideale Gleichstromkreise mit konstanten Widerständen.'
-                    : targetConcept
-                      ? `${plan.length} passende Aufgaben zum gewählten Konzept. Deine geplanten Wissensfragen behalten ihren Wiederholungstermin.`
-                      : 'Bis zu 5 Aufgaben: fällige Wissensfragen, Konzepte zum Vertiefen und neue Anwendungen.'}
+                  : directExercise
+                    ? directExercise.prompt
+                    : trainer
+                      ? 'Fünf Aufgaben mit wechselnden Werten: Ohmsches Gesetz, Leistung, Reihe und Parallel. Ideale Gleichstromkreise mit konstanten Widerständen.'
+                      : targetConcept
+                        ? `${plan.length} passende Aufgaben zum gewählten Konzept. Deine geplanten Wissensfragen behalten ihren Wiederholungstermin.`
+                        : 'Bis zu 5 Aufgaben: fällige Wissensfragen, Konzepte zum Vertiefen und neue Anwendungen.'}
               </p>
               {trainer && (
                 <>
@@ -213,11 +233,13 @@ export function Practice({ data }: { data: LearningData }) {
                 {mode === 'review' ? <RotateCcw size={18} /> : <ArrowRight size={18} />}
                 {mode === 'review'
                   ? 'Wiederholung starten'
-                  : trainer
-                    ? 'Rechenrunde starten'
-                    : targetConcept
-                      ? 'Konzept gezielt üben'
-                      : 'Gemischt üben'}
+                  : directExercise
+                    ? 'Aufgabe starten'
+                    : trainer
+                      ? 'Rechenrunde starten'
+                      : targetConcept
+                        ? 'Konzept gezielt üben'
+                        : 'Gemischt üben'}
               </button>
               {(targetConcept || trainer) && (
                 <Link className="text-link" to="/ueben">
@@ -238,6 +260,25 @@ export function Practice({ data }: { data: LearningData }) {
               </p>
             </section>
           </div>
+          {mode !== 'review' && !trainer && (
+            <section className="card school-practice-links">
+              <h3>Wechselstrom, Motoren & SPS verstehen</h3>
+              <div className="lab-controls-row">
+                <Link className="button button-outline" to="/labor?lab=ac">
+                  Wechselstromlabor
+                </Link>
+                <Link className="button button-outline" to="/labor?lab=motor">
+                  Motorlabor
+                </Link>
+                <Link className="button button-outline" to="/lernen?topic=plc-bits">
+                  SPS-Theorie
+                </Link>
+                <Link className="button button-outline" to="/ueben?trainer=plc&code=000000">
+                  SPS-Rechenaufgaben
+                </Link>
+              </div>
+            </section>
+          )}
           {mode !== 'review' && !trainer && (
             <section className="card calculation-teaser" aria-label="Rechentrainer">
               <span className="stat-icon blue">
@@ -549,6 +590,8 @@ function AnswerInput({
   disabled: boolean
 }) {
   const circuit = resolvePracticeCircuit(exercise.circuitId ?? '')
+  if (exercise.type === 'application')
+    return <ApplicationInput spec={exercise.activity} onChange={onChange} disabled={disabled} />
   const controlNote =
     circuit && circuit.simulationMode !== 'verified-static' ? (
       <p className="input-help">
@@ -617,6 +660,16 @@ function AnswerInput({
           ? 'Dezimalkomma oder Punkt. Passende Einheiten wie mA oder kΩ sind erlaubt.'
           : 'Formuliere deine Antwort, bevor du die Lösung ansiehst.'}
       </p>
+      {exercise.type === 'numeric' && (
+        <p className="input-help">
+          Runde erst am Ende. Akzeptierte Abweichung: ±
+          {exercise.tolerance.toLocaleString('de', {
+            useGrouping: false,
+            maximumSignificantDigits: 5,
+          })}{' '}
+          {exercise.unit}.
+        </p>
+      )}
     </>
   )
 }

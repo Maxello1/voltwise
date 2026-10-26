@@ -1,6 +1,7 @@
 import type { Concept, Exercise, Lesson, Subject, Topic } from '../domain/models'
 import { normalizeRecall } from '../domain/grading'
 import { diagnosticScenarios } from './diagnostic-scenarios'
+import { validApplicationSpec } from '../domain/application'
 
 /** Content-authoring checks. Electrical worked solutions also require independent reference tests. */
 export function validateCurriculum(catalogue: {
@@ -73,7 +74,14 @@ export function validateCurriculum(catalogue: {
       if (new Set(exercise.aliases.map(normalizeRecall)).size !== exercise.aliases.length)
         errors.push(`Doppelte Kurzantwort: ${exercise.id}`)
     }
-    if (exercise.reviewable && (exercise.type === 'numeric' || exercise.type === 'schematic'))
+    if (exercise.type === 'application' && !validApplicationSpec(exercise.activity))
+      errors.push(`Anwendung ohne Referenz: ${exercise.id}`)
+    if (
+      exercise.reviewable &&
+      (exercise.type === 'numeric' ||
+        exercise.type === 'schematic' ||
+        exercise.type === 'application')
+    )
       errors.push(`Anwendung hat Gedächtnisbewertung: ${exercise.id}`)
     if (
       exercise.type === 'diagnostic' &&

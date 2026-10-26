@@ -61,6 +61,23 @@ export function CircuitLab({ data }: { data: LearningData }) {
       ) : (
         <CircuitDetail key={study.circuit.id} study={study} data={data} />
       )}
+      <section className="card school-practice-links">
+        <h2>Vom Schaltplan zum Prinzip.</h2>
+        <p>
+          Sinuskurven, Zeiger, ideale Bauteile und eine kommutierte Leiterschleife selbst erkunden.
+        </p>
+        <div className="lab-controls-row">
+          <Link className="button button-outline" to="/labor?lab=ac">
+            Wechselstromlabor öffnen
+          </Link>
+          <Link className="button button-outline" to="/labor?lab=motor">
+            Motorlabor öffnen
+          </Link>
+          <Link className="button button-outline" to="/lernen?topic=plc-bits">
+            SPS-Theorie lernen
+          </Link>
+        </div>
+      </section>
     </div>
   )
 }

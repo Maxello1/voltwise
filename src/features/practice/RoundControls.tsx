@@ -7,9 +7,11 @@ import { newRoundCode } from './round-code'
 export function RoundControls({
   code,
   onSelect,
+  shareHash,
 }: {
   code: string
   onSelect: (code: string) => void
+  shareHash?: string
 }) {
   const [input, setInput] = useState(code)
   const [message, setMessage] = useState('')
@@ -19,7 +21,7 @@ export function RoundControls({
     try {
       const url = new URL(window.location.href)
       url.search = ''
-      url.hash = `/ueben?trainer=dc&code=${code}`
+      url.hash = shareHash ?? `/ueben?trainer=dc&code=${code}`
       await navigator.clipboard.writeText(url.href)
       setMessage('Rundenlink kopiert.')
     } catch {
