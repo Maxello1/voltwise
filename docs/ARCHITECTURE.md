@@ -1,6 +1,6 @@
 # Architecture
 
-Voltwise is a single static React/TypeScript application. There is no backend dependency for core learning. Vite bundles the shell and lazy-loaded feature screens; vite-plugin-pwa precaches all bundled code, styles, artwork and curriculum, so visiting a new screen offline still works after the initial cache is ready.
+Voltwise has a static React/TypeScript application and an optional same-origin Cloudflare Worker/D1 backend. There is no backend dependency for core learning. Vite bundles the shell and lazy-loaded feature screens; vite-plugin-pwa precaches all bundled code, styles, artwork and curriculum, so visiting a new screen offline still works after the initial cache is ready.
 
 ## Boundaries
 
@@ -25,7 +25,7 @@ Voltwise is a single static React/TypeScript application. There is no backend de
 
 One active session is chosen transactionally, including across tabs. Repeated answer submissions and repeated advancement cannot duplicate a step. Closing the app between grading and rating restores the graded step. A completed session is an actual stored status, not a button-click counter.
 
-Curriculum is bundled, versioned immutable application content rather than copied into user tables. Concept mastery is derived from attempts on read. Outbox is an empty typed table reserved for a future backend; there is no pretend upload or network success state.
+Curriculum is bundled, versioned immutable application content rather than copied into user tables. Concept mastery is derived from attempts on read. Outbox writes share each syncable learning transaction; no queue operation alone creates a network success state.
 
 ## Generated DC content
 
@@ -41,8 +41,24 @@ The schematic DSL is discriminated by `simulationMode`: existing `verified-stati
 
 ## Migrations
 
-Database version 1 declares the initial tables and indexes. Metadata records database/content schema versions and a locally generated device UUID. Future releases must add Dexie numbered upgrades; never change a historical migration or clear storage. Add a fixture of the previous schema, migrate it, verify event IDs/history and run an export/restore drill. IndexedDB may be unavailable in restricted browser contexts; startup reports this without deleting anything.
+Database version 1 declares the initial tables and indexes unchanged. Version 2 additively introduces `diagnosticDrafts` and updates schema metadata without rewriting history. A v0.5 schema-1 fixture verifies pending ratings, active queues, original attempts/settings and generated IDs through upgrade/export/restore. Future releases must add numbered upgrades; never change a historical migration or clear storage. IndexedDB may be unavailable in restricted browser contexts; startup reports this without deleting anything.
+
+## Reversing control and diagnostics — v0.6
+
+`domain/reversing.ts` is a separate immutable `reversing-v1` model. The new `simulationMode: 'reversing'` drawing keeps original `verified-static` and `control-v1` content intact. Explicit contact/device/net bindings are validated by `reversing-validation.ts`; geometry never drives transitions or potentials. A closed-contact equipotential reduction supports only this fixed two-coil topology, with undefined isolated groups. B1 explicitly adds release/command arbitration; no mechanical or motor solver is implied.
+
+Versioned fault scenarios, initial conditions and electrical witnesses live in packaged content. The pure diagnostic replay reconstructs each measurement/inspection from the action trace, checks operating conditions and applies a declared 6-point rubric. `DiagnosticStep` participates in the existing practice session/planner, immutable attempt and concept-recommendation flow. The versioned response fits the existing answer field; no historical event schema or FSRS meaning changes.
+
+Draft commands reread/merge the active step in Dexie transactions. Submitted answers must match the current stored draft. Navigation/reload preserves unsubmitted investigations; free exploration creates no attempts. Backup v2 includes drafts, still imports v1 and keeps existing local investigations on conflict. The production worker precaches the new route and all model/content assets. See [diagnostics](DIAGNOSTICS.md).
 
 ## Platform limits
 
-Browser storage is scoped to origin and browser profile. GitHub Pages, localhost, another browser and an installed PWA may have separate storage contexts. No automatic device convergence is promised. Manual backup import is the transfer mechanism today. Real Safari/PWA device checks remain necessary in addition to Chromium phone emulation.
+Browser storage is scoped to origin and browser profile. GitHub Pages, localhost, another browser and an installed PWA may have separate storage contexts. Manual backup import deliberately transfers data between origins. The optional same-origin synchronized edition converges supported immutable history after authentication, consent and successful server exchange. Real Safari/PWA device checks remain necessary in addition to Chromium phone emulation.
+
+## Optional synchronization — v0.7
+
+`src/sync/protocol.ts` defines the shared strict versioned event contract and canonical hashing; `worker/` owns OAuth, hashed sessions, owner authorization, rate limits and parameterized transactional D1 persistence. The frontend has no OAuth/client secret or remote-origin API setting. Worker Static Assets route `/api/*` before the root PWA. The existing Pages workflow explicitly builds local-only assets; cloud browser checks use a separate ignored output directory.
+
+Numbered migration 3 adds immutable sync envelopes, receipts, local cloud state and historical session descriptors. `storage/sync.ts` supplies initial discovery and atomic queue commands, while `sync/engine.ts` validates acknowledgments/downloads and applies pages with cursor advancement in one IndexedDB transaction. Only original events and immutable session descriptors travel; remote active sessions/drafts/preferences never replace local work. Backup format 3 preserves these references and ordering while accepting formats 1/2.
+
+`domain/reconciliation.ts` replays every explicit FSRS rating with server-sequence order plus a provisional local tail and documented nondecreasing effective timestamps. Original cards/logs remain immutable. `sync/runtime.ts` handles visible-app triggers, multi-tab locks and bounded retry, separately from learning commands. See [design](SYNC_DESIGN.md), [protocol](SYNC_PROTOCOL.md), [deployment](CLOUD_DEPLOYMENT.md) and [migration](DATA_MIGRATION.md).

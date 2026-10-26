@@ -14,6 +14,7 @@ export default tseslint.config(
       '.publish',
       '.cache',
       '.pnpm-store',
+      '.wrangler',
     ],
   },
   js.configs.recommended,

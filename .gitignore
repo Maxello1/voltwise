@@ -16,3 +16,6 @@ voltwise-backup-*.json
 Voltwise_Codex_Kickoff_Prompt.md
 Voltwise_Roadmap.md
 .publish/
+.wrangler/
+.dev.vars*
+wrangler.production.jsonc

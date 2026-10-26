@@ -20,6 +20,7 @@ import { createDcRound, resolveDcProblem, validRoundCode } from '../../domain/dc
 import { answerLabel } from '../../domain/grading'
 import { planPractice } from '../../domain/practice-plan'
 import { CircuitViewer } from '../../schematics/CircuitViewer'
+import { DiagnosticStep } from '../diagnostics/DiagnosticStep'
 import { advanceSession, startSession, submitAnswer } from '../../storage/learning'
 import { EmptyState, ErrorMessage, PageHeading } from '../../components/ui'
 import { RoundControls } from './RoundControls'
@@ -258,6 +259,21 @@ export function Practice({ data }: { data: LearningData }) {
               </button>
             </section>
           )}
+          {mode !== 'review' && !trainer && (
+            <section className="card diagnostic-teaser">
+              <span className="soft-badge blue">NEU · FEHLERSUCHE</span>
+              <div>
+                <h3>Eine Störung. Dein Weg zur Ursache.</h3>
+                <p>
+                  Wendeschütze bedienen, virtuell messen und die Diagnose mit Belegen erklären. Drei
+                  Stufen, sechs geprüfte Ursachen.
+                </p>
+              </div>
+              <Link className="button button-outline" to="/fehlersuche">
+                Fehlersuche öffnen
+              </Link>
+            </section>
+          )}
           {plan.length > 0 && (
             <section className="card practice-plan" aria-label="Deine nächste Auswahl">
               <h3>{trainer ? 'Deine fünf Rechenaufgaben' : 'Warum diese Aufgaben?'}</h3>
@@ -332,6 +348,8 @@ function ExerciseStep({
       </EmptyState>
     )
   const topic = topics.find((t) => t.id === exercise.topicId)
+  if (exercise.type === 'diagnostic')
+    return <DiagnosticStep exercise={exercise} session={session} data={data} onFinish={onFinish} />
   const generated = resolveDcProblem(exercise.id)
   const selectedComponent =
     exercise.type === 'schematic'
@@ -532,7 +550,7 @@ function AnswerInput({
 }) {
   const circuit = resolvePracticeCircuit(exercise.circuitId ?? '')
   const controlNote =
-    circuit?.simulationMode === 'finite-state' ? (
+    circuit && circuit.simulationMode !== 'verified-static' ? (
       <p className="input-help">
         Plan in Ausgangslage. Beurteile die im Aufgabentext beschriebene Betätigung.
       </p>

@@ -8,8 +8,8 @@ import { terminalPoint } from '../../src/schematics/model'
 describe('curated DC circuit library', () => {
   it('ships five distinct, topologically valid circuits with linked practice', () => {
     expect(dcCircuitLibrary).toHaveLength(5)
-    expect(circuitLibrary).toHaveLength(8)
-    expect(circuitById.size).toBe(8)
+    expect(circuitLibrary).toHaveLength(9)
+    expect(circuitById.size).toBe(9)
     for (const { circuit } of circuitLibrary) {
       expect(validateCircuit(circuit), circuit.id).toEqual([])
       expect(exercises.filter((e) => e.circuitId === circuit.id).length).toBeGreaterThanOrEqual(2)

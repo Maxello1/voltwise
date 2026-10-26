@@ -1,8 +1,9 @@
-import { useId, useState } from 'react'
+import { useId, useRef, useState } from 'react'
 import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Maximize2, Minus, Plus } from 'lucide-react'
 import { symbolRegistry } from './symbols'
 import { terminalPoint, type CircuitDefinition } from './model'
 import { controlVisuals, initialControlState, type ControlVisualState } from '../domain/control'
+import { initialReversingState, reversingVisuals } from '../domain/reversing'
 
 interface Props {
   circuit: CircuitDefinition
@@ -12,6 +13,9 @@ interface Props {
   compact?: boolean
   correctSelection?: string
   states?: Record<string, ControlVisualState>
+  overlay?: 'nets' | 'voltage'
+  potentials?: Record<string, number | null>
+  revealedFault?: string
 }
 export function CircuitViewer({
   circuit,
@@ -21,15 +25,23 @@ export function CircuitViewer({
   compact = false,
   correctSelection,
   states,
+  overlay,
+  potentials,
+  revealedFault,
 }: Props) {
   const [zoom, setZoom] = useState(1)
-  const maxZoom = circuit.simulationMode === 'finite-state' ? 3 : 1.75
+  const dynamic = circuit.simulationMode !== 'verified-static'
+  const maxZoom = dynamic ? 3 : 1.75
   const [pan, setPan] = useState({ x: 0, y: 0 })
+  const pointers = useRef(new Map<number, { x: number; y: number }>())
+  const dragged = useRef(false)
   const visualStates =
     states ??
     (circuit.simulationMode === 'finite-state'
       ? controlVisuals(circuit.control, initialControlState())
-      : undefined)
+      : circuit.simulationMode === 'reversing'
+        ? reversingVisuals(initialReversingState())
+        : undefined)
   const prefix = useId().replace(/:/gu, '')
   const { width, height } = circuit.bounds
   const viewWidth = width / zoom,
@@ -47,13 +59,55 @@ export function CircuitViewer({
   )?.id
   return (
     <div
-      className={`circuit-viewer ${compact ? 'compact' : ''} ${circuit.simulationMode === 'finite-state' ? 'control-circuit' : ''}`}
+      className={`circuit-viewer ${compact ? 'compact' : ''} ${dynamic ? 'control-circuit' : ''} ${overlay ? 'understand-circuit' : ''}`}
     >
       <svg
         className="circuit-svg"
         viewBox={`${limitX + clamp(pan.x, limitX)} ${limitY + clamp(pan.y, limitY)} ${viewWidth} ${viewHeight}`}
         role="group"
         aria-label={`Stromlaufplan: ${circuit.description}`}
+        style={dynamic && !compact ? { touchAction: 'none' } : undefined}
+        onPointerDown={(event) => {
+          if (!dynamic || compact) return
+          if (!pointers.current.size) dragged.current = false
+          pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY })
+        }}
+        onPointerMove={(event) => {
+          const previous = pointers.current.get(event.pointerId)
+          if (!previous) return
+          const others = [...pointers.current.entries()].filter(([id]) => id !== event.pointerId)
+          const next = { x: event.clientX, y: event.clientY }
+          if (Math.hypot(next.x - previous.x, next.y - previous.y) > 2) {
+            dragged.current = true
+            event.currentTarget.setPointerCapture?.(event.pointerId)
+          }
+          if (others.length) {
+            const other = others[0]![1]
+            const before = Math.hypot(previous.x - other.x, previous.y - other.y)
+            const after = Math.hypot(next.x - other.x, next.y - other.y)
+            if (before > 5) setZoom((z) => Math.max(1, Math.min(maxZoom, (z * after) / before)))
+          } else if (zoom > 1) {
+            const rect = event.currentTarget.getBoundingClientRect()
+            const scale = Math.min(rect.width / viewWidth, rect.height / viewHeight)
+            setPan((p) => ({
+              x: clamp(p.x - (next.x - previous.x) / scale, limitX),
+              y: clamp(p.y - (next.y - previous.y) / scale, limitY),
+            }))
+          }
+          pointers.current.set(event.pointerId, next)
+        }}
+        onPointerUp={(event) => {
+          pointers.current.delete(event.pointerId)
+        }}
+        onPointerCancel={(event) => {
+          pointers.current.delete(event.pointerId)
+        }}
+        onClickCapture={(event) => {
+          if (dragged.current) {
+            event.stopPropagation()
+            dragged.current = false
+          }
+        }}
       >
         <title>{circuit.title}</title>
         <defs>
@@ -74,7 +128,17 @@ export function CircuitViewer({
             <polyline
               key={wire.id}
               points={wire.points.map((p) => p.join(',')).join(' ')}
-              className={selectedNet === wire.netId ? 'wire-selected' : ''}
+              className={`${selectedNet === wire.netId ? 'wire-selected' : ''} ${overlay === 'voltage' ? (potentials?.[wire.netId] === 24 ? 'wire-voltage' : potentials?.[wire.netId] === null ? 'wire-floating' : 'wire-zero') : ''}`}
+              style={
+                overlay === 'nets' && selectedNet !== wire.netId
+                  ? {
+                      stroke: ['#3978a8', '#a85d26', '#8a59b2', '#21806e', '#aa4567'][
+                        circuit.nets.findIndex((n) => n.id === wire.netId) % 5
+                      ],
+                      strokeDasharray: `${8 + circuit.nets.findIndex((n) => n.id === wire.netId) * 2} 4`,
+                    }
+                  : undefined
+              }
             />
           ))}
         </g>
@@ -113,7 +177,7 @@ export function CircuitViewer({
                 data-component-id={component.id}
                 data-state={state}
                 aria-pressed={onSelect ? isSelected : undefined}
-                className={`circuit-component ${state === 'on' ? 'energized' : ''} ${isSelected ? `selected ${feedback ?? ''}` : correctSelection === component.id ? 'answer-target' : ''}`}
+                className={`circuit-component ${state === 'on' ? 'energized' : ''} ${revealedFault === component.id ? 'revealed-fault' : ''} ${isSelected ? `selected ${feedback ?? ''}` : correctSelection === component.id ? 'answer-target' : ''}`}
                 onClick={() => onSelect?.(component.id)}
                 onKeyDown={(event) => {
                   if (onSelect && (event.key === 'Enter' || event.key === ' ')) {
@@ -147,7 +211,7 @@ export function CircuitViewer({
               >
                 {component.label}
               </text>
-              {circuit.simulationMode === 'finite-state' &&
+              {dynamic &&
                 component.terminals.map((terminal) => {
                   const [x, y] = terminalPoint(component, terminal.offset)
                   return (
@@ -175,7 +239,7 @@ export function CircuitViewer({
                       tabIndex={onSelect ? 0 : undefined}
                       aria-label={`Anschluss ${terminal.id}`}
                       aria-pressed={onSelect ? selected === terminal.id : undefined}
-                      className={`circuit-terminal ${selected === terminal.id ? `selected ${feedback ?? ''}` : ''}`}
+                      className={`circuit-terminal ${overlay ? 'measurement-point' : ''} ${selected === terminal.id ? `selected ${feedback ?? ''}` : ''}`}
                       onClick={() => onSelect?.(terminal.id)}
                       onKeyDown={(event) => {
                         if (onSelect && ['Enter', ' '].includes(event.key)) {

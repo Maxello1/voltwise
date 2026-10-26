@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.7.0 — 2026-10-25
+
+- Added optional same-origin Cloudflare Worker/D1 learning-history synchronization with identity-only GitHub OAuth, S256 PKCE, one-time state, a stable single-owner allowlist, opaque server sessions, CSRF/Origin validation and sticky device revocation.
+- Added immutable, hashed protocol-1 attempt/review/completion events with transactional UUID idempotency/conflicts, server sequences, bounded uploads and cursor downloads. Historical session metadata never makes remote active work resumable.
+- Added atomic local outbox writes, safe historical discovery, startup/foreground/reconnect/activity/manual triggers and bounded visible-app retry. Local learning and independent JSON backups remain available without cloud.
+- Added deterministic FSRS replay from all preserved explicit ratings, using authoritative acceptance order and documented clock-skew clamping. Original scheduling history is never overwritten.
+- Added additive Dexie migration 3 and backup format 3 with schema-1/2 and backup-1/2 compatibility, generated DC IDs, pending reviews and diagnostic drafts preserved.
+- Added German consent/status/login/device controls, local-only Pages builds, a separate root Cloudflare PWA build, API cache exclusion, deployment/migration/security guides and a manual deployment workflow. The local opt-out remains available without a reachable session; production configuration correctly parses JSONC comments/trailing commas. No live Cloudflare deployment or parent PR merge was performed.
+- Added local Worker/D1 security and three-device convergence tests, v0.6 fixtures, acknowledgment-loss and storage/quota cases, plus browser offline/reconnect/restoration flows with synthetic GitHub identity. Physical-device/live-provider acceptance remains outstanding.
+
+## 0.6.0 — 2026-10-25
+
+- Corrected diagnostic evidence matching to accept fixed hardwired terminal alternatives, including G1− for K1 A2. Signed polarity, operating-state, ordering and inspection requirements remain enforced; switched equipotentials do not substitute for fixed nets.
+- Added a fixed 24 V reversing contactor control with explicit opposing NC interlocks, self-holding, Stop/trip priority, reset edges and additional B1 release/command arbitration. Simultaneous Starts inhibit both coils; changing direction requires Stop/release/new Start.
+- Added six versioned electrical fault/permission scenarios, twelve graded investigations across three levels and three supporting applications, for 61 curated exercises and six lessons.
+- Added signed terminal-based virtual voltage measurements with explicit 0 V reference, ideal disabled-source assumptions and undefined floating potentials. No current/resistance or motor power solver is claimed.
+- Added persisted investigation actions, component observations, measurement evidence, explicit causal explanations and a 6-point rubric; only submitted diagnoses affect learning attempts. Added distinct-fault coverage without inflating it through repeated positions or creating FSRS cards.
+- Added numbered Dexie migration 2 and JSON backup version 2 for drafts, preserving old events, pending ratings, generated DC IDs and import of version-1 backups.
+- Extended the original SVG viewer with drag/pinch, net-versus-potential overlays and post-submission fault outlines. Added a larger original two-branch schematic with explicit terminal/device references and connection dots.
+- Added independent electrical references, exhaustive state/input enumeration, migration/concurrency/restore checks, complete offline browser diagnoses at all levels and six Windows diagram baselines. Physical Safari and independent qualified acceptance remain open.
+
 ## 0.5.0 — 2026-10-22
 
 - Added three progressive interactive 24 V control circuits: momentary lamp, contactor self-holding and latched overload with manual reset and three troubleshooting scenarios.

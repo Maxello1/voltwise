@@ -219,7 +219,7 @@ describe('validated additive backup restoration', () => {
   })
   it('rejects unsupported versions and missing references without changing local data', async () => {
     const backup = await exportBackup(database)
-    await expect(importBackup({ ...backup, version: 2 }, database)).rejects.toThrow()
+    await expect(importBackup({ ...backup, version: 999 }, database)).rejects.toThrow()
     const current = await session()
     await submitAnswer(current.id, 'a', false, 10, database)
     const valid = await exportBackup(database)

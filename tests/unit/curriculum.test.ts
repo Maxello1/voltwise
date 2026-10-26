@@ -14,8 +14,8 @@ function contentCopy() {
 }
 
 describe('foundation content authoring', () => {
-  it('has 46 versioned tasks with coherent references, prerequisites and explicit recall aliases', () => {
-    expect(curriculum.exercises).toHaveLength(46)
+  it('has 61 versioned tasks with coherent references, prerequisites and explicit recall aliases', () => {
+    expect(curriculum.exercises).toHaveLength(61)
     expect(validateCurriculum(curriculum)).toEqual([])
     expect(curriculum.exercises.every((exercise) => exercise.version >= 1)).toBe(true)
   })
