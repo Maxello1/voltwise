@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { circuitLibrary, circuitById } from '../../src/content/circuit-library'
+import { circuitLibrary, dcCircuitLibrary, circuitById } from '../../src/content/circuit-library'
 import { exercises } from '../../src/content/curriculum'
 import { parallelCircuit, seriesCircuit, unloadedVoltageDivider } from '../../src/domain/electrical'
 import { validateCircuit } from '../../src/schematics/validation'
@@ -7,8 +7,9 @@ import { terminalPoint } from '../../src/schematics/model'
 
 describe('curated DC circuit library', () => {
   it('ships five distinct, topologically valid circuits with linked practice', () => {
-    expect(circuitLibrary).toHaveLength(5)
-    expect(circuitById.size).toBe(5)
+    expect(dcCircuitLibrary).toHaveLength(5)
+    expect(circuitLibrary).toHaveLength(9)
+    expect(circuitById.size).toBe(9)
     for (const { circuit } of circuitLibrary) {
       expect(validateCircuit(circuit), circuit.id).toEqual([])
       expect(exercises.filter((e) => e.circuitId === circuit.id).length).toBeGreaterThanOrEqual(2)
@@ -38,9 +39,10 @@ describe('curated DC circuit library', () => {
         ).toBe(true)
     }
   })
-  it.each(circuitLibrary.map((entry) => [entry.circuit.id, entry.circuit] as const))(
+  it.each(dcCircuitLibrary.map((entry) => [entry.circuit.id, entry.circuit] as const))(
     'checks source power and total resistance for %s from actual component values',
     (id, circuit) => {
+      if (circuit.simulationMode !== 'verified-static') throw new Error('Expected static DC')
       const loads = circuit.components
         .filter((c) => c.kind === 'resistor' || c.kind === 'lamp')
         .map((c) => Number(c.properties.resistance))

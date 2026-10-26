@@ -47,6 +47,7 @@ export type Exercise = ExerciseBase &
     | { type: 'recall'; aliases: string[]; answerLabel: string }
     | { type: 'numeric'; answer: number; unit: Unit; tolerance: number }
     | { type: 'schematic'; circuitId: string; answer: string; answerLabel: string }
+    | { type: 'diagnostic'; circuitId: string; scenarioId: string }
   )
 export type Unit = 'A' | 'V' | 'Ω' | 'W' | 'Hz'
 export interface Grade {
@@ -147,7 +148,7 @@ export const defaultSettings: Settings = {
 }
 export interface SyncOutbox {
   eventId: string
-  kind: 'attempt' | 'review'
+  kind: 'attempt' | 'review' | 'completion'
   createdAt: string
   retries: number
 }

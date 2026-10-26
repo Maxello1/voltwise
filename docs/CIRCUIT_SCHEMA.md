@@ -35,18 +35,32 @@ Catalogue additions are packaged content. No database or backup schema changed i
 
 ## Symbols and licensing
 
+The v0.6 reversing circuit reuses Voltwise's original contact/coil/source/restart-block vectors. Its two branches, terminal labels and junction geometry are original additions; no vendor or IEC artwork was imported. Electrical-reference links support contact relationships and terminal designations, not a certification claim. See [diagnostic references](DIAGNOSTICS.md#primary-references-and-original-artwork).
+
 The source, rectangular resistor, switch, lamp, reference, ammeter and voltmeter symbol paths were drawn specifically for Voltwise from elementary circles, lines, rectangles and upright A/V letters. Switch geometry respects the declared open/closed state; the lamp example depicts a fixed closed state. No paths or images were extracted from the IEC 60617 database. The reference symbol remains registered for later curated circuits. Lucide supplies navigation icons under its ISC license, not electrical symbols. Dependency licenses remain in their installed packages.
 
 Design references are the conventional teaching distinction between a rectangular resistor, a circle with a cross for a lamp, an open switch and a dotted connected junction. These are original educational drawings, not a claim of certification or exact IEC conformance. [IEC's copyright guidance](https://webstore.iec.ch/en/copyright) is the reference before adding externally sourced material.
 
+## Version-1 control drawings
+
+The DSL now discriminates `verified-static` numeric references from `finite-state` `control-v1` models; it does not attach invented resistance/current values to controls. Three packaged definitions in `src/content/circuits/control.ts` add 24 V control supply, NO/NC contacts, momentary NO/NC pushbuttons, relay/contactor coils, linked auxiliary contacts, overload trip and a B1 restart-permission block. All paths are original elementary line/circle/rectangle geometry. No IEC/vendor paths were copied and no certification/conformance is asserted.
+
+Terminal IDs remain explicit (`s1.a`, `s1.b`, `k1-coil.a`, etc.); roles label 13/14, 11/12, A1/A2, 95/96 and X1/X2 on the control drawings. Device IDs distinguish K1 coil/contact association from conductive topology. B1's dashed box identifies additional abstract logic, with internal sensing/wiring outside this model.
+
+The ordinary net validator is followed by control checks for revision, bindings, symbol kinds, terminal roles, device ownership, nominal supply and exact supported terminal groups. The pure domain engine supplies component states; SVG does not infer them from line intersections. Generic linked NO/NC states are complementary to coil energization. Only the declared three ladder patterns are simulated. Net selection remains selection, not voltage coloring. See [control circuits](CONTROL_CIRCUITS.md) for transition rules, independent contact-path tests and limitations.
+
 ## Growth path
+
+Implemented in v0.6: `simulationMode: 'reversing'`, revision `reversing-v1`, declares the fixed 24 V two-coil topology. `reversing-validation.ts` checks the complete terminal partition, NO/NC roles, device ownership, source voltage and revision; general endpoint/grid/connectivity checks still apply. Tests independently pin the expected partitions. These checks validate the supported packaged drawing, not arbitrary circuits. The viewer receives domain-derived contact/device states and net potentials. Net identity uses dash patterns, voltage has a separate overlay, and fault outlines are post-submission feedback. The original three `control-v1` models remain unchanged.
+
+Supported terminal-pair voltages are defined by the domain model and its explicit 0 V/floating assumptions, never by path intersections. No mechanical interlock symbol or motor power sheet was added without a verified model. The numbered growth outline below retains later curriculum directions; the bounded reversing/diagnostic slice is now implemented, while arbitrary topology and motor-power extensions remain future work.
 
 1. Identify symbols and trace simple DC wiring.
 2. Add series, parallel, divider and measurement examples with numerical fixtures.
 3. Add Kirchhoff exercises and a separately tested supported-linear-DC solver.
 4. Add reviewed AC/RLC interpretation separately from any solver.
-5. Register NO/NC contacts, coils and contactors with explicit terminal roles and device references; test a finite-state relay model.
-6. Add self-hold, overload and reversing-interlock scenarios with complete transition matrices.
+5. Delivered in v0.5: NO/NC contacts, relay/contactor coils, terminal roles, device references and bounded finite-state self-holding/overload models.
+6. Extend to reversing interlocks only after complete transition matrices and separate model review.
 7. Add three-phase/star-delta motor controls, timers, sensors, PLC I/O and multi-sheet fault scenarios only after editorial and model review.
 
 Avoid deriving electrical connectivity from intersecting SVG paths. Future simulation state must reference a stable circuit revision and an explicit supported model. Safety behavior cannot be inferred from an attractive drawing.

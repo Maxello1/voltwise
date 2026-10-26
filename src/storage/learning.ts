@@ -6,6 +6,8 @@ import { planPractice } from '../domain/practice-plan'
 import { scheduleReview } from '../domain/review'
 import type { Exercise, LearningSession, ReviewEvent } from '../domain/models'
 import { db, initializeDatabase, type VoltwiseDatabase } from './db'
+import { diagnosticAnswerSchema } from '../domain/diagnostic-schema'
+import { attemptSyncEvent, describeSession, enqueueEvent, reviewSyncEvent } from './sync'
 
 export async function startSession(
   mode: LearningSession['mode'] = 'practice',
@@ -14,6 +16,7 @@ export async function startSession(
   circuitId?: string,
   conceptId?: string,
   calculationCode?: string,
+  diagnosticId?: string,
 ): Promise<LearningSession | undefined> {
   await initializeDatabase(database)
   return database.transaction(
@@ -28,7 +31,11 @@ export async function startSession(
       const attempts = await database.attempts.orderBy('createdAt').toArray()
       const candidates = exercises.filter((e) => !topicId || e.topicId === topicId)
       let selected: Exercise[]
-      if (calculationCode !== undefined) {
+      if (diagnosticId !== undefined) {
+        const exercise = resolveExercise(diagnosticId)
+        if (exercise?.type !== 'diagnostic') throw new Error('Unbekannte Fehlersuchaufgabe.')
+        selected = [exercise]
+      } else if (calculationCode !== undefined) {
         if (mode !== 'practice') throw new Error('Eine Rechenrunde verwendet den Übungsmodus.')
         selected = createDcRound(calculationCode)
       } else if (mode === 'review') {
@@ -86,7 +93,15 @@ export async function submitAnswer(
 ) {
   return database.transaction(
     'rw',
-    [database.attempts, database.sessions, database.metadata],
+    [
+      database.attempts,
+      database.sessions,
+      database.metadata,
+      database.diagnosticDrafts,
+      database.syncEvents,
+      database.syncOutbox,
+      database.syncReceipts,
+    ],
     async () => {
       const session = await database.sessions.get(sessionId)
       if (!session || session.status !== 'active') throw new Error('Die Sitzung ist nicht aktiv.')
@@ -97,6 +112,14 @@ export async function submitAnswer(
       if (session.pendingAttemptId) return database.attempts.get(session.pendingAttemptId)
       const exercise = resolveExercise(session.exerciseIds[session.position] ?? '')
       if (!exercise) throw new Error('Aufgabe nicht gefunden.')
+      if (exercise.type === 'diagnostic') {
+        const draft = await database.diagnosticDrafts.get(sessionId)
+        if (!draft || draft.exerciseId !== exercise.id || JSON.stringify(draft.answer) !== answer)
+          throw new Error(
+            'Die Untersuchung wurde in einem anderen Fenster geändert. Bitte den aktuellen Stand prüfen.',
+          )
+        hints = diagnosticAnswerSchema.parse(draft.answer).hint
+      }
       const grade = gradeExercise(exercise, answer)
       if (grade.invalid) throw new Error(grade.invalid)
       const deviceId = (await database.metadata.get('deviceId'))?.value
@@ -116,6 +139,7 @@ export async function submitAnswer(
         durationMs: Math.max(0, Math.round(durationMs)),
       }
       await database.attempts.add(attempt)
+      await enqueueEvent(attemptSyncEvent(attempt, describeSession(session)), database)
       await database.sessions.update(sessionId, { pendingAttemptId: attempt.eventId })
       return attempt
     },
@@ -136,6 +160,9 @@ export async function advanceSession(
       database.reviews,
       database.reviewStates,
       database.metadata,
+      database.syncEvents,
+      database.syncOutbox,
+      database.syncReceipts,
     ],
     async () => {
       const session = await database.sessions.get(sessionId)
@@ -153,7 +180,10 @@ export async function advanceSession(
         const deviceId = (await database.metadata.get('deviceId'))?.value
         if (!deviceId) throw new Error('Gerätekennung fehlt.')
         const now = new Date()
-        const scheduled = scheduleReview(previous?.card, rating, now)
+        const effective = new Date(
+          Math.max(now.getTime(), new Date(previous?.card.last_review ?? now).getTime()),
+        )
+        const scheduled = scheduleReview(previous?.card, rating, effective)
         const event: ReviewEvent = {
           eventId: crypto.randomUUID(),
           attemptId: attempt.eventId,
@@ -168,6 +198,7 @@ export async function advanceSession(
           log: scheduled.log,
         }
         await database.reviews.add(event)
+        await enqueueEvent(reviewSyncEvent(event), database)
         await database.reviewStates.put({
           exerciseId: exercise.id,
           lastEventId: event.eventId,

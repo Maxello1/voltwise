@@ -121,7 +121,7 @@ test('a generated round retains its values, diagrams and grading offline after a
   await page.getByRole('link', { name: 'Strom berechnen · 12 V / 1200 Ω', exact: true }).click()
   await expect(page.getByLabel('Übungscode · sechs Ziffern')).toHaveValue('000000')
   await page.goto('./')
-  await expect(page.getByText('0 von 36 Aufgaben entdeckt · 5 Rechenversuche')).toBeVisible()
+  await expect(page.getByText('0 von 61 Aufgaben entdeckt · 5 Rechenversuche')).toBeVisible()
 })
 
 test('a fresh browser restores a generated pending answer from its JSON backup without the network', async ({

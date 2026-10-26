@@ -1,6 +1,13 @@
 import type { Concept, Exercise, Lesson, Subject, Topic } from '../domain/models'
 import { circuitExercises } from './circuit-exercises'
 import { foundationExercises } from './foundation-exercises'
+import { controlConcepts, controlExercises, controlLesson, controlTopic } from './control-learning'
+import {
+  diagnosticConcepts,
+  diagnosticExercises,
+  diagnosticLesson,
+  diagnosticTopic,
+} from './diagnostic-learning'
 
 export const subject: Subject = {
   id: 'electrical',
@@ -45,6 +52,8 @@ export const topics: Topic[] = [
     tier: 3,
     color: 'lavender',
   },
+  controlTopic,
+  diagnosticTopic,
 ]
 export const concepts: Concept[] = [
   { id: 'units', topicId: 'basics', title: 'Größen und Einheiten' },
@@ -55,6 +64,8 @@ export const concepts: Concept[] = [
   { id: 'parallel', topicId: 'circuits', title: 'Parallelschaltung' },
   { id: 'meters', topicId: 'measurement', title: 'Strom- und Spannungsmessung' },
   { id: 'kirchhoff', topicId: 'measurement', title: 'Knotenregel' },
+  ...controlConcepts,
+  ...diagnosticConcepts,
 ]
 export const lessons: Lesson[] = [
   {
@@ -147,6 +158,8 @@ export const lessons: Lesson[] = [
       },
     ],
   },
+  controlLesson,
+  diagnosticLesson,
 ]
 
 const common = { version: 1, difficulty: 1 as const }
@@ -425,5 +438,7 @@ export const exercises: Exercise[] = [
   },
   ...circuitExercises,
   ...foundationExercises,
+  ...controlExercises,
+  ...diagnosticExercises,
 ]
 export const exerciseById = new Map(exercises.map((exercise) => [exercise.id, exercise]))

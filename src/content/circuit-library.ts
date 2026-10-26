@@ -1,6 +1,8 @@
 import type { CircuitDefinition } from '../schematics/model'
 import { parallelDemo } from './circuit'
 import { dividerDemo, lampDemo, meteringDemo, seriesDemo } from './circuits/dc'
+import { controlLamp, controlHold, controlOverload } from './circuits/control'
+import { reversingCircuit } from './circuits/reversing'
 
 export interface CircuitStudy {
   circuit: CircuitDefinition
@@ -11,7 +13,7 @@ export interface CircuitStudy {
   steps: { title: string; formula: string }[]
 }
 
-export const circuitLibrary: CircuitStudy[] = [
+export const dcCircuitLibrary: CircuitStudy[] = [
   {
     circuit: parallelDemo,
     shortTitle: 'Parallelschaltung',
@@ -70,6 +72,60 @@ export const circuitLibrary: CircuitStudy[] = [
       { title: 'Laststrom / A1', formula: 'I = 24 V / 100 Ω = 0,24 A' },
       { title: 'Spannung an R1 / V1', formula: 'U_R1 = 24 V · U_A1 = 0 V' },
       { title: 'Ideale Messgeräte', formula: 'I_V1 = 0 A · P_Last = 5,76 W' },
+    ],
+  },
+]
+export const controlCircuitLibrary: CircuitStudy[] = [
+  {
+    circuit: controlLamp,
+    shortTitle: 'Taster & Meldeleuchte',
+    tier: 1,
+    note: 'S1 ist ein momentaner Schließer. Nur der gedrückte Taster schließt den Strompfad zur Leuchte. Kein Haltezweig.',
+    challenge: 'Was ändert sich beim Loslassen?',
+    steps: [
+      { title: 'Ruhe', formula: 'S1 offen → H1 aus' },
+      { title: 'Drücken', formula: 'S1 geschlossen → H1 ein' },
+      { title: 'Loslassen', formula: 'S1 öffnet wieder → H1 aus' },
+    ],
+  },
+  {
+    circuit: controlHold,
+    shortTitle: 'Schütz & Selbsthaltung',
+    tier: 2,
+    note: 'K1 13–14 überbrückt Start. S0 unterbricht beide parallelen Zweige. B1 ergänzt die explizite Wiederanlaufsperre.',
+    challenge: 'Verfolge den Haltestrompfad.',
+    steps: [
+      { title: 'Start', formula: 'S1 schließt → Spule und Hilfskontakt K1 ein' },
+      { title: 'Halten', formula: 'S1 öffnet → K1 hält über 13–14' },
+      { title: 'Stop', formula: 'S0 öffnet → K1 fällt ab' },
+    ],
+  },
+  {
+    circuit: controlOverload,
+    shortTitle: 'Überlast & Fehlersuche',
+    tier: 3,
+    note: 'F1 95–96 öffnet bei vorgegebener Überlast und speichert die Auslösung. Ursache beseitigen und manuell zurücksetzen. Ein neuer Start ist erforderlich.',
+    challenge: 'Finde die Unterbrechung.',
+    steps: [
+      { title: 'Auslösen', formula: 'F1 öffnet → K1 und Haltekontakt fallen ab' },
+      { title: 'Quittieren', formula: 'Ursache weg + Taster los + 24 V → Reset möglich' },
+      { title: 'Neu starten', formula: 'Reset allein startet K1 nicht' },
+    ],
+  },
+]
+export const circuitLibrary: CircuitStudy[] = [
+  ...dcCircuitLibrary,
+  ...controlCircuitLibrary,
+  {
+    circuit: reversingCircuit,
+    shortTitle: 'Wenden & Verriegeln',
+    tier: 4,
+    note: 'K1 und K2 verriegeln die Gegenrichtung über 21–22. B1 wertet zusätzlich die Startbefehle aus. Keine Motor- oder Sicherheitsberechnung.',
+    challenge: 'Finde den Fehler mit Messbelegen.',
+    steps: [
+      { title: 'Vor', formula: 'S1 → K1 · K1 hält · K2 wird gesperrt' },
+      { title: 'Wenden', formula: 'Stop → beide Starttaster los → neue Richtung' },
+      { title: 'Befehlskonflikt', formula: 'Vor + Rück → B1 sperrt beide Schütze' },
     ],
   },
 ]

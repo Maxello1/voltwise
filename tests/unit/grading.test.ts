@@ -59,6 +59,8 @@ describe('locale-aware quantity grading', () => {
     expect(exercises.length).toBeGreaterThanOrEqual(12)
     expect(new Set(exercises.map((e) => e.id)).size).toBe(exercises.length)
     for (const exercise of exercises) {
+      // Interactive submissions require a recorded investigation; their independent paths live in diagnostics.test.ts.
+      if (exercise.type === 'diagnostic') continue
       const answer =
         exercise.type === 'numeric'
           ? `${exercise.answer} ${exercise.unit}`

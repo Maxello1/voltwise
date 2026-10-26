@@ -1,0 +1,184 @@
+{
+  "format": "voltwise-backup",
+  "version": 2,
+  "exportedAt": "2026-10-25T10:00:00.000Z",
+  "attempts": [
+    {
+      "eventId": "51111111-1111-4111-8111-111111111111",
+      "deviceId": "52222222-2222-4222-8222-222222222222",
+      "sessionId": "53333333-3333-4333-8333-333333333333",
+      "exerciseId": "control-nc-rest-v1",
+      "exerciseVersion": 1,
+      "createdAt": "2026-10-22T19:59:00.000Z",
+      "conceptIds": ["control-contacts"],
+      "correct": true,
+      "answer": "closed",
+      "normalizedAnswer": "closed",
+      "hints": 0,
+      "durationMs": 1500
+    },
+    {
+      "eventId": "60000000-0000-4000-8000-000000000001",
+      "deviceId": "52222222-2222-4222-8222-222222222222",
+      "sessionId": "60000000-0000-4000-8000-000000000002",
+      "exerciseId": "dc1-series-current-000000",
+      "exerciseVersion": 1,
+      "createdAt": "2026-10-25T10:00:00.000Z",
+      "conceptIds": ["series", "ohm-law"],
+      "correct": true,
+      "answer": "0.1",
+      "normalizedAnswer": "0.1 A",
+      "hints": 0,
+      "durationMs": 1200
+    },
+    {
+      "eventId": "60000000-0000-4000-8000-000000000003",
+      "deviceId": "52222222-2222-4222-8222-222222222222",
+      "sessionId": "60000000-0000-4000-8000-000000000004",
+      "exerciseId": "diag-start-v1-l1",
+      "exerciseVersion": 1,
+      "createdAt": "2026-10-25T10:00:00.000Z",
+      "conceptIds": ["diagnostic-transfer", "diagnostic-voltage"],
+      "correct": true,
+      "answer": "{\"version\":1,\"actions\":[[\"measure\",\"g1.a\",\"g1.b\"],[\"forward\",true],[\"measure\",\"s1.a\",\"s1.b\"],[\"inspect\",\"s1\"]],\"location\":\"s1\",\"mechanism\":\"start-path\",\"hint\":false}",
+      "normalizedAnswer": "S1 · Der Vor-Startpfad ist unterbrochen. · 6/6 Punkte",
+      "hints": 0,
+      "durationMs": 1200
+    },
+    {
+      "eventId": "60000000-0000-4000-8000-000000000006",
+      "deviceId": "52222222-2222-4222-8222-222222222222",
+      "sessionId": "60000000-0000-4000-8000-000000000007",
+      "exerciseId": "unit-current",
+      "exerciseVersion": 1,
+      "createdAt": "2026-10-25T10:00:00.000Z",
+      "conceptIds": ["units"],
+      "correct": true,
+      "answer": "a",
+      "normalizedAnswer": "Ampere (A)",
+      "hints": 0,
+      "durationMs": 1200
+    }
+  ],
+  "reviews": [
+    {
+      "eventId": "60000000-0000-4000-8000-000000000008",
+      "attemptId": "60000000-0000-4000-8000-000000000006",
+      "deviceId": "52222222-2222-4222-8222-222222222222",
+      "exerciseId": "unit-current",
+      "createdAt": "2026-10-25T10:00:00.000Z",
+      "rating": 3,
+      "schedulerVersion": "ts-fsrs@5.4.2",
+      "retention": 0.9,
+      "cardBefore": {
+        "due": "2026-10-25T10:00:00.000Z",
+        "stability": 0,
+        "difficulty": 0,
+        "elapsed_days": 0,
+        "scheduled_days": 0,
+        "reps": 0,
+        "lapses": 0,
+        "learning_steps": 0,
+        "state": 0
+      },
+      "cardAfter": {
+        "due": "2026-10-25T10:10:00.000Z",
+        "stability": 2.3065,
+        "difficulty": 2.11810397,
+        "elapsed_days": 0,
+        "scheduled_days": 0,
+        "reps": 1,
+        "lapses": 0,
+        "learning_steps": 1,
+        "state": 1,
+        "last_review": "2026-10-25T10:00:00.000Z"
+      },
+      "log": {
+        "rating": 3,
+        "state": 0,
+        "due": "2026-10-25T10:00:00.000Z",
+        "stability": 0,
+        "difficulty": 0,
+        "elapsed_days": 0,
+        "last_elapsed_days": 0,
+        "scheduled_days": 0,
+        "learning_steps": 0,
+        "review": "2026-10-25T10:00:00.000Z"
+      }
+    }
+  ],
+  "sessions": [
+    {
+      "id": "53333333-3333-4333-8333-333333333333",
+      "mode": "practice",
+      "exerciseIds": ["control-nc-rest-v1", "control-hold-release-v1", "dc1-series-current-000000"],
+      "position": 0,
+      "status": "active",
+      "startedAt": "2026-10-22T19:58:00.000Z",
+      "pendingAttemptId": "51111111-1111-4111-8111-111111111111"
+    },
+    {
+      "id": "60000000-0000-4000-8000-000000000002",
+      "mode": "practice",
+      "exerciseIds": ["dc1-series-current-000000"],
+      "position": 1,
+      "status": "complete",
+      "startedAt": "2026-10-25T10:00:00.000Z",
+      "completedAt": "2026-10-25T10:00:00.000Z"
+    },
+    {
+      "id": "60000000-0000-4000-8000-000000000004",
+      "mode": "practice",
+      "exerciseIds": ["diag-start-v1-l1"],
+      "position": 1,
+      "status": "complete",
+      "startedAt": "2026-10-25T10:00:00.000Z",
+      "completedAt": "2026-10-25T10:00:00.000Z"
+    },
+    {
+      "id": "60000000-0000-4000-8000-000000000007",
+      "mode": "practice",
+      "exerciseIds": ["unit-current"],
+      "position": 1,
+      "status": "complete",
+      "startedAt": "2026-10-25T10:00:00.000Z",
+      "completedAt": "2026-10-25T10:00:00.000Z"
+    },
+    {
+      "id": "60000000-0000-4000-8000-000000000005",
+      "mode": "practice",
+      "exerciseIds": ["diag-hold-v1-l3"],
+      "position": 0,
+      "status": "active",
+      "startedAt": "2026-10-25T10:00:00.000Z"
+    }
+  ],
+  "completions": [
+    {
+      "lessonId": "control-basics-v1",
+      "completedAt": "2026-10-22T19:57:00.000Z"
+    }
+  ],
+  "settings": {
+    "id": "preferences",
+    "locale": "de",
+    "theme": "dark",
+    "timezone": "Europe/Berlin",
+    "dailyGoal": 5
+  },
+  "diagnosticDrafts": [
+    {
+      "sessionId": "60000000-0000-4000-8000-000000000005",
+      "exerciseId": "diag-hold-v1-l3",
+      "version": 1,
+      "answer": {
+        "version": 1,
+        "actions": [["forward", true]],
+        "location": "",
+        "mechanism": "",
+        "hint": true
+      },
+      "updatedAt": "2026-10-25T10:00:00.000Z"
+    }
+  ]
+}

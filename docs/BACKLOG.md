@@ -1,6 +1,12 @@
 # Delivery status and issue-ready backlog
 
-The current version includes the repository/toolchain, six-screen offline shell, stable FSRS adapter, 36 curated exercises, five reproducible DC calculation templates, four lessons, five verified DC library circuits, backups and deployment automation. The circuit library, foundation-module implementation and bounded calculation trainer are complete. Real-device acceptance and wider qualified curriculum review remain before full alpha acceptance is claimed.
+The current version includes the repository/toolchain, offline shell plus Fehlersuche, stable FSRS adapter, 61 curated exercises, five reproducible DC calculation templates, six lessons, five verified DC library circuits, four interactive control circuits, backups and deployment automation. v0.6 adds twelve complete diagnostic investigations across six electrical fault/permission families, signed virtual DC measurements and persisted drafts with numbered migration 2. Real-device acceptance and wider qualified curriculum review remain before full alpha acceptance is claimed.
+
+## v0.7 synchronization delivery
+
+Optional single-owner Worker/D1 synchronization, identity-only GitHub OAuth/PKCE, immutable event batches, atomic outbox, server cursors, deterministic FSRS replay, local-only session/draft boundaries, additive migration 3 and backup 3 are implemented and tested locally. A manually dispatched Cloudflare workflow and exact setup/recovery guides are prepared. Required real account/OAuth/D1/origin configuration is not supplied; production deployment and live login remain outstanding. The parent PRs remain unmerged.
+
+Before live adoption: configure a protected deployment environment, run real OAuth/allowlist/revocation acceptance, verify physical iPhone Safari/Windows/macOS installation/update/offline behavior, check actual Free CPU/quotas, and perform a private rollback/recovery drill. Self-service account deletion, end-to-end encryption, unfinished-session sync, scheduler-version upgrades, private GitHub/Obsidian archive automation and arbitrary electrical simulation remain outside v0.7.
 
 ## Delivery and next work
 
@@ -18,18 +24,22 @@ Delivered 36 curated versioned tasks, consistent recall aliases, checked content
 
 ## Later milestones
 
+Delivered v0.6: one bounded reversing control, NO/NC device-linked interlocks, additional visible B1 command/restart logic, six genuine faults/missing permissions, three diagnostic levels, a transparent evidence rubric, offline restoration and distinct-case progress. Net/potential overlays and pointer drag/pinch extend the existing viewer. See [diagnostics](DIAGNOSTICS.md). Remaining extensions include independently reviewed mechanical interlock behavior, motor power representations, new validated fault families, arbitrary solving, real contactor delays and independent qualified electrical/pedagogical review. No general motor/safety solver, physical iPhone acceptance or production deployment is implied by the feature PR.
+
+Delivered v0.5: three progressive 24 V controls, original contact/coil symbols, explicit device/terminal validation, deterministic self-holding/overload/reset logic, additional visible B1 restart permission, ten tasks and one lesson. See [control scope and limitations](CONTROL_CIRCUITS.md). Reversing interlocks, timers, arbitrary network solving and safety validation remain outside this release.
+
 Delivered calculation work: reproducible six-digit round codes; five checked DC equations; parameter-matched series/parallel diagrams; preserved offline sessions, attempts and version-1 backups; and a synthetic previous-release backup restoration fixture. See [generated practice](GENERATED_PRACTICE.md). Wider network solving, generated fault diagnosis and additional template families remain future work.
 
-| Roadmap group         | Issue outline and acceptance                                                                             |
-| --------------------- | -------------------------------------------------------------------------------------------------------- |
-| 0–1: delivery/offline | Cross-platform test matrix, performance and prior-version data migration fixtures                        |
-| 2: learning           | Authoring validation delivered; broaden independently qualified pedagogical review                       |
-| 3: schematics         | Five circuits delivered; extend reviewed visual baselines to Linux and add more curated drawing patterns |
-| 4: applied exercises  | Five seeded DC templates delivered; extend supported network cases and reviewed troubleshooting tasks    |
-| 5: controls           | Relay/contactor symbols and tested finite-state self-hold/interlock behavior before simulation claims    |
-| 6: sync               | Authenticated Worker/D1; idempotency, clock-skew and multi-device convergence tests                      |
-| 7: archives           | Versioned private snapshots and safe Markdown/vault export; exact restoration drill                      |
-| 8: curriculum         | Qualified review for AC, motors, protection and imported school material                                 |
-| 9: readiness          | Security/privacy review, corruption recovery, opt-in-only instrumentation and documented browser support |
+| Roadmap group         | Issue outline and acceptance                                                                                        |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| 0–1: delivery/offline | Cross-platform test matrix, performance and prior-version data migration fixtures                                   |
+| 2: learning           | Authoring validation delivered; broaden independently qualified pedagogical review                                  |
+| 3: schematics         | Five circuits delivered; extend reviewed visual baselines to Linux and add more curated drawing patterns            |
+| 4: applied exercises  | Five seeded DC templates delivered; extend supported network cases and reviewed troubleshooting tasks               |
+| 5: controls           | Self-hold/overload/reversing and fixed diagnostics delivered; broaden qualified review and validated fault transfer |
+| 6: sync               | Implemented locally; production credentials, physical-device acceptance and real Free CPU/quota checks remain       |
+| 7: archives           | Versioned private snapshots and safe Markdown/vault export; exact restoration drill                                 |
+| 8: curriculum         | Qualified review for AC, motors, protection and imported school material                                            |
+| 9: readiness          | Security/privacy review, corruption recovery, opt-in-only instrumentation and documented browser support            |
 
 No background synchronization or archive automation should be enabled just because the private repository exists.

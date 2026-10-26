@@ -17,6 +17,7 @@ import { useLearningData } from './useLearningData'
 import { db } from '../storage/db'
 import { Loading } from '../components/ui'
 import { PwaStatus } from '../components/PwaStatus'
+import { startAutomaticSync } from '../sync/runtime'
 
 const Dashboard = lazy(() =>
   import('../features/dashboard/Dashboard').then((module) => ({ default: module.Dashboard })),
@@ -36,6 +37,9 @@ const Progress = lazy(() =>
 const SettingsPage = lazy(() =>
   import('../features/settings/Settings').then((module) => ({ default: module.SettingsPage })),
 )
+const Diagnostics = lazy(() =>
+  import('../features/diagnostics/Diagnostics').then((module) => ({ default: module.Diagnostics })),
+)
 
 const navigation = [
   { to: '/', label: 'Übersicht', icon: House },
@@ -46,9 +50,12 @@ const navigation = [
   { to: '/einstellungen', label: 'Einstellungen', icon: Settings2 },
 ]
 function Shell() {
+  useEffect(startAutomaticSync, [])
   const data = useLearningData()
   const location = useLocation()
-  const current = navigation.find((item) => item.to === location.pathname)?.label ?? 'Lernraum'
+  const current =
+    navigation.find((item) => item.to === location.pathname)?.label ??
+    (location.pathname === '/fehlersuche' ? 'Fehlersuche' : 'Lernraum')
   const theme = data?.settings?.theme ?? 'system'
   useEffect(() => {
     const media = matchMedia('(prefers-color-scheme: dark)')
@@ -151,6 +158,7 @@ function Shell() {
                 <Route path="/" element={<Dashboard data={data} />} />
                 <Route path="/lernen" element={<Learn data={data} />} />
                 <Route path="/ueben" element={<Practice data={data} />} />
+                <Route path="/fehlersuche" element={<Diagnostics data={data} />} />
                 <Route path="/schaltplaene" element={<CircuitLab data={data} />} />
                 <Route path="/fortschritt" element={<Progress data={data} />} />
                 <Route path="/einstellungen" element={<SettingsPage data={data} />} />
@@ -171,7 +179,7 @@ function Shell() {
           <span>Schritt für Schritt zum Durchblick.</span>
           <span>
             <span className="status-dot" />
-            Lokal gespeichert · ohne Konto
+            Offline lernen · lokal gespeichert
           </span>
         </footer>
       </div>

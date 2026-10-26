@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { useSearchParams, useNavigate } from 'react-router'
+import { Link, useSearchParams, useNavigate } from 'react-router'
 import { ArrowRight, BookOpen, CheckCircle2, Clock3, LockKeyhole } from 'lucide-react'
 import type { LearningData } from '../../app/useLearningData'
 import { exercises, lessons, topics } from '../../content/curriculum'
-import { db } from '../../storage/db'
+import { completeLesson } from '../../storage/sync'
 import { startSession } from '../../storage/learning'
 import { ErrorMessage, PageHeading } from '../../components/ui'
 import { prerequisitesRead } from '../../domain/practice-plan'
@@ -17,7 +17,7 @@ export function Learn({ data }: { data: LearningData }) {
   const done = data.completions.some((c) => c.lessonId === lesson.id)
   async function complete() {
     try {
-      await db.completions.put({ lessonId: lesson.id, completedAt: new Date().toISOString() })
+      await completeLesson(lesson.id)
     } catch {
       setError('Lektion konnte nicht gespeichert werden.')
     }
@@ -86,6 +86,11 @@ export function Learn({ data }: { data: LearningData }) {
             </section>
           ))}
           <div className="lesson-actions">
+            {topic.id === 'controls' && (
+              <Link className="button button-outline" to="/schaltplaene?circuit=control-lamp-v1">
+                Steuerstromkreise ausprobieren <ArrowRight size={17} />
+              </Link>
+            )}
             <button
               className={`button ${done ? 'button-soft' : 'button-primary'}`}
               onClick={() => void complete()}
