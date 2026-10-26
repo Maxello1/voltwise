@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.8.0 — 2026-10-26
+
+- Added 15 original German school lessons and 75 curated tasks across AC, DC machines and SPS theory; the complete catalogue has 21 lessons and 136 tasks.
+- Added a sine/cursor/phasor workbench, comparison of two voltage signals, and synchronized ideal R/L/C schematics, distinct V/A scales, frequency predictions and signed reactive power.
+- Added a selectable seven-part motor cross-section, prescribed/stepped rotation, ideal commutation and neutral positions, force/torque vectors, polarity comparison, counter-EMF arithmetic and five excitation diagrams.
+- Added the full independently checked active-low generator truth table, both strict 10-kW boundaries, a static verified FUP and FC/OB1/PLCSIM theory. A programmable SPS lab/editor is deferred by request.
+- Added four bounded versioned application answer formats and 16 reproducible calculation families using new ac1/motor1/plc1 prefixes; retained all dc1 behavior and historical resolvers.
+- Extended dimension-aware units, explicit numeric tolerances, normal sessions/recommendations/history, duplicate-safe submission, additive backups and immutable optional synchronization. Database/backup versions stay 3; no data clearing or cloud production setup change.
+- Added independent mathematical references, exhaustive PLC/rotor tests, generated-family sweeps, backup3/legacy restoration, real local D1 three-device convergence, desktop/mobile/offline checks and scoped original SVG image references.
+
 ## 0.7.0 — 2026-10-25
 
 - Added optional same-origin Cloudflare Worker/D1 learning-history synchronization with identity-only GitHub OAuth, S256 PKCE, one-time state, a stable single-owner allowlist, opaque server sessions, CSRF/Origin validation and sticky device revocation.

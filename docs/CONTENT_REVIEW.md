@@ -34,3 +34,7 @@ Recommendations report the last twenty attempts per concept, count hinted answer
 ## Remaining review
 
 Before expanding to AC, protection or real installation work, obtain qualified editorial/pedagogical review and extend reference cases. The present finite DC examples and their ideal meter/lamp assumptions are educational models. Physical iPhone/Mac installation acceptance remains tracked separately in issue 2.
+
+## School expansion review — 26 October 2026
+
+The catalogue now has 21 lessons and 136 curated tasks. The 15 added lessons and 75 tasks cover the supplied AC/motor/SPS scope with original explanatory prose, 15 applied interactions and independent reference checks. There are no source scans in this checkout; provenance maps the detailed supplied specification to source/page ranges. AC and motor models state their assumptions, and all 16 active-low generator states include both rejected 10-kW cases. Secondary protection/cable/hexadecimal topics are deferred. This is implementation and automated reference evidence, with independent instructor review still outstanding. See [content, conventions and primary references](SCHOOL_CURRICULUM.md).

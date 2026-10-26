@@ -1,5 +1,29 @@
 # Verification
 
+## v0.8 verification — 26 October 2026
+
+Base: `eb713a82e3db5e9eacb1fecc5331f7e6f1392d66`, containing the complete compatible v0.7 history. The implementation was made on `main` by explicit user instruction, with no new PR. Existing #6 was already merged into #5's branch; #5 and then #4 were merged in dependency order. Earlier dated verification entries below remain historical evidence.
+
+Environment: Windows, Node 24.14.1, pnpm 11.25.0, Playwright 1.64.1 and cached Chromium. Dependencies and all numbered database migrations are unchanged. Database/backup versions remain 3.
+
+| Required check            | Executed result                                                                            |
+| ------------------------- | ------------------------------------------------------------------------------------------ |
+| `pnpm lint`               | Passed, zero warnings                                                                      |
+| `pnpm typecheck`          | Passed                                                                                     |
+| `pnpm test`               | Passed: 225 domain/component/IndexedDB/deployment tests plus 19 real local Worker/D1 tests |
+| `pnpm build`              | Passed: local-only PWA, 37 precached entries                                               |
+| `pnpm test:e2e`           | Passed: 98 local-only browser cases plus six cloud browser cases, no Windows skips         |
+| Original image references | All 16 retained and passing without regeneration                                           |
+| New image references      | 14 AC/R/L/C/phasor/motor/SPS-theory images, reviewed and compared normally                 |
+
+The 75 new curated tasks and 15 lessons are validated against the original catalogue. Independent fixtures cover time/RMS/sine/phasor arithmetic, signed R/L/C powers, every rotor degree with/without commutation, field/current reversal and explicit motor excitation nets. A separately written 16-case PLC oracle verifies active-low inputs, exact loads, both rejected 10-kW states and equivalent Boolean behavior. The 16 new generated families have a 128-code independent-equation sweep and pinned v1 values; dc1 remains protected by its old tests.
+
+All four structured application formats pass duplicate-safe submission, pending-answer reopen, backup3 additive/idempotent restore and strict version validation. Legacy backup1 pending FSRS ratings and backup2 diagnostic drafts survive. Real local Worker/D1 convergence transfers all four formats and new generator prefixes across three device databases without duplicate events or memory cards. Browser cloud identity is synthetic; cookies, Worker, D1 and offline/reconnect paths are real local infrastructure.
+
+Browser coverage includes both themes and 320/375/390/430 CSS-pixel layouts, original functionality, keyboard motor selection, model-coordinate cursor/vector placement after zoom/pan, deterministic animation and pause, reduced motion, old-session precedence, school code links, graded offline resume and lazy-loaded labs offline. Initial checks found long-title overflow and completed-session navigation issues; both were corrected. The original diagram image positions were preserved rather than replacing their baselines. A prior fixed catalogue-size expectation was correctly updated from 61 to 136.
+
+Local network restrictions initially blocked Worker/preview connections; the final complete suites ran with localhost access and passed. Scans were unavailable; source mappings derive from the supplied specification, not direct scan inspection. Physical Safari/Home Screen/macOS installation, actual installed-PWA updates, independent teacher review and real OAuth/Cloudflare deployment remain separate acceptance. See [models, provenance and exact scope](SCHOOL_CURRICULUM.md).
+
 ## v0.7 verification — 25 October 2026
 
 Base: `3df9f4caa03874a763335dd73bd9256507eed8ed`, the published correction on `codex/advanced-diagnostics-v06`. PR #4 and #5 remain open and unmerged. `feat/secure-sync-v07` is stacked on the corrected v0.6 branch; no old-main implementation, history rewrite, private-data-repository change or production deployment is included.

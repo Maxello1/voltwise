@@ -1,10 +1,16 @@
 # Delivery status and issue-ready backlog
 
-The current version includes the repository/toolchain, offline shell plus Fehlersuche, stable FSRS adapter, 61 curated exercises, five reproducible DC calculation templates, six lessons, five verified DC library circuits, four interactive control circuits, backups and deployment automation. v0.6 adds twelve complete diagnostic investigations across six electrical fault/permission families, signed virtual DC measurements and persisted drafts with numbered migration 2. Real-device acceptance and wider qualified curriculum review remain before full alpha acceptance is claimed.
+## Current delivery — v0.8
+
+The latest release adds 15 lessons, 75 curated tasks and 16 reproducible calculation families: 21 lessons and 136 curated tasks in total. The AC and DC motor laboratories are integrated with normal learning, history, backup and offline use. SPS is theory, truth-table/FUP explanation and learning tasks; its interactive laboratory/editor was explicitly deferred. No schema upgrade was needed. See [delivered curriculum, assumptions and precise limits](SCHOOL_CURRICULUM.md).
+
+Next: qualified instructor review, physical Safari/installed-PWA acceptance and practical feedback on the focused lessons. A general AC network solver, motor dynamics, magnetic-field simulation, real SPS/TIA export and an interactive SPS editor remain outside this delivery. Earlier sections below record prior release scopes.
+
+The v0.6 baseline included the repository/toolchain, offline shell plus Fehlersuche, stable FSRS adapter, 61 curated exercises, five reproducible DC calculation templates, six lessons, five verified DC library circuits, four interactive control circuits, backups and deployment automation. v0.6 adds twelve complete diagnostic investigations across six electrical fault/permission families, signed virtual DC measurements and persisted drafts with numbered migration 2. Real-device acceptance and wider qualified curriculum review remain before full alpha acceptance is claimed.
 
 ## v0.7 synchronization delivery
 
-Optional single-owner Worker/D1 synchronization, identity-only GitHub OAuth/PKCE, immutable event batches, atomic outbox, server cursors, deterministic FSRS replay, local-only session/draft boundaries, additive migration 3 and backup 3 are implemented and tested locally. A manually dispatched Cloudflare workflow and exact setup/recovery guides are prepared. Required real account/OAuth/D1/origin configuration is not supplied; production deployment and live login remain outstanding. The parent PRs remain unmerged.
+Optional single-owner Worker/D1 synchronization, identity-only GitHub OAuth/PKCE, immutable event batches, atomic outbox, server cursors, deterministic FSRS replay, local-only session/draft boundaries, additive migration 3 and backup 3 are implemented and tested locally. A manually dispatched Cloudflare workflow and exact setup/recovery guides are prepared. Required real account/OAuth/D1/origin configuration is not supplied; production deployment and live login remain outstanding. The stacked parent changes were merged into main in dependency order on 26 October 2026.
 
 Before live adoption: configure a protected deployment environment, run real OAuth/allowlist/revocation acceptance, verify physical iPhone Safari/Windows/macOS installation/update/offline behavior, check actual Free CPU/quotas, and perform a private rollback/recovery drill. Self-service account deletion, end-to-end encryption, unfinished-session sync, scheduler-version upgrades, private GitHub/Obsidian archive automation and arbitrary electrical simulation remain outside v0.7.
 

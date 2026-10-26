@@ -2,6 +2,8 @@
 
 **Working title:** Voltwise
 **Updated:** 21 October 2026
+
+**Delivery note, 26 October 2026:** v0.8 implements focused AC and DC-machine laboratories plus 15 school units and 75 tasks. SPS is intentionally theory and learning exercises; its lab/editor is deferred. See [actual delivery and limits](SCHOOL_CURRICULUM.md). The long-term roadmap below remains a specification, not a completion claim.
 **Mission:** An offline-first, adaptive electronics learning application for an _Elektroniker für Betriebstechnik_ apprenticeship. High-quality, increasingly advanced electrical schematics are a first-class interaction—not decoration.
 
 ## 1. Product principles

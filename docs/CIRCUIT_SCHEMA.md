@@ -64,3 +64,9 @@ Supported terminal-pair voltages are defined by the domain model and its explici
 7. Add three-phase/star-delta motor controls, timers, sensors, PLC I/O and multi-sheet fault scenarios only after editorial and model review.
 
 Avoid deriving electrical connectivity from intersecting SVG paths. Future simulation state must reference a stable circuit revision and an explicit supported model. Safety behavior cannot be inferred from an attractive drawing.
+
+## Original school laboratory artwork — v0.8
+
+`features/school-lab/AcLab.tsx`, `Waveform.tsx`, `MotorDiagram.tsx` and `PlcTheory.tsx` use original SVG paths, circles, rectangles and text for sine plots, phasors, the R/L/C source/component drawings, motor cross-section, five excitation topologies and the static Boolean FUP. No worksheet graphics, Siemens/IEC artwork, raster generation or external symbol library was copied. Elementary geometry is DIN/IEC-inspired without a certification/conformance claim.
+
+The AC diagrams are bounded one-component teaching models; they do not extend the old schematic DSL into an arbitrary AC solver. Motor position/force/current share `motorState`. Excitation terminal membership is explicit in `excitationNets`. The static FUP illustrates the validated `referenceFup` graph with named terminals; wire crossings without dots imply no junction. Independent terminal/topology/phase tests and 14 new scoped Windows image references complement the retained original circuit tests. See [physical and geometric conventions](SCHOOL_CURRICULUM.md).

@@ -45,3 +45,7 @@ The current app imports older version-1 curated backups and generated-round back
 - Diagram tests check net/terminal integrity, source/load labels, matching answers, power balance and unchanged shared templates.
 - Storage tests cover concurrent startup, pending-answer reload, complete rounds, additive/idempotent fresh-device restore and malformed/version-forged backups.
 - Browser cases cover code controls, both themes, preserved older sessions, the canonical copied link, full offline rounds, generated diagrams, history links and offline JSON restoration in an isolated browser profile. Clipboard writing is stubbed only in the link-content test; native clipboard permissions remain a browser-dependent behavior with a visible fallback.
+
+## Additive school calculation contracts — v0.8
+
+The five dc1 templates and their released algorithms remain unchanged. The new independent ac1/motor1/plc1 prefixes add 10/4/2 families respectively. Fixed integer selection, immutable parameter lists and pinned reference IDs preserve reproducibility. Rounds have 10/4/2 tasks and share only area/code. Independent 128-code sweeps check every family and visible answer roundtrips; fresh-device restore and real D1 convergence cover all prefixes. New quantities retain physical dimensions, with visible 0.1% tolerance and a 1e-9 bound at zero. See [families, units and compatibility](SCHOOL_CURRICULUM.md).

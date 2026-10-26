@@ -33,7 +33,7 @@ For browser tests, install Chromium once with `pnpm exec playwright install chro
 ## Included now
 
 - Six responsive sections: Übersicht, Lernen, Üben, Schaltpläne, Fortschritt and Einstellungen; desktop sidebar and phone bottom navigation.
-- Six lessons and **61 checked exercises**, including choices, typed recall, unit-aware calculations, component selection and twelve interactive diagnostic investigations.
+- 21 German lessons and **136 checked curated exercises**, including choices, typed recall, unit-aware calculations, waveform/phasor construction, motor component selection, multi-step applications and twelve diagnostic investigations.
 - A DC calculation trainer with five reproducible numeric templates, matching series/parallel diagrams, shareable round codes and offline backup/restore support.
 - Atomic IndexedDB persistence through Dexie, resumable sessions, immutable attempts/review events and separate explicit FSRS memory ratings.
 - Stable `ts-fsrs@5.4.2` behind an adapter, a due queue, actual activity and an explained practice metric.
@@ -46,6 +46,22 @@ For browser tests, install Chromium once with `pnpm exec playwright install chro
 - Light/dark/system themes, local daily goal, installation guidance and an offline app shell that precaches lesson/code assets, including lazy-loaded screens.
 
 GitHub Pages remains the **local-only edition**. The synchronized edition requires a deliberate same-origin Cloudflare deployment; it has been tested locally, not deployed to a production account. There is no automatic GitHub backup, general industrial network simulator or complete apprenticeship curriculum. The private data repository remains untouched. Browser/cloud storage is not an independent backup; export regularly. Install/read the app online once and wait for **Offline bereit** before relying on airplane-mode access. The development server does not register the production service worker.
+
+## Schulstoff, Wechselstrom und Motoren — v0.8
+
+Open **Lernen** for 15 new focused lessons and 75 new tasks: six AC units, five DC-machine units and four SPS theory units. The grouped topic selector keeps every subject accessible. Prerequisites are recommendations; new lessons and concepts start without invented completion or mastery.
+
+**Schaltpläne → Wechselstromlabor** connects adjustable sine curves, a draggable time cursor, RMS/peak values, signed phases, synchronized phasors and ideal R/L/C circuits. Compare two voltages, predict frequency effects and construct a physical voltage-vector endpoint. Voltage/current plots label separate V/A scales; reactive power uses positive inductive and negative capacitive var.
+
+**Schaltpläne → Motorlabor** shows seven selectable parts, prescribed/stepped rotor motion, current reversal, neutral positions, force and angle-dependent torque. Compare operation with/without the ideal split ring, reverse field/supply, calculate counter-EMF current and inspect five excitation topologies. Rotation is a teaching animation, not a calculated startup/load transient.
+
+SPS is **theory and learning exercises**, as requested: active-low inputs, AND/OR/NOT, the complete 16-case generator table, both rejected 10-kW boundaries, a checked static FUP and the historical TIA/FC/OB1/PLCSIM workflow. There is no SPS laboratory or FUP editor.
+
+![Ideal inductor: synchronized waveforms and phasors](docs/screenshots/school-ac-L-dark-desktop.png)
+
+Sixteen new reproducible numeric families use immutable `ac1`, `motor1` and `plc1` IDs; existing `dc1` IDs remain unchanged. [AC round](https://maxello1.github.io/voltwise/#/ueben?trainer=ac&code=000000) · [Motor round](https://maxello1.github.io/voltwise/#/ueben?trainer=motor&code=000000) · [SPS calculation round](https://maxello1.github.io/voltwise/#/ueben?trainer=plc&code=000000).
+
+Only explicit answer submission records an attempt. Exploration is ephemeral, graded feedback resumes offline, and calculation/application scores remain separate from explicit FSRS memory ratings. Database schema 3 and backup format 3 are unchanged; old migrations and backup 1/2 imports remain supported. The supplied specification defines the coursework scope; source scans were unavailable and are not published. See [curriculum, equations, references, limits and compatibility](docs/SCHOOL_CURRICULUM.md).
 
 ## Optional secure synchronization — v0.7
 
