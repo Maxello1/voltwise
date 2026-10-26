@@ -148,7 +148,7 @@ export const defaultSettings: Settings = {
 }
 export interface SyncOutbox {
   eventId: string
-  kind: 'attempt' | 'review'
+  kind: 'attempt' | 'review' | 'completion'
   createdAt: string
   retries: number
 }

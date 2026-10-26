@@ -2,6 +2,12 @@
 
 The current version includes the repository/toolchain, offline shell plus Fehlersuche, stable FSRS adapter, 61 curated exercises, five reproducible DC calculation templates, six lessons, five verified DC library circuits, four interactive control circuits, backups and deployment automation. v0.6 adds twelve complete diagnostic investigations across six electrical fault/permission families, signed virtual DC measurements and persisted drafts with numbered migration 2. Real-device acceptance and wider qualified curriculum review remain before full alpha acceptance is claimed.
 
+## v0.7 synchronization delivery
+
+Optional single-owner Worker/D1 synchronization, identity-only GitHub OAuth/PKCE, immutable event batches, atomic outbox, server cursors, deterministic FSRS replay, local-only session/draft boundaries, additive migration 3 and backup 3 are implemented and tested locally. A manually dispatched Cloudflare workflow and exact setup/recovery guides are prepared. Required real account/OAuth/D1/origin configuration is not supplied; production deployment and live login remain outstanding. The parent PRs remain unmerged.
+
+Before live adoption: configure a protected deployment environment, run real OAuth/allowlist/revocation acceptance, verify physical iPhone Safari/Windows/macOS installation/update/offline behavior, check actual Free CPU/quotas, and perform a private rollback/recovery drill. Self-service account deletion, end-to-end encryption, unfinished-session sync, scheduler-version upgrades, private GitHub/Obsidian archive automation and arbitrary electrical simulation remain outside v0.7.
+
 ## Delivery and next work
 
 ### [1. Expand the verified DC circuit library — implemented](https://github.com/Maxello1/voltwise/issues/1)
@@ -31,7 +37,7 @@ Delivered calculation work: reproducible six-digit round codes; five checked DC 
 | 3: schematics         | Five circuits delivered; extend reviewed visual baselines to Linux and add more curated drawing patterns            |
 | 4: applied exercises  | Five seeded DC templates delivered; extend supported network cases and reviewed troubleshooting tasks               |
 | 5: controls           | Self-hold/overload/reversing and fixed diagnostics delivered; broaden qualified review and validated fault transfer |
-| 6: sync               | Authenticated Worker/D1; idempotency, clock-skew and multi-device convergence tests                                 |
+| 6: sync               | Implemented locally; production credentials, physical-device acceptance and real Free CPU/quota checks remain       |
 | 7: archives           | Versioned private snapshots and safe Markdown/vault export; exact restoration drill                                 |
 | 8: curriculum         | Qualified review for AC, motors, protection and imported school material                                            |
 | 9: readiness          | Security/privacy review, corruption recovery, opt-in-only instrumentation and documented browser support            |
